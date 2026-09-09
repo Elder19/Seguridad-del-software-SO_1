@@ -10,11 +10,14 @@ public class SimuladorSO {
 
     private Lectorarchivos lector;
     private Programa programa;
+   
+    private Memory memory;
 
     public SimuladorSO() {
 
         this.encendido = false;
         this.lector = new Lectorarchivos();
+    
     }
     
     public void encender() {
@@ -86,7 +89,13 @@ public class SimuladorSO {
     public boolean isEncendido() {
         return encendido;
     }
-/*--------------------PROGAMA---------------------------------------------------------------*/
+/*--------------------procesos---------------------------------------------------------------*/
     
+    public void ejecutarPrograma(Programa programa){
+        gestorProcesos.crearProceso(programa);
+        memory.
+        
+        
     
+    }
 }

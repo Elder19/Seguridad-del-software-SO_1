@@ -45,6 +45,26 @@ public void print() {
     public int getTamanio() {
         return instrucciones.size();
     }
+    public String[] decodificarInstruccion(int indice) {
+
+    if (indice < 0 || indice >= instrucciones.size()) {
+        throw new IndexOutOfBoundsException(
+                "Índice de instrucción inválido: " + indice
+        );
+    }
+
+    String linea = instrucciones.get(indice).trim();
+
+    // Separa por espacios o comas.
+    String[] partes = linea.split("[\\s,]+");
+
+    String operacion = partes[0];
+    String operando1 = partes.length > 1 ? partes[1] : "";
+    String operando2 = partes.length > 2 ? partes[2] : "";
+
+    return new String[]{operacion, operando1, operando2};
+}
+    
 } 
      
 

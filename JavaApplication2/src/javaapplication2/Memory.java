@@ -6,9 +6,6 @@ public class Memory {
     private String[] memoria;
     private int espacioSO;
     private int  direcciondisponible;
-    
-
-    
     /*recibe la memoria de parametro validando su capacidad para iniciar*/
     public Memory(int espacio) {
         if (espacio < 128) {
