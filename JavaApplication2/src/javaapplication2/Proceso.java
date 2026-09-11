@@ -15,7 +15,7 @@ public class Proceso {
     
     public Proceso(Programa Programa, int pid){
         this.Programa= Programa; 
-        this.bcp = new BCP(pid, "Ready", 0, 0);
+        this.bcp = new BCP(pid, "Ready");
     }
  
     public Programa getPrograma() {

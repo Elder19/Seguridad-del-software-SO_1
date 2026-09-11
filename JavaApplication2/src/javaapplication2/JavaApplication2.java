@@ -4,7 +4,7 @@ import java.io.File;
 
 public class JavaApplication2 {
 
-    public static void mains(String[] args) {
+    public static void main(String[] args) {
 
         SimuladorSO simulador =
                 new SimuladorSO();

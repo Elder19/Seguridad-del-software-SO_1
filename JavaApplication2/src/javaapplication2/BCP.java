@@ -13,13 +13,26 @@ public class BCP {
     private String EstadoProceso; 
     private int PC;
     private int AC;
+     private int AX;
+    private int BX;
+     private int CX;
+       private int DX;
+     
+ 
+    private int base = -1;
+    private int tamanio = 0;
     
+  
 
-    public BCP(int Pid, String EstadoProceso, int PC, int AC) {
+    public BCP(int Pid, String EstadoProceso) {
         this.Pid = Pid;
         this.EstadoProceso = EstadoProceso;
-        this.PC = PC;
-        this.AC = AC;
+        this.PC = 0;
+        this.AC = 0;
+        this.AX = 0;
+        this.BX = 0;
+        this.CX = 0;
+        this.DX = 0;
     }
     
     public void ActualizarBCP(String EstadoProceso, int PC, int AC){
@@ -55,8 +68,52 @@ public class BCP {
     public void setAC(int AC) {
         this.AC = AC;
     }
-    
-    
-    
+    public int getBase() {
+    return base;
+}
+
+public void setBase(int base) {
+    this.base = base;
+}
+
+public int getTamanio() {
+    return tamanio;
+}
+
+public void setTamanio(int tamanio) {
+    this.tamanio = tamanio;
+}
+
+    public int getAX() {
+        return AX;
+    }
+
+    public int getBX() {
+        return BX;
+    }
+
+    public int getCX() {
+        return CX;
+    }
+
+    public int getDX() {
+        return DX;
+    }
+
+    public void setAX(int AX) {
+        this.AX = AX;
+    }
+
+    public void setBX(int BX) {
+        this.BX = BX;
+    }
+
+    public void setCX(int CX) {
+        this.CX = CX;
+    }
+
+    public void setDX(int DX) {
+        this.DX = DX;
+    }
     
 }

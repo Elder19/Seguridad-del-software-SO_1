@@ -13,7 +13,9 @@ import java.util.List;
 public class Programa {
 
      private String nombre; 
+     
      private List<String> instrucciones =new ArrayList<>();
+     
      
     public Programa(String nombre, List<String> instrucciones) {
 
