@@ -20,7 +20,16 @@ public class GestorProceso {
 
     return proceso;
 }
+
   
+public boolean BorrarProcesos(){
+    ready.clear();
+    blocked.clear();
+    terminated.clear();
+    running = null; 
+    siguientePid= 1; 
+    return true; 
+}
 public void ponerEnReady(Proceso proceso) {
 
     if (!"NEW".equals(proceso.getBcp().getEstadoProceso())) {

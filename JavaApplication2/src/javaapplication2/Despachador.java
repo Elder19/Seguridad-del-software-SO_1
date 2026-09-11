@@ -1,13 +1,52 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package javaapplication2;
 
-/**
- *
- * @author elder
- */
 public class Despachador {
-    
+
+    private final GestorProceso gestorProceso;
+    private final CPU cpu;
+
+    public Despachador(
+            GestorProceso gestorProceso,
+            CPU cpu) {
+
+        this.gestorProceso = gestorProceso;
+        this.cpu = cpu;
+    }
+
+
+ 
+    public Proceso despacharSiguiente(Memory memory) {
+
+        Proceso proceso =
+                gestorProceso.ejecutarSiguiente();
+
+        if (proceso == null) {
+
+            System.out.println(
+                    "No hay procesos en READY."
+            );
+
+            return null;
+        }
+
+        int pid =
+                proceso.getBcp().getPid();
+
+     
+        memory.actualizarBCP(proceso);
+
+        // Cargar registros del BCP en la CPU.
+        cpu.cargarContexto(
+                memory,
+                pid
+        );
+
+        System.out.println(
+                "Dispatcher: PID "
+                + pid
+                + " enviado a la CPU."
+        );
+
+        return proceso;
+    }
 }
