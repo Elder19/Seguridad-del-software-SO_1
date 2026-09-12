@@ -4,53 +4,49 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 
 public class GestorProceso {
-
+    /*colas de tipos de proceso*/
     private final Queue<Proceso> ready = new ArrayDeque<>();
     private final Queue<Proceso> blocked = new ArrayDeque<>();
     private final Queue<Proceso> terminated = new ArrayDeque<>();
 
     private Proceso running;
     private int siguientePid = 1;
-
+  /*Un proceso es un programa que ya tiene un espacio de memoria*/
   public Proceso crearProceso(Programa programa) {
-
     Proceso proceso = new Proceso(programa, siguientePid++);
-
     proceso.getBcp().setEstadoProceso("NEW");
-
     return proceso;
 }
 
-  
-public boolean BorrarProcesos(){
-    ready.clear();
-    blocked.clear();
-    terminated.clear();
-    running = null; 
-    siguientePid= 1; 
-    return true; 
-}
-public void ponerEnReady(Proceso proceso) {
+  /*limpia todo para hacer cambios de memoria*/
+    public boolean BorrarProcesos(){
+        ready.clear();
+        blocked.clear();
+        terminated.clear();
+        running = null; 
+        siguientePid= 1; 
+        return true; 
+    }
+    
+    /*cambia el estado de algun proceso de nuevo a listo para ejecutar*/
+    public void ponerEnReady(Proceso proceso) {
 
-    if (!"NEW".equals(proceso.getBcp().getEstadoProceso())) {
-        throw new IllegalStateException(
-                "El proceso debe estar en estado NEW"
-        );
+        if (!"NEW".equals(proceso.getBcp().getEstadoProceso())) {
+            throw new IllegalStateException(
+                    "El proceso debe estar en estado NEW"
+            );
+        }
+        if (proceso.getBcp().getBase() < 0|| proceso.getBcp().getTamanio() <= 0) {
+            throw new IllegalStateException(
+                    "El proceso debe estar cargado en memoria"
+            );
+        }
+
+        proceso.getBcp().setEstadoProceso("Ready");
+        ready.offer(proceso);
     }
 
-    if (proceso.getBcp().getBase() < 0
-            || proceso.getBcp().getTamanio() <= 0) {
-
-        throw new IllegalStateException(
-                "El proceso debe estar cargado en memoria"
-        );
-    }
-
-    proceso.getBcp().setEstadoProceso("Ready");
-    ready.offer(proceso);
-}
-
-    // Pasa el primero de Ready a Running (FCFS).
+    // Pasa el primero de Ready a Running.
     public Proceso ejecutarSiguiente() {
         if (running == null && !ready.isEmpty()) {
             running = ready.poll();
@@ -99,7 +95,7 @@ public void ponerEnReady(Proceso proceso) {
             running = null;
         }
     }
-
+/*---------------------------------------GETTERS--------------------------------------------------------------*/
     public Proceso getRunning() {
         return running;
     }
@@ -116,6 +112,10 @@ public void ponerEnReady(Proceso proceso) {
         return new ArrayDeque<>(terminated);
     }
 
+    
+    
+    
+    
     public void imprimirEstados() {
         imprimirCola("READY", ready);
 

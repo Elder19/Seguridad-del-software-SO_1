@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package javaapplication2;
 
 /**
@@ -10,20 +7,16 @@ package javaapplication2;
  */
 public class BCP {
     private final int Pid;
-    private String EstadoProceso; 
+    private String EstadoProceso;  
     private int PC;
     private int AC;
-     private int AX;
+    private int AX;
     private int BX;
-     private int CX;
-       private int DX;
-     
- 
+    private int CX;
+    private int DX;
     private int base = -1;
     private int tamanio = 0;
-    
-  
-
+    /*Clase BCP */
     public BCP(int Pid, String EstadoProceso) {
         this.Pid = Pid;
         this.EstadoProceso = EstadoProceso;
@@ -35,12 +28,13 @@ public class BCP {
         this.DX = 0;
     }
     
+    /*recibe el estado y algunos registros para la actualizacion*/
     public void ActualizarBCP(String EstadoProceso, int PC, int AC){
         this.EstadoProceso= EstadoProceso; 
         this.AC=AC; 
         this.PC = PC; 
     }
-
+    /*---------------------------------GETTERS-----------------------------------------------*/
     public int getPid() {
         return Pid;
     }
@@ -55,35 +49,14 @@ public class BCP {
 
     public int getAC() {
         return AC;
-    }
-
-    public void setEstadoProceso(String EstadoProceso) {
-        this.EstadoProceso = EstadoProceso;
-    }
-
-    public void setPC(int PC) {
-        this.PC = PC;
-    }
-
-    public void setAC(int AC) {
-        this.AC = AC;
-    }
+    }   
     public int getBase() {
-    return base;
-}
-
-public void setBase(int base) {
-    this.base = base;
-}
-
-public int getTamanio() {
-    return tamanio;
-}
-
-public void setTamanio(int tamanio) {
-    this.tamanio = tamanio;
-}
-
+        return base;
+    }
+    public int getTamanio() {
+        return tamanio;
+    }
+    
     public int getAX() {
         return AX;
     }
@@ -100,6 +73,25 @@ public void setTamanio(int tamanio) {
         return DX;
     }
 
+    
+    /*---------------------------------SETTERS-----------------------------------------------*/
+    public void setEstadoProceso(String EstadoProceso) {
+        this.EstadoProceso = EstadoProceso;
+    }
+
+    public void setPC(int PC) {
+        this.PC = PC;
+    }
+
+    public void setAC(int AC) {
+        this.AC = AC;
+    }
+    public void setBase(int base) {
+        this.base = base;
+    }
+    public void setTamanio(int tamanio) {
+        this.tamanio = tamanio;
+    }
     public void setAX(int AX) {
         this.AX = AX;
     }

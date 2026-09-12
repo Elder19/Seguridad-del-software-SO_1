@@ -4,87 +4,64 @@ public class CPU {
 
     private int PC;
     private int AC;
-
     private int AX;
     private int BX;
     private int CX;
     private int DX;
-
     private String IR;
-
-
     public CPU() {
-
         this.PC = 0;
         this.AC = 0;
-
         this.AX = 0;
         this.BX = 0;
         this.CX = 0;
         this.DX = 0;
-
         this.IR = null;
     }
 
 
     /*---------------- CARGAR CONTEXTO ----------------*/
-
-    public void cargarContexto(Memory memory, int pid) {
-
+    /*Metodo para guardar los cambios de contexto entre programas o procesos*/
+    public void cargarContexto(Memory memory,int pid) {
+        
         int[] contexto = memory.obtenerContexto(pid);
-
         this.PC = contexto[0];
         this.AC = contexto[1];
         this.AX = contexto[2];
         this.BX = contexto[3];
         this.CX = contexto[4];
         this.DX = contexto[5];
-
         this.IR = null;
     }
-
-
+    
     /*---------------- EJECUTAR INSTRUCCIÓN ----------------*/
 
-    public void ejecutarInstruccion(
-            Memory memory,
-            Proceso proceso) {
-
+    public void ejecutarInstruccion(Memory memory,Proceso proceso) {
+        /*Lee la instruccion de la memoria*/
+        Instruccion instruccion =memory.leerInstruccion( proceso,PC);
+        this.IR =instruccion.getBinario();//instruccion actual en binario la guarda en en el IR
+        String operador = instruccion.getOperacion(); // toma el tipo de operacion que se hace
         
-        String instruccion =
-                memory.leerInstruccion(proceso, PC);
-
-       
-        this.IR = instruccion;
-
-        
-        String[] partes =
-                instruccion.trim().split("[,\\s]+");
-
-        String operador =
-                partes[0].toUpperCase();
-
-       
         switch (operador) {
 
             case "MOV":
-                ejecutarMOV(partes);
+                ejecutarMOV(instruccion);
                 break;
 
             case "LOAD":
-                ejecutarLOAD(partes);
+                ejecutarLOAD(instruccion);
                 break;
 
             case "STORE":
-                ejecutarSTORE(partes);
+                ejecutarSTORE(instruccion);
                 break;
 
             case "ADD":
-                ejecutarADD(partes);
+                ejecutarADD(instruccion);
                 break;
 
             case "SUB":
-                ejecutarSUB(partes);
+                ejecutarSUB(instruccion);
                 break;
 
             default:
@@ -93,82 +70,60 @@ public class CPU {
                         + operador
                 );
         }
-
-       
         PC++;
 
-        // Guardar registros actuales en el BCP
+       //Respalda la bcp del cpu en la del proceso
         guardarContexto(proceso.getBcp());
-
-       
         memory.actualizarBCP(proceso);
     }
 
-
     /*---------------- MOV ----------------*/
 
-    private void ejecutarMOV(String[] partes) {
+    private void ejecutarMOV(Instruccion instruccion) 
+    {String registro =instruccion.getRegistro();
 
-   
-        String registro =
-                partes[1].toUpperCase();
-
-        int valor =
-                Integer.parseInt(partes[2]);
-
-        asignarRegistro(registro, valor);
+        int valor =instruccion.getValor();
+        asignarRegistro( registro,valor );
     }
 
 
     /*---------------- LOAD ----------------*/
 
-    private void ejecutarLOAD(String[] partes) {
+    private void ejecutarLOAD(Instruccion instruccion) {
 
-       
-        String registro =
-                partes[1].toUpperCase();
-
-        // AC recibe el valor del registro
+        String registro =instruccion.getRegistro();
+        /* AC recibe el contenidodel registro.*/
         AC = obtenerRegistro(registro);
     }
 
 
     /*---------------- STORE ----------------*/
 
-    private void ejecutarSTORE(String[] partes) {
-
+    private void ejecutarSTORE(
+            Instruccion instruccion) {
 
         String registro =
-                partes[1].toUpperCase();
+                instruccion.getRegistro();
 
-        // El registro recibe el valor del AC
+        /*El registro recibe el contenido del AC.*/
         asignarRegistro(registro, AC);
     }
 
 
     /*---------------- ADD ----------------*/
 
-    private void ejecutarADD(String[] partes) {
-
-
-        String registro =
-                partes[1].toUpperCase();
-
-        AC = AC + obtenerRegistro(registro);
+    private void ejecutarADD(Instruccion instruccion) {
+        String registro = instruccion.getRegistro();
+        AC =AC + obtenerRegistro( registro);
     }
-
 
     /*---------------- SUB ----------------*/
 
-    private void ejecutarSUB(String[] partes) {
-
-        String registro =
-                partes[1].toUpperCase();
-
-        AC = AC - obtenerRegistro(registro);
+    private void ejecutarSUB(
+        Instruccion instruccion) {
+        String registro =instruccion.getRegistro();
+        AC =AC - obtenerRegistro(registro);
     }
-
-
     /*---------------- OBTENER REGISTRO ----------------*/
 
     private int obtenerRegistro(String registro) {
@@ -194,8 +149,6 @@ public class CPU {
                 );
         }
     }
-
-
     /*---------------- ASIGNAR REGISTRO ----------------*/
 
     private void asignarRegistro(
@@ -228,18 +181,29 @@ public class CPU {
         }
     }
 
-
     /*---------------- GUARDAR CONTEXTO ----------------*/
 
     private void guardarContexto(BCP bcp) {
-
         bcp.setPC(PC);
         bcp.setAC(AC);
-
         bcp.setAX(AX);
         bcp.setBX(BX);
         bcp.setCX(CX);
         bcp.setDX(DX);
+    }
+
+
+    /*---------------- EJECUTAR TODO ----------------*/
+
+    public void ejecutarTodo(
+            Memory memory,
+            Proceso proceso) {
+
+        while (PC< proceso.getBcp().getTamanio()) {
+            ejecutarInstruccion(memory,proceso);
+            printCPU();
+        }
+        System.out.println("Proceso terminado.");
     }
 
 
@@ -272,35 +236,56 @@ public class CPU {
     public String getIR() {
         return IR;
     }
-    public void ejecutarTodo(
-        Memory memory,
-        Proceso proceso) {
+    
+    public void reiniciar() {
+    PC = 0;
+    AC = 0;
+    AX = 0;
+    BX = 0;
+    CX = 0;
+    DX = 0;
+    IR = null;
+}
 
-    while (PC < proceso.getBcp().getTamanio()) {
 
-        ejecutarInstruccion(
-                memory,
-                proceso
+    /*---------------- IMPRIMIR CPU ----------------*/
+
+    public void printCPU() {
+
+        System.out.println(
+                "----------- CPU -----------"
         );
 
-        printCPU();
+        System.out.println(
+                "PC: " + PC
+        );
+
+        System.out.println(
+                "IR: " + IR
+        );
+
+        System.out.println(
+                "AC: " + AC
+        );
+
+        System.out.println(
+                "AX: " + AX
+        );
+
+        System.out.println(
+                "BX: " + BX
+        );
+
+        System.out.println(
+                "CX: " + CX
+        );
+
+        System.out.println(
+                "DX: " + DX
+        );
+
+        System.out.println(
+                "---------------------------"
+        );
     }
-
-    System.out.println(
-            "Proceso terminado."
-    );
-}
-  
- public void printCPU() {
-
-    System.out.println("----------- CPU -----------");
-    System.out.println("PC: " + PC);
-    System.out.println("IR: " + IR);
-    System.out.println("AC: " + AC);
-    System.out.println("AX: " + AX);
-    System.out.println("BX: " + BX);
-    System.out.println("CX: " + CX);
-    System.out.println("DX: " + DX);
-    System.out.println("---------------------------");
-}
 }

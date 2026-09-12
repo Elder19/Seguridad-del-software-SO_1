@@ -1,26 +1,16 @@
 package javaapplication2;
 
-import java.io.File;
-
 public class JavaApplication2 {
 
-   public static void main(String[] args) {
+    public static void main(String[] args) {
 
         SimuladorSO simulador =
                 new SimuladorSO();
 
-     
         simulador.encender();
 
         System.out.println(
-                "\n\n******** PROGRAMA YA CARGADO ********"
-        );
-
-       
-        simulador.ejecutarProceso();
-
-        System.out.println(
-                "\n\n******** FIN DE LA SIMULACIÓN ********"
+                "Sistema listo para iniciar interfaz."
         );
     }
 }
