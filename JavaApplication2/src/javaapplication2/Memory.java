@@ -268,4 +268,8 @@ public class Memory {
             );
         }
     }
+    public Object[] getMemoriaSnapshot() {
+    return memoria.clone();
+}
+    
 }

@@ -19,26 +19,25 @@ public class Lectorarchivos {
      */
     public List<String> leerArchivo(File archivo) throws IOException {
 
-    // 1. Leer todas las líneas
-    List<String> lineas = Files.readAllLines(archivo.toPath());
+    // Leer todas las líneas
+    List<String> lineas =Files.readAllLines(archivo.toPath());
 
-    // 2. Validar la gramática
-    validarGramatica(lineas);
+    // Validar el archivo
+    boolean valido =validarGramatica(lineas);
 
-       if (cantidadErrores != 0) {
+    // Si hay errores, NO devolver las líneas
+    if (!valido) {
 
-        System.out.println("Errores encontrados: " + cantidadErrores);
+        String mensaje =
+                "El archivo ASM contiene "
+                + cantidadErrores
+                + " error(es):\n";
+        for (String error : errores) { mensaje += error + "\n";}
 
-        for (String error : errores) {
-            System.out.println(error);
-        }
-
-    } else {
-
-        System.out.println("Gramática válida");
-
+        throw new IllegalArgumentException(
+                mensaje
+        );
     }
-
     return lineas;
 }
 
