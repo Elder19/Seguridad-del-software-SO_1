@@ -38,7 +38,7 @@ public class CPU {
 
     public void ejecutarInstruccion(Memory memory,Proceso proceso) {
         /*Lee la instruccion de la memoria*/
-        Instruccion instruccion =memory.leerInstruccion( proceso,PC);
+        Instruccion instruccion =memory.leerInstruccion( proceso,PC);// registro,valor,mov
         this.IR =instruccion.getBinario();//instruccion actual en binario la guarda en en el IR
         String operador = instruccion.getOperacion(); // toma el tipo de operacion que se hace
         

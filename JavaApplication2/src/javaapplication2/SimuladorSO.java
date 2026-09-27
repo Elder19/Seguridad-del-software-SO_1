@@ -7,14 +7,14 @@ import java.util.List;
 public class SimuladorSO {
 
     private boolean encendido;
-
     private final Lectorarchivos lector;
     private final GestorProceso gestorProceso;
-
     private Memory memory;
-
     private final CPU cpu;
+    private final Disco disco;
     private final Despachador despachador;
+
+
 
     /*
      * Proceso que actualmente está utilizando la CPU.
@@ -28,7 +28,11 @@ public class SimuladorSO {
         this.encendido = false;
         this.lector = new Lectorarchivos();
         this.gestorProceso = new GestorProceso();
-        this.memory = new Memory();
+        this.memory = new Memory(Integer.parseInt(lector.leerConfig("memoriaRam") ),Double.parseDouble(lector.leerConfig("porcentajeSO"))
+);
+        this.disco = new Disco( Integer.parseInt( lector.leerConfig("memoriaVirtual")), 
+                Integer.parseInt(lector.leerConfig("disco")),Integer.parseInt(lector.leerConfig("indices"))
+);
         this.cpu = new CPU();
         this.despachador =new Despachador(gestorProceso,cpu);
         this.procesoActual = null;
@@ -48,20 +52,33 @@ public class SimuladorSO {
 
     
 /*----------------------------------------------------*/
-    /*Recibe el archivo seleccionado por la interfaz.
-     * Lee el archivo y crea el objeto Programa.
-     *  NO crea un proceso.
-     *  NO lo carga en memoria.
-     */
-    public Programa cargarPrograma(File archivo)throws IOException {validarEncendido();
-        if (archivo == null) {
-            throw new IllegalArgumentException(
-                    "Debe seleccionar un archivo."
-            );
-        }
-        List<String> lineas =lector.leerArchivo( archivo);
-        return new Programa(archivo.getName(),lineas);
+ 
+    
+/*
+ * Recibe el archivo seleccionado por la interfaz.
+ * Lee y valida el archivo.
+ * Crea el objeto Programa.
+ * Lo almacena en disco.
+ * NO crea un proceso.
+ * NO lo carga en RAM.
+ */
+public Programa cargarPrograma(File archivo) throws IOException {
+
+    validarEncendido();
+
+    if (archivo == null) {
+        throw new IllegalArgumentException(
+                "Debe seleccionar un archivo."
+        );
     }
+    // Lee y valida el archivo ASM
+    List<String> lineas = lector.leerArchivo(archivo);
+    // Crea el programa
+    Programa programa =new Programa(archivo.getName(), lineas);
+    // Guarda el programa en el disco
+    disco.CargarPrograma(programa);
+    return programa;
+}
 
     
 /*-----------------PREPARAR PROGRAMA----------------------------------------*/
@@ -142,7 +159,8 @@ public class SimuladorSO {
   /*---------------------GESTION DE MEMORIA----------------*/
     /*recibe el numero entero del nuevo tamaño de memoria*/
     public void cambiarMemoria(int nuevoTamanio) {
-        Memory nuevaMemoria =new Memory(nuevoTamanio);
+        double so= Double.parseDouble(lector.leerConfig("espacioSO"));
+        Memory nuevaMemoria =new Memory(nuevoTamanio,so);
         gestorProceso.BorrarProcesos();
         memory =nuevaMemoria;
         procesoActual = null;
@@ -195,4 +213,8 @@ public class SimuladorSO {
 
         return procesoActual;
     }
+    
+    public Disco getDisco() {
+    return disco;
+}
 }

@@ -9,19 +9,14 @@ public class Memory {
     private final Object[] memoria;
     private final int espacioSO;
 
-    public Memory() {
-
-        memoria = new Object[128];
-        espacioSO = (int) Math.ceil(128 * 0.20);
-    }
-      public Memory(int espacio) {
+      public Memory(int espacio,double espacioSo) {
         if (espacio < 128) {
             throw new IllegalArgumentException(
                     "El tamaño mínimo de memoria es 128"
             );
         }
         memoria = new Object[espacio];
-        espacioSO = (int) Math.ceil(espacio * 0.20);
+        espacioSO = (int) Math.ceil(espacio * espacioSo);
     }
     /*
      * Carga los atributos del BCP en el SO y las instrucciones

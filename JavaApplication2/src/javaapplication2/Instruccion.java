@@ -23,7 +23,7 @@ public class Instruccion {
         String operacion = partes[0].toUpperCase();
         if (partes.length < 2) {
             throw new IllegalArgumentException(
-                    "Falta registro en: " + linea);
+                    "Falta registro en: " + linea); 
         }
         String registro = partes[1].toUpperCase();
         Integer valor = null;

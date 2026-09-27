@@ -6,17 +6,20 @@ import java.util.List;
 public class Programa {
 
     private String nombre;
+    
 
     private final List<Instruccion> instrucciones =
             new ArrayList<>();
     
     public Programa(String nombre, List<String> lineas) {
         this.nombre = nombre;
+        
         for (String linea : lineas) {
             Instruccion instruccion =Instruccion.desdeTexto(linea );
             instrucciones.add(instruccion);
         }
     }
+    
     public String getNombre() {
         return nombre;
     }

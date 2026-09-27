@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.w3c.dom.Document;
 
 public class Lectorarchivos {
 
@@ -52,9 +55,12 @@ public class Lectorarchivos {
     public boolean validarGramatica(List<String> lineas) {
         errores.clear();
         cantidadErrores = 0;
+       
         for (int i = 0; i < lineas.size(); i++) {
             int numeroLinea = i + 1;
             String linea = lineas.get(i).trim();
+            //valida que no hayan caracteres sueltos 
+            
             String[] partes = linea.split("[,\\s]+");
             String operador = partes[0].toUpperCase();
             switch (operador) {
@@ -198,4 +204,35 @@ public class Lectorarchivos {
 
         return cantidadErrores;
     }
+    
+/*---------------Configuracion de pc */
+    
+    public String leerConfig(String nombre) {
+
+    try {
+        File archivo = new File("config/config.xml");
+
+        DocumentBuilderFactory factory =
+                DocumentBuilderFactory.newInstance();
+
+        DocumentBuilder builder =
+                factory.newDocumentBuilder();
+
+        Document documento =
+                builder.parse(archivo);
+
+        return documento
+                .getElementsByTagName(nombre)
+                .item(0)
+                .getTextContent()
+                .trim();
+
+    } catch (Exception e) {
+        throw new RuntimeException(
+                "Error leyendo configuración: " + nombre,
+                e
+        );
+    }
+}
+    
 }

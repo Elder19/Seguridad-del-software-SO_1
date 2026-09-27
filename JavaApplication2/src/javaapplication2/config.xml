@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuracion>
+    
+    <memoriaRam>256</memoriaRam>
+    
+    <disco>512</disco>
+    
+    <memoriaVirtual>64</memoriaVirtual>
+    
+    <porcentajeSO>0.20</porcentajeSO>
+    
+    <indices>15</indices>
+    
+</configuracion>
