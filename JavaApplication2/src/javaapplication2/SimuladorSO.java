@@ -62,7 +62,7 @@ public class SimuladorSO {
  * NO crea un proceso.
  * NO lo carga en RAM.
  */
-public Programa cargarPrograma(File archivo) throws IOException {
+public void cargarPrograma(File archivo) throws IOException {
 
     validarEncendido();
 
@@ -71,13 +71,17 @@ public Programa cargarPrograma(File archivo) throws IOException {
                 "Debe seleccionar un archivo."
         );
     }
-    // Lee y valida el archivo ASM
-    List<String> lineas = lector.leerArchivo(archivo);
-    // Crea el programa
-    Programa programa =new Programa(archivo.getName(), lineas);
-    // Guarda el programa en el disco
-    disco.CargarPrograma(programa);
-    return programa;
+
+    List<String> lineas =
+            lector.leerArchivo(archivo);
+
+    Programa programa =
+            new Programa(
+                    archivo.getName(),
+                    lineas
+            );
+
+    disco.cargarPrograma(programa);
 }
 
     

@@ -206,11 +206,20 @@ public class Lectorarchivos {
     }
     
 /*---------------Configuracion de pc */
-    
     public String leerConfig(String nombre) {
 
     try {
-        File archivo = new File("config/config.xml");
+
+        java.io.InputStream archivo =
+                getClass().getResourceAsStream(
+                        "/javaapplication2/config.xml"
+                );
+
+        if (archivo == null) {
+            throw new IllegalStateException(
+                    "No se encontró config.xml"
+            );
+        }
 
         DocumentBuilderFactory factory =
                 DocumentBuilderFactory.newInstance();
@@ -228,8 +237,10 @@ public class Lectorarchivos {
                 .trim();
 
     } catch (Exception e) {
+
         throw new RuntimeException(
-                "Error leyendo configuración: " + nombre,
+                "Error leyendo configuración: "
+                + nombre,
                 e
         );
     }

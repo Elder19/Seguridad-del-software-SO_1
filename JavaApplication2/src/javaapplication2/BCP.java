@@ -1,47 +1,129 @@
-
 package javaapplication2;
 
-/**
- *
- * @author elder
- */
+import java.util.ArrayList;
+import java.util.List;
+
 public class BCP {
+
     private final int Pid;
-    private String EstadoProceso;  
+
+      public enum EstadoProceso {
+        NUEVO,
+        PREPARADO,
+        EJECUCION,
+        SUSPENDIDO,
+        EN_ESPERA,
+        FINALIZADO
+    }
+    private EstadoProceso estadoProceso;
+
+    // Registros
     private int PC;
     private int AC;
-    private int AX;
-    private int BX;
+    private int AX; 
+    private int BX; 
     private int CX;
     private int DX;
+    private String IR;
+
+    // Memoria
     private int base = -1;
     private int tamanio = 0;
-    /*Clase BCP */
-    public BCP(int Pid, String EstadoProceso) {
+
+    // Pila
+    private final Object[] pila;
+    private int topePila;
+
+    // Información contable
+    private int cpu;
+    private long tiempoInicio;
+    private long tiempoEmpleado;
+
+    // Archivos abiertos
+    private final List<String> archivosAbiertos;
+
+    // Enlace al siguiente BCP
+    private BCP siguienteBCP;
+
+    // Prioridad
+    private int prioridad;
+
+
+     public BCP(int Pid, EstadoProceso estadoProceso) {
+
         this.Pid = Pid;
-        this.EstadoProceso = EstadoProceso;
+        this.estadoProceso = estadoProceso;
+
         this.PC = 0;
         this.AC = 0;
         this.AX = 0;
         this.BX = 0;
         this.CX = 0;
         this.DX = 0;
+        this.IR = null;
+
+        this.pila = new Object[5];
+        this.topePila = 0;
+
+        this.cpu = -1;
+        this.tiempoInicio = 0;
+        this.tiempoEmpleado = 0;
+        this.archivosAbiertos = new ArrayList<>();
+        this.siguienteBCP = null;
+        this.prioridad = 0;
     }
-    
-    /*recibe el estado y algunos registros para la actualizacion*/
-    public void ActualizarBCP(String EstadoProceso, int PC, int AC){
-        this.EstadoProceso= EstadoProceso; 
-        this.AC=AC; 
-        this.PC = PC; 
+
+
+    /*---------------- PILA ----------------*/
+
+    public void push(Object valor) {
+
+        if (topePila >= pila.length) {
+            throw new IllegalStateException(
+                    "Error de desbordamiento de pila."
+            );
+        }
+
+        pila[topePila] = valor;
+        topePila++;
     }
-    /*---------------------------------GETTERS-----------------------------------------------*/
+
+
+    public Object pop() {
+
+        if (topePila == 0) {
+            throw new IllegalStateException(
+                    "La pila está vacía."
+            );
+        }
+
+        topePila--;
+
+        Object valor = pila[topePila];
+        pila[topePila] = null;
+
+        return valor;
+    }
+
+
+    /*---------------- ARCHIVOS ----------------*/
+
+    public void agregarArchivoAbierto(String archivo) {
+        archivosAbiertos.add(archivo);
+    }
+
+    public void cerrarArchivo(String archivo) {
+        archivosAbiertos.remove(archivo);
+    }
+
+
+    /*---------------- GETTERS ----------------*/
+
     public int getPid() {
         return Pid;
     }
 
-    public String getEstadoProceso() {
-        return EstadoProceso;
-    }
+ 
 
     public int getPC() {
         return PC;
@@ -49,20 +131,30 @@ public class BCP {
 
     public int getAC() {
         return AC;
-    }   
-    public int getBase() {
-        return base;
     }
-    public int getTamanio() {
-        return tamanio;
-    }
-    
+
     public int getAX() {
         return AX;
     }
 
     public int getBX() {
         return BX;
+    }
+
+    public void setEstadoProceso(EstadoProceso estadoProceso) {
+        this.estadoProceso = estadoProceso;
+    }
+
+    public void setTopePila(int topePila) {
+        this.topePila = topePila;
+    }
+
+    public EstadoProceso getEstadoProceso() {
+        return estadoProceso;
+    }
+
+    public int getTopePila() {
+        return topePila;
     }
 
     public int getCX() {
@@ -73,12 +165,50 @@ public class BCP {
         return DX;
     }
 
-    
-    /*---------------------------------SETTERS-----------------------------------------------*/
-    public void setEstadoProceso(String EstadoProceso) {
-        this.EstadoProceso = EstadoProceso;
+    public String getIR() {
+        return IR;
     }
 
+    public int getBase() {
+        return base;
+    }
+
+    public int getTamanio() {
+        return tamanio;
+    }
+
+    public Object[] getPila() {
+        return pila.clone();
+    }
+
+    public int getCpu() {
+        return cpu;
+    }
+
+    public long getTiempoInicio() {
+        return tiempoInicio;
+    }
+
+    public long getTiempoEmpleado() {
+        return tiempoEmpleado;
+    }
+
+    public List<String> getArchivosAbiertos() {
+        return new ArrayList<>(archivosAbiertos);
+    }
+
+    public BCP getSiguienteBCP() {
+        return siguienteBCP;
+    }
+
+    public int getPrioridad() {
+        return prioridad;
+    }
+
+
+    /*---------------- SETTERS ----------------*/
+
+ 
     public void setPC(int PC) {
         this.PC = PC;
     }
@@ -86,12 +216,7 @@ public class BCP {
     public void setAC(int AC) {
         this.AC = AC;
     }
-    public void setBase(int base) {
-        this.base = base;
-    }
-    public void setTamanio(int tamanio) {
-        this.tamanio = tamanio;
-    }
+
     public void setAX(int AX) {
         this.AX = AX;
     }
@@ -107,5 +232,36 @@ public class BCP {
     public void setDX(int DX) {
         this.DX = DX;
     }
-    
+
+    public void setIR(String IR) {
+        this.IR = IR;
+    }
+
+    public void setBase(int base) {
+        this.base = base;
+    }
+
+    public void setTamanio(int tamanio) {
+        this.tamanio = tamanio;
+    }
+
+    public void setCpu(int cpu) {
+        this.cpu = cpu;
+    }
+
+    public void setTiempoInicio(long tiempoInicio) {
+        this.tiempoInicio = tiempoInicio;
+    }
+
+    public void setTiempoEmpleado(long tiempoEmpleado) {
+        this.tiempoEmpleado = tiempoEmpleado;
+    }
+
+    public void setSiguienteBCP(BCP siguienteBCP) {
+        this.siguienteBCP = siguienteBCP;
+    }
+
+    public void setPrioridad(int prioridad) {
+        this.prioridad = prioridad;
+    }
 }

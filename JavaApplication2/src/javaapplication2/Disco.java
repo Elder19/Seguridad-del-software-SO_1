@@ -1,144 +1,180 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package javaapplication2;
 
-/**
- *
- * @author elder
- */
 public class Disco {
-    private final int memoriaVirtual; 
-    private int  MemoriaTotal;
-    private final int totalIndices; 
- 
-    private final IndicePrograma[] indices; /*donde estan los programas ubicacion*/
-    private final Object[] archivos;/*almacen de progra mas intruccion por posicion*/
-    private final Object[] virtual;/*memoria virtual*/
+
+    private final int memoriaVirtual;
+    private final int memoriaTotal;
+    private final int totalIndices;
+
+    private final Object[] disco;
+
     
-    
-    
-    public Disco(int memoriaVirtual,int memoriaTotal, int totalIndices){
-        this.MemoriaTotal=memoriaTotal; 
-        this.memoriaVirtual=memoriaVirtual; 
-        this.totalIndices=totalIndices; 
-        indices = new IndicePrograma[totalIndices];
-        virtual = new Object [memoriaVirtual];
-        archivos= new Object [memoriaTotal-(totalIndices+memoriaVirtual)];
-        if(archivos.length<=0){
-         throw new IllegalArgumentException(
-                    "La distribución del disco no es válida"
-            );}
-        
-        
+    private final int inicioArchivos;
+    private final int inicioVirtual;
+
+    public Disco(int memoriaVirtual, int memoriaTotal,int totalIndices) {
+
+        if (memoriaTotal <= 256) {
+            throw new IllegalArgumentException(
+                    "El tamaño del disco debe ser mayor que 0."
+            );
+        }
+
+        if (totalIndices < 0 || memoriaVirtual < 0) {
+            throw new IllegalArgumentException(
+                    "Los tamaños no pueden ser negativos."
+            );
+        }
+
+        if (totalIndices + memoriaVirtual >= memoriaTotal) {
+            throw new IllegalArgumentException(
+                    "La distribución del disco no es válida."
+            );
+        }
+        this.memoriaTotal = memoriaTotal;
+        this.memoriaVirtual = memoriaVirtual;
+        this.totalIndices = totalIndices;
+
+        this.disco = new Object[memoriaTotal];
+
+        this.inicioArchivos = totalIndices;
+
+        this.inicioVirtual = memoriaTotal - memoriaVirtual;
     }
+
+
+    /*---------------- CARGAR PROGRAMA ----------------*/
+
+    public void cargarPrograma(Programa programa) {
+
+        if (programa == null) {
+            throw new IllegalArgumentException(
+                    "El programa no puede ser null."
+            );
+        }
+
+        int tamanio = programa.getTamanio();
+
+        // Busca espacio solamente en la zona de archivos.
+        int inicio = buscarBloque(tamanio);
+
+        if (inicio == -1) {
+            throw new IllegalStateException(
+                    "No hay espacio suficiente "
+                    + "para almacenar el programa."
+            );
+        }
+
+        // Busca espacio solamente en la zona de índices.
+        int posicionIndice = buscarIndiceLibre();
+
+        if (posicionIndice == -1) {
+            throw new IllegalStateException(
+                    "No hay espacio disponible "
+                    + "en el índice de archivos."
+            );
+        }
+
+        // Cada instrucción ocupa una posición real del disco.
+        for (int i = 0; i < tamanio; i++) {
+
+            disco[inicio + i] =
+                    programa.getInstrucciones().get(i);
+        }
+
+        // El índice también ocupa una posición real del disco.
+        disco[posicionIndice] =
+                new IndicePrograma(
+                        programa.getNombre(),
+                        inicio,
+                        tamanio
+                );
+    }
+
+
+    /*---------------- ÍNDICE ----------------*/
+
+    private int buscarIndiceLibre() {
+
+        for (int i = 0; i < totalIndices; i++) {
+
+            if (disco[i] == null) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+
+    /*---------------- ARCHIVOS ----------------*/
+
+    /*
+     * Busca mediante BEST FIT el bloque libre más pequeño
+     * en el que pueda entrar el programa.
+     */
+    private int buscarBloque(int tamanio) {
+
+        int mejorInicio = -1;
+        int mejorTamanio = Integer.MAX_VALUE;
+
+        int inicioActual = -1;
+        int tamanioActual = 0;
+
+        /*
+         * Empieza después del índice termina antes de memoria virtual.
+         */
+        for (int i = inicioArchivos; i <= inicioVirtual; i++) {
+
+            if (i < inicioVirtual && disco[i] == null) {
+
+                if (tamanioActual == 0) {
+                    inicioActual = i;
+                }
+
+                tamanioActual++;
+
+            } else {
+
+                if (tamanioActual >= tamanio
+                        && tamanioActual < mejorTamanio) {
+
+                    mejorInicio = inicioActual;
+                    mejorTamanio = tamanioActual;
+                }
+
+                inicioActual = -1;
+                tamanioActual = 0;
+            }
+        }
+
+        return mejorInicio;
+    }
+
+
+    /*---------------- GETTERS ----------------*/
 
     public int getMemoriaVirtual() {
         return memoriaVirtual;
     }
 
     public int getMemoriaTotal() {
-        return MemoriaTotal;
+        return memoriaTotal;
     }
 
-    public void setMemoriaTotal(int MemoriaTotal) {
-        this.MemoriaTotal = MemoriaTotal;
-    }
-    public IndicePrograma[] getIndices() {
-    return indices.clone();
+    public int getTotalIndices() {
+        return totalIndices;
     }
 
-    public Object[] getArchivos() {
-        return archivos.clone();
+    public int getInicioArchivos() {
+        return inicioArchivos;
     }
 
-    public Object[] getVirtual() {
-        return virtual.clone();
-    }
-    
-    
-    public void CargarPrograma(Programa programa){
-        int tamanio= programa.getTamanio(); 
-      int inicio = buscarbloque(programa.getTamanio());
-        if (inicio == -1) {
-            throw new IllegalStateException(
-                "No hay memoria suficiente para almacenar el programa."
-            );
-        }
-        int posicionIndice = buscarIndiceLibre();
-        if (posicionIndice == -1) {
-        throw new IllegalStateException(
-                "No hay espacio disponible en el índice de archivos."
-        );
-    }  
-// Guarda cada instrucción en una posición.
-    for (int i = 0; i < tamanio; i++) {
-
-        archivos[inicio + i] =
-                programa.getInstrucciones().get(i);
+    public int getInicioVirtual() {
+        return inicioVirtual;
     }
 
-    // Registra dónde quedó almacenado el programa.
-    indices[posicionIndice] =
-            new IndicePrograma(
-                    programa.getNombre(),
-                    inicio,
-                    tamanio
-            );
-        }
-        
-    
-    private int buscarIndiceLibre() {
-
-    for (int i = 0; i < indices.length; i++) {
-
-        if (indices[i] == null) {
-            return i;
-        }
+    public Object[] getDiscoSnapshot() {
+        return disco.clone();
     }
-
-    return -1;
-}
-    
-    private int buscarbloque(int tamanio) {
-
-    int mejorInicio = -1;
-    int mejorTamanio = Integer.MAX_VALUE;
-
-    int inicioActual = -1;
-    int tamanioActual = 0;
-
-    for (int i = 0; i <= archivos.length; i++) {
-        if (i < archivos.length && archivos[i] == null) {
-
-            if (tamanioActual == 0) {
-                inicioActual = i;
-            }
-            tamanioActual++;
-
-        } else {
-
-            /*
-             * Terminó un bloque libre.
-             * Comprueba si el programa cabe y si
-             * este bloque es mejor que el anterior.
-             */
-            if (tamanioActual >= tamanio&& tamanioActual < mejorTamanio) {
-
-                mejorInicio = inicioActual;
-                mejorTamanio = tamanioActual;
-            }
-
-            // Reinicia para buscar el siguiente bloque.
-            inicioActual = -1;
-            tamanioActual = 0;
-        }
-    }
-
-    return mejorInicio;
-}
-    
-   
-    
 }

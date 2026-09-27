@@ -14,7 +14,7 @@ public class GestorProceso {
   /*Un proceso es un programa que ya tiene un espacio de memoria*/
   public Proceso crearProceso(Programa programa) {
     Proceso proceso = new Proceso(programa, siguientePid++);
-    proceso.getBcp().setEstadoProceso("NEW");
+    proceso.getBcp().setEstadoProceso(BCP.EstadoProceso.NUEVO);
     return proceso;
 }
 
@@ -42,55 +42,73 @@ public class GestorProceso {
             );
         }
 
-        proceso.getBcp().setEstadoProceso("Ready");
+        proceso.getBcp().setEstadoProceso(BCP.EstadoProceso.PREPARADO);
         ready.offer(proceso);
     }
+// Pasa el primero de Preparado a Ejecución.
+public Proceso ejecutarSiguiente() {
 
-    // Pasa el primero de Ready a Running.
-    public Proceso ejecutarSiguiente() {
-        if (running == null && !ready.isEmpty()) {
-            running = ready.poll();
-            running.getBcp().setEstadoProceso("Running");
-        }
+    if (running == null && !ready.isEmpty()) {
 
-        return running;
+        running = ready.poll();
+
+        running.getBcp().setEstadoProceso(
+                BCP.EstadoProceso.EJECUCION
+        );
     }
 
-    // Pasa el proceso actual a Blocked.
-    public void bloquearActual() {
-        if (running != null) {
-            running.getBcp().setEstadoProceso("Blocked");
-            blocked.offer(running);
-            running = null;
+    return running;
+}
+
+
+// Pasa el proceso actual a En Espera.
+public void bloquearActual() {
+
+    if (running != null) {
+
+        running.getBcp().setEstadoProceso(
+                BCP.EstadoProceso.EN_ESPERA
+        );
+
+        blocked.offer(running);
+
+        running = null;
+    }
+}
+
+
+// Pasa un proceso de En Espera a Preparado por PID.
+public boolean desbloquearProceso(int pid) {
+
+    Proceso encontrado = null;
+
+    for (Proceso proceso : blocked) {
+
+        if (proceso.getBcp().getPid() == pid) {
+            encontrado = proceso;
+            break;
         }
     }
 
-    // Pasa un proceso de Blocked a Ready por su PID.
-    public boolean desbloquearProceso(int pid) {
-        Proceso encontrado = null;
-
-        for (Proceso proceso : blocked) {
-            if (proceso.getBcp().getPid() == pid) {
-                encontrado = proceso;
-                break;
-            }
-        }
-
-        if (encontrado == null) {
-            return false;
-        }
-
-        blocked.remove(encontrado);
-        encontrado.getBcp().setEstadoProceso("Ready");
-        ready.offer(encontrado);
-
-        return true;
+    if (encontrado == null) {
+        return false;
     }
+
+    blocked.remove(encontrado);
+
+    encontrado.getBcp().setEstadoProceso(
+            BCP.EstadoProceso.PREPARADO
+    );
+
+    ready.offer(encontrado);
+
+    return true;
+}
 
     // Pasa el proceso actual a Terminated.
     public void terminarActual() {
         if (running != null) {
-            running.getBcp().setEstadoProceso("Terminated");
+            running.getBcp().setEstadoProceso(BCP.EstadoProceso.FINALIZADO);
             terminated.offer(running);
             running = null;
         }
@@ -116,42 +134,5 @@ public class GestorProceso {
     
     
     
-    public void imprimirEstados() {
-        imprimirCola("READY", ready);
-
-        System.out.println("RUNNING:");
-        if (running == null) {
-            System.out.println("  CPU libre");
-        } else {
-            imprimirProceso(running);
-        }
-
-        imprimirCola("BLOCKED", blocked);
-        imprimirCola("TERMINATED", terminated);
-    }
-
-    private void imprimirCola(String nombre, Queue<Proceso> cola) {
-        System.out.println(nombre + ":");
-
-        if (cola.isEmpty()) {
-            System.out.println("  Sin procesos");
-        }
-
-        for (Proceso proceso : cola) {
-            imprimirProceso(proceso);
-        }
-    }
-
-    private void imprimirProceso(Proceso proceso) {
-        System.out.println(
-                "  PID: " + proceso.getBcp().getPid()
-                + " | Programa: " + proceso.getPrograma().getNombre()
-                + " | PC: " + proceso.getBcp().getPC()
-                + " | AC: " + proceso.getBcp().getAC()
-                + " | ax: " + proceso.getBcp().getAX()
-                + " | bx: " + proceso.getBcp().getBX()
-                + " | cx: " + proceso.getBcp().getCX()
-                + " | dx: " + proceso.getBcp().getDX()
-        );
-    }
+   
 }
