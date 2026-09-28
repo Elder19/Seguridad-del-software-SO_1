@@ -4,135 +4,176 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 
 public class GestorProceso {
-    /*colas de tipos de proceso*/
-    private final Queue<Proceso> ready = new ArrayDeque<>();
-    private final Queue<Proceso> blocked = new ArrayDeque<>();
-    private final Queue<Proceso> terminated = new ArrayDeque<>();
 
-    private Proceso running;
+    // Procesos listos para utilizar la CPU
+    private final Queue<Proceso> preparados = new ArrayDeque<>();
+
+    // Procesos esperando algún evento o E/S
+    private final Queue<Proceso> enEspera = new ArrayDeque<>();
+
+    // Procesos suspendidos
+    private final Queue<Proceso> suspendidos = new ArrayDeque<>();
+
+    // Procesos que ya terminaron
+    private final Queue<Proceso> finalizados = new ArrayDeque<>();
+
+    // Solo puede existir un proceso ejecutándose
+    private Proceso ejecucion;
+
     private int siguientePid = 1;
-  /*Un proceso es un programa que ya tiene un espacio de memoria*/
-  public Proceso crearProceso(Programa programa) {
-    Proceso proceso = new Proceso(programa, siguientePid++);
-    proceso.getBcp().setEstadoProceso(BCP.EstadoProceso.NUEVO);
-    return proceso;
-}
 
-  /*limpia todo para hacer cambios de memoria*/
-    public boolean BorrarProcesos(){
-        ready.clear();
-        blocked.clear();
-        terminated.clear();
-        running = null; 
-        siguientePid= 1; 
-        return true; 
+
+    /* Un proceso es un programa que ya tiene un espacio de memoria */
+    public Proceso crearProceso(Programa programa) {
+
+        Proceso proceso = new Proceso(programa, siguientePid++);
+
+        proceso.getBcp().setEstadoProceso(
+                BCP.EstadoProceso.NUEVO
+        );
+
+        return proceso;
     }
-    
-    /*cambia el estado de algun proceso de nuevo a listo para ejecutar*/
+
+
+    /* Limpia todo para hacer cambios de memoria */
+    public boolean BorrarProcesos() {
+
+        preparados.clear();
+        suspendidos.clear();
+        enEspera.clear();
+        finalizados.clear();
+
+        ejecucion = null;
+        siguientePid = 1;
+
+        return true;
+    }
+
+
+    /* Cambia el proceso de NUEVO a PREPARADO */
     public void ponerEnReady(Proceso proceso) {
 
-        if (!"NEW".equals(proceso.getBcp().getEstadoProceso())) {
+        if (proceso.getBcp().getEstadoProceso()
+                != BCP.EstadoProceso.NUEVO) {
+
             throw new IllegalStateException(
-                    "El proceso debe estar en estado NEW"
+                    "El proceso debe estar en estado NUEVO"
             );
         }
-        if (proceso.getBcp().getBase() < 0|| proceso.getBcp().getTamanio() <= 0) {
+
+        if (proceso.getBcp().getBase() < 0
+                || proceso.getBcp().getTamanio() <= 0) {
+
             throw new IllegalStateException(
                     "El proceso debe estar cargado en memoria"
             );
         }
 
-        proceso.getBcp().setEstadoProceso(BCP.EstadoProceso.PREPARADO);
-        ready.offer(proceso);
-    }
-// Pasa el primero de Preparado a Ejecución.
-public Proceso ejecutarSiguiente() {
-
-    if (running == null && !ready.isEmpty()) {
-
-        running = ready.poll();
-
-        running.getBcp().setEstadoProceso(
-                BCP.EstadoProceso.EJECUCION
-        );
-    }
-
-    return running;
-}
-
-
-// Pasa el proceso actual a En Espera.
-public void bloquearActual() {
-
-    if (running != null) {
-
-        running.getBcp().setEstadoProceso(
-                BCP.EstadoProceso.EN_ESPERA
+        proceso.getBcp().setEstadoProceso(
+                BCP.EstadoProceso.PREPARADO
         );
 
-        blocked.offer(running);
-
-        running = null;
+        preparados.offer(proceso);
     }
-}
 
 
-// Pasa un proceso de En Espera a Preparado por PID.
-public boolean desbloquearProceso(int pid) {
+    /* Pasa el primero de PREPARADO a EJECUCION */
+    public Proceso ejecutarSiguiente() {
 
-    Proceso encontrado = null;
+        if (ejecucion == null && !preparados.isEmpty()) {
 
-    for (Proceso proceso : blocked) {
+            ejecucion = preparados.poll();
 
-        if (proceso.getBcp().getPid() == pid) {
-            encontrado = proceso;
-            break;
+            ejecucion.getBcp().setEstadoProceso(
+                    BCP.EstadoProceso.EJECUCION
+            );
+        }
+
+        return ejecucion;
+    }
+
+
+    /* Pasa el proceso actual de EJECUCION a EN_ESPERA */
+    public void bloquearActual() {
+
+        if (ejecucion != null) {
+
+            ejecucion.getBcp().setEstadoProceso(
+                    BCP.EstadoProceso.EN_ESPERA
+            );
+
+            enEspera.offer(ejecucion);
+
+            ejecucion = null;
         }
     }
 
-    if (encontrado == null) {
-        return false;
+
+    /* Pasa un proceso de EN_ESPERA a PREPARADO por PID */
+    public boolean desbloquearProceso(int pid) {
+
+        Proceso encontrado = null;
+
+        for (Proceso proceso : enEspera) {
+
+            if (proceso.getBcp().getPid() == pid) {
+                encontrado = proceso;
+                break;
+            }
+        }
+
+        if (encontrado == null) {
+            return false;
+        }
+
+        enEspera.remove(encontrado);
+
+        encontrado.getBcp().setEstadoProceso(
+                BCP.EstadoProceso.PREPARADO
+        );
+
+        preparados.offer(encontrado);
+
+        return true;
     }
 
-    blocked.remove(encontrado);
 
-    encontrado.getBcp().setEstadoProceso(
-            BCP.EstadoProceso.PREPARADO
-    );
-
-    ready.offer(encontrado);
-
-    return true;
-}
-
-    // Pasa el proceso actual a Terminated.
+    /* Pasa el proceso actual de EJECUCION a FINALIZADO */
     public void terminarActual() {
-        if (running != null) {
-            running.getBcp().setEstadoProceso(BCP.EstadoProceso.FINALIZADO);
-            terminated.offer(running);
-            running = null;
+
+        if (ejecucion != null) {
+
+            ejecucion.getBcp().setEstadoProceso(
+                    BCP.EstadoProceso.FINALIZADO
+            );
+
+            finalizados.offer(ejecucion);
+
+            ejecucion = null;
         }
     }
-/*---------------------------------------GETTERS--------------------------------------------------------------*/
-    public Proceso getRunning() {
-        return running;
+
+
+    /* ---------------- GETTERS ---------------- */
+
+    public Proceso getEjecucion() {
+        return ejecucion;
     }
 
-    public Queue<Proceso> getReady() {
-        return new ArrayDeque<>(ready);
+    public Queue<Proceso> getPreparados() {
+        return new ArrayDeque<>(preparados);
     }
 
-    public Queue<Proceso> getBlocked() {
-        return new ArrayDeque<>(blocked);
+    public Queue<Proceso> getEnEspera() {
+        return new ArrayDeque<>(enEspera);
     }
 
-    public Queue<Proceso> getTerminated() {
-        return new ArrayDeque<>(terminated);
+    public Queue<Proceso> getSuspendidos() {
+        return new ArrayDeque<>(suspendidos);
     }
 
-    
-    
-    
-    
-   
+    public Queue<Proceso> getFinalizados() {
+        return new ArrayDeque<>(finalizados);
+    }
 }

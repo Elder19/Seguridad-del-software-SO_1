@@ -64,24 +64,13 @@ public class SimuladorSO {
  */
 public void cargarPrograma(File archivo) throws IOException {
 
-    validarEncendido();
-
-    if (archivo == null) {
-        throw new IllegalArgumentException(
-                "Debe seleccionar un archivo."
-        );
-    }
-
-    List<String> lineas =
+    List<String> instrucciones =
             lector.leerArchivo(archivo);
 
-    Programa programa =
-            new Programa(
-                    archivo.getName(),
-                    lineas
-            );
-
-    disco.cargarPrograma(programa);
+    disco.cargarPrograma(
+            archivo.getName(),
+            instrucciones
+    );
 }
 
     

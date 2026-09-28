@@ -43,54 +43,68 @@ public class Disco {
     }
 
 
-    /*---------------- CARGAR PROGRAMA ----------------*/
+        /*---------------- CARGAR PROGRAMA ----------------*/
+    public void cargarPrograma(
+            String nombre,
+            java.util.List<String> instrucciones) {
 
-    public void cargarPrograma(Programa programa) {
-
-        if (programa == null) {
+        if (nombre == null || instrucciones == null) {
             throw new IllegalArgumentException(
-                    "El programa no puede ser null."
+                    "El nombre y las instrucciones no pueden ser null."
             );
         }
 
-        int tamanio = programa.getTamanio();
+        int tamanio = instrucciones.size();
 
-        // Busca espacio solamente en la zona de archivos.
         int inicio = buscarBloque(tamanio);
 
         if (inicio == -1) {
             throw new IllegalStateException(
-                    "No hay espacio suficiente "
-                    + "para almacenar el programa."
+                    "No hay espacio suficiente para almacenar el programa."
             );
         }
 
-        // Busca espacio solamente en la zona de índices.
         int posicionIndice = buscarIndiceLibre();
 
         if (posicionIndice == -1) {
             throw new IllegalStateException(
-                    "No hay espacio disponible "
-                    + "en el índice de archivos."
+                    "No hay espacio disponible en el índice de archivos."
             );
         }
 
-        // Cada instrucción ocupa una posición real del disco.
+        // Guardar instrucciones directamente en disco
         for (int i = 0; i < tamanio; i++) {
-
-            disco[inicio + i] =
-                    programa.getInstrucciones().get(i);
+            disco[inicio + i] = instrucciones.get(i);
         }
 
-        // El índice también ocupa una posición real del disco.
+        // Crear índice
         disco[posicionIndice] =
                 new IndicePrograma(
-                        programa.getNombre(),
+                        nombre,
                         inicio,
                         tamanio
                 );
     }
+    public Programa obtenerPrograma(IndicePrograma indice) {
 
+    java.util.List<String> instrucciones =
+            new java.util.ArrayList<>();
+
+    int inicio = indice.getDireccion();
+    int tamanio = indice.getTamanio();
+
+    for (int i = 0; i < tamanio; i++) {
+
+        instrucciones.add(
+                disco[inicio + i].toString()
+        );
+    }
+
+    return new Programa(
+            indice.getNombre(),
+            instrucciones
+    );
+}
 
     /*---------------- ÍNDICE ----------------*/
 
@@ -150,6 +164,24 @@ public class Disco {
 
         return mejorInicio;
     }
+    
+    public java.util.List<IndicePrograma> getIndicesProgramas() {
+
+    java.util.List<IndicePrograma> indices =
+            new java.util.ArrayList<>();
+
+    for (int i = 0; i < totalIndices; i++) {
+
+        if (disco[i] instanceof IndicePrograma) {
+
+            indices.add(
+                    (IndicePrograma) disco[i]
+            );
+        }
+    }
+
+    return indices;
+}
 
 
     /*---------------- GETTERS ----------------*/
