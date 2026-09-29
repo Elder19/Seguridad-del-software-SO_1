@@ -195,16 +195,17 @@ public class CPU {
 
     /*---------------- EJECUTAR TODO ----------------*/
 
-    public void ejecutarTodo(
-            Memory memory,
-            Proceso proceso) {
+    public void ejecutarTodo(Memory memory, Proceso proceso) {
 
-        while (PC< proceso.getBcp().getTamanio()) {
-            ejecutarInstruccion(memory,proceso);
-            printCPU();
-        }
-        System.out.println("Proceso terminado.");
-    }
+       int limite = proceso.getBcp().getBase()
+               + proceso.getBcp().getTamanio();
+
+       while (PC < limite) {
+           ejecutarInstruccion(memory, proceso);
+       }
+
+       System.out.println("Proceso terminado.");
+   }
 
 
     /*---------------- GETTERS ----------------*/
@@ -248,44 +249,5 @@ public class CPU {
 }
 
 
-    /*---------------- IMPRIMIR CPU ----------------*/
-
-    public void printCPU() {
-
-        System.out.println(
-                "----------- CPU -----------"
-        );
-
-        System.out.println(
-                "PC: " + PC
-        );
-
-        System.out.println(
-                "IR: " + IR
-        );
-
-        System.out.println(
-                "AC: " + AC
-        );
-
-        System.out.println(
-                "AX: " + AX
-        );
-
-        System.out.println(
-                "BX: " + BX
-        );
-
-        System.out.println(
-                "CX: " + CX
-        );
-
-        System.out.println(
-                "DX: " + DX
-        );
-
-        System.out.println(
-                "---------------------------"
-        );
-    }
+    
 }

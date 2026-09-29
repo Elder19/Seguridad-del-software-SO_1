@@ -49,8 +49,8 @@ public class Lectorarchivos {
     /*
      * Valida todas las instrucciones del archivo.
      * Retorna:
-     * true  -> todo el archivo es válido
-     * false -> existe al menos un error
+     * true  todo el archivo es válido
+     * false  existe al menos un error
      */
     public boolean validarGramatica(List<String> lineas) {
         errores.clear();

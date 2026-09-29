@@ -11,7 +11,7 @@ public class SimuladorSO {
     private final GestorProceso gestorProceso;
     private Memory memory;
     private final CPU cpu;
-    private final Disco disco;
+    private Disco disco;
     private final Despachador despachador;
 
 
@@ -77,33 +77,27 @@ public void cargarPrograma(File archivo) throws IOException {
 /*-----------------PREPARAR PROGRAMA----------------------------------------*/
 
     /* Convierte el programa en un proceso.*/
-    public Proceso prepararPrograma( Programa programa) {
-        validarEncendido();
-        if (programa == null) {
-            throw new IllegalArgumentException(
-                    "Debe proporcionar un programa."
-            );
-        }
-        /*
-         * Crear proceso.
-         */
-        Proceso proceso =gestorProceso.crearProceso(programa);
+    public Proceso prepararPrograma(Programa programa) {
 
-        /*
-         * BCP → zona SO
-         * instrucciones → zona usuario
-         */
-        boolean cargado =
-                memory.cargarProceso(proceso);
-        if (!cargado) {
-            throw new IllegalStateException(
-                    "No hay espacio suficiente "
-                    + "en memoria para cargar el proceso."
-            );
-        }
-        gestorProceso.ponerEnReady(proceso);
-        return proceso;
-    }
+       validarEncendido();
+
+       if (programa == null) {
+           throw new IllegalArgumentException("Debe proporcionar un programa.");
+       }
+
+       Proceso proceso = gestorProceso.crearProceso(programa);
+
+       // Primero intenta cargarlo en RAM
+       if (memory.cargarProceso(proceso)) {
+           gestorProceso.ponerEnReady(proceso);
+           return proceso;
+       }
+     
+
+       throw new IllegalStateException(
+           "No hay espacio suficiente en RAM para ejecucion espere a liberar algun programa."
+       );
+   }
 
 
   /*---------------------dESPACHADOR-------------------------------*/
@@ -120,20 +114,26 @@ public void cargarPrograma(File archivo) throws IOException {
     /*
      * Ejecuta solamente UNA instrucción.*/
     public boolean ejecutarSiguienteInstruccion() {
-        validarEncendido();
-        if (procesoActual == null) {
-            throw new IllegalStateException(
-                    "No hay ningún proceso "
-                    + "despachado en la CPU."
-            );
-        }
-        /*Comprobar si ya termin*/
-        if (cpu.getPC()>= procesoActual.getBcp().getTamanio()) {
-            return false;
-        }
-        cpu.ejecutarInstruccion(memory,procesoActual);
-        return cpu.getPC() < procesoActual.getBcp() .getTamanio();
+
+    validarEncendido();
+
+    if (procesoActual == null) {
+        throw new IllegalStateException(
+                "No hay ningún proceso despachado en la CPU."
+        );
     }
+
+    int limite = procesoActual.getBcp().getBase()
+            + procesoActual.getBcp().getTamanio();
+
+    if (cpu.getPC() >= limite) {
+        return false;
+    }
+
+    cpu.ejecutarInstruccion(memory, procesoActual);
+
+    return cpu.getPC() < limite;
+}
 
 
 
@@ -152,10 +152,28 @@ public void cargarPrograma(File archivo) throws IOException {
   /*---------------------GESTION DE MEMORIA----------------*/
     /*recibe el numero entero del nuevo tamaño de memoria*/
     public void cambiarMemoria(int nuevoTamanio) {
-        double so= Double.parseDouble(lector.leerConfig("espacioSO"));
+        double so= Double.parseDouble(lector.leerConfig("porcentajeSO"));
         Memory nuevaMemoria =new Memory(nuevoTamanio,so);
         gestorProceso.BorrarProcesos();
         memory =nuevaMemoria;
+        procesoActual = null;
+        cpu.reiniciar();
+    }
+    
+    /*recibe el numero entero del nuevo tamaño de memoria*/
+    public void cambiarAlmacenamiento(int nuevoTamanio) {
+       
+     
+
+     disco = new Disco(
+        Integer.parseInt(lector.leerConfig("memoriaVirtual")),
+        nuevoTamanio,
+        Integer.parseInt(lector.leerConfig("indices"))
+    );
+
+        gestorProceso.BorrarProcesos();
+        memory.limpiarMemoria();
+  
         procesoActual = null;
         cpu.reiniciar();
     }
@@ -209,5 +227,21 @@ public void cargarPrograma(File archivo) throws IOException {
     
     public Disco getDisco() {
     return disco;
+}
+    
+    public void finalizarProcesoActual() {
+
+    validarEncendido();
+
+    if (procesoActual == null) {
+        throw new IllegalStateException("No hay ningún proceso en ejecución.");
+    }
+
+    Proceso procesoFinalizado = procesoActual;
+
+    gestorProceso.terminarActual();
+    memory.liberarProceso(procesoFinalizado);
+
+    procesoActual = null;
 }
 }

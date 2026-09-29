@@ -6,6 +6,7 @@ import java.util.List;
 public class BCP {
 
     private final int Pid;
+    private static final int TAMANIO_BCP = 10;
 
       public enum EstadoProceso {
         NUEVO,
@@ -204,6 +205,11 @@ public class BCP {
     public int getPrioridad() {
         return prioridad;
     }
+
+    public static int getTAMANIO_BCP() {
+        return TAMANIO_BCP;
+    }
+    
 
 
     /*---------------- SETTERS ----------------*/

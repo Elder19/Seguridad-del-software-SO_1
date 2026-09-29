@@ -10,7 +10,12 @@ public class Ventana extends javax.swing.JFrame {
     private Integer pidSeleccionado = null;
     public Ventana() {
         initComponents();
+        configurarInterfaz();
         actualizarCPU();
+        actualizarMemoria();
+        actualizarProcesos();
+        actualizarDisco();
+        actualizarTablaProgramas();
     }
    
     @SuppressWarnings("unchecked")
@@ -33,7 +38,6 @@ public class Ventana extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         Tablarocesos = new javax.swing.JTable();
         apagaencender = new javax.swing.JToggleButton();
-        label1 = new java.awt.Label();
         jScrollPane3 = new javax.swing.JScrollPane();
         txtInstrucciones = new javax.swing.JTextArea();
         jPanel1 = new javax.swing.JPanel();
@@ -53,14 +57,19 @@ public class Ventana extends javax.swing.JFrame {
         TablaProgramas = new javax.swing.JTable();
         btnEjecutarPrograma = new javax.swing.JButton();
         btnEliminarPrograma = new javax.swing.JButton();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        jTextPane1 = new javax.swing.JTextPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("me cago en licha");
+        setMinimumSize(new java.awt.Dimension(1050, 680));
+        setResizable(false);
 
         jPanel2.setBackground(new java.awt.Color(204, 204, 204));
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "  Sistemas Operarativos", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.TOP));
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "  Sistema Operativo", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.TOP));
         jPanel2.setAutoscrolls(true);
 
-        combobox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Opciones", "Cargar programa", "Cambiar memoria", "Reiniciar SO" }));
+        combobox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Opciones", "Cargar programa", "Cambiar memoria", "Cambiar Almacenamiento", "Reiniciar SO ", "Acerca del SO" }));
         combobox.addActionListener(this::comboboxActionPerformed);
 
         ejecutarpaso.setText("⏭️ Ejecutar paso");
@@ -136,7 +145,7 @@ public class Ventana extends javax.swing.JFrame {
                 .addComponent(txtCpuCX)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txtCpuDX)
-                .addContainerGap(144, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         Tablarocesos.setModel(new javax.swing.table.DefaultTableModel(
@@ -168,10 +177,6 @@ public class Ventana extends javax.swing.JFrame {
 
         apagaencender.setText(" ⏻ Encender");
         apagaencender.addActionListener(this::apagaencenderActionPerformed);
-
-        label1.setAlignment(java.awt.Label.CENTER);
-        label1.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
-        label1.setText("SIMULADOR SO");
 
         jScrollPane3.setBorder(javax.swing.BorderFactory.createTitledBorder("INSTRUCCIONES"));
 
@@ -234,7 +239,7 @@ public class Ventana extends javax.swing.JFrame {
                                         .addComponent(lblBcpCX, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addComponent(lblBcpBX, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addComponent(lblBcpDX, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addContainerGap(193, Short.MAX_VALUE))
+                        .addContainerGap(205, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(lblBcpEstado, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGap(159, 159, 159))))
@@ -296,6 +301,9 @@ public class Ventana extends javax.swing.JFrame {
         btnEliminarPrograma.setText("Eliminar");
         btnEliminarPrograma.addActionListener(this::btnEliminarProgramaActionPerformed);
 
+        jTextPane1.setText("Simulador SO");
+        jScrollPane6.setViewportView(jTextPane1);
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -304,9 +312,20 @@ public class Ventana extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(combobox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(37, 37, 37)
-                        .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, 336, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(495, 495, 495)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addComponent(btnEjecutarPrograma)
+                                .addGap(27, 27, 27)
+                                .addComponent(btnEliminarPrograma)))
+                        .addGap(144, 144, 144)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGap(367, 367, 367)
+                                .addComponent(apagaencender))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 502, Short.MAX_VALUE)))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel2Layout.createSequentialGroup()
@@ -314,71 +333,61 @@ public class Ventana extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(12, 12, 12)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(jPanel2Layout.createSequentialGroup()
-                                        .addGap(6, 6, 6)
-                                        .addComponent(btnEjecutarPrograma)
-                                        .addGap(27, 27, 27)
-                                        .addComponent(btnEliminarPrograma)))
-                                .addGap(144, 144, 144)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addGroup(jPanel2Layout.createSequentialGroup()
-                                        .addGap(367, 367, 367)
-                                        .addComponent(apagaencender))
-                                    .addComponent(jScrollPane1)))
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(jPanel2Layout.createSequentialGroup()
-                                        .addComponent(Ejecutartodo)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(ejecutarpaso)))
-                                .addGap(0, 0, Short.MAX_VALUE)))))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(Ejecutartodo, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(ejecutarpaso))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(113, 113, 113)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(combobox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(751, 751, 751)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(apagaencender)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(combobox, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(apagaencender))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jScrollPane6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(panelCPU, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(panelCPU, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 634, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(214, Short.MAX_VALUE))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(btnEjecutarPrograma)
                             .addComponent(btnEliminarPrograma))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(65, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(395, 395, 395)
                         .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 239, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(Ejecutartodo)
                             .addComponent(ejecutarpaso, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(221, 221, 221))))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 283, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(604, 604, 604))))
         );
 
         apagaencender.getAccessibleContext().setAccessibleName("Encendido/apagado");
@@ -388,18 +397,17 @@ public class Ventana extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(46, 46, 46))
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        getAccessibleContext().setAccessibleDescription("");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -548,8 +556,7 @@ public class Ventana extends javax.swing.JFrame {
     private void ejecutarpasoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ejecutarpasoActionPerformed
         Proceso actual =
         simulador
-        .getGestorProceso()
-        .getRunning();
+        .getGestorProceso().getEjecucion();
 
         if (actual == null) {
 
@@ -609,11 +616,22 @@ public class Ventana extends javax.swing.JFrame {
 
             case "Cambiar memoria":
             cambiarMemoria();
+        
+            break;
+
+            case "Cambiar Almacenamiento":
+            cambiarAlmacenamiento();
+            reiniciarSO();
+             case "Acerca del SO":
+            mostrarAcercaDelDispositivo();
             break;
 
             case "Reiniciar SO":
             reiniciarSO();
             break;
+            
+          
+          
 
             default:
             break;
@@ -943,6 +961,133 @@ public class Ventana extends javax.swing.JFrame {
     }
 
     }
+    
+    
+    private void cambiarAlmacenamiento() {
+         if (!simulador.isEncendido()) {
+
+        mostrarAdvertencia(
+                "Sistema operativo apagado",
+                "Primero debe encender el sistema operativo "
+                + "para cambiar el tamaño de la memoria."
+        );
+
+        return;
+    }
+
+    String entrada =
+            javax.swing.JOptionPane.showInputDialog(
+                    this,
+                    "Ingrese el nuevo tamaño de memoria.\n"
+                    + "El mínimo permitido es 512 posiciones:",
+                    "Cambiar memoria",
+                    javax.swing.JOptionPane.QUESTION_MESSAGE
+            );
+
+    if (entrada == null) {
+
+        return;
+    }
+
+    entrada = entrada.trim();
+
+    if (entrada.isEmpty()) {
+
+        mostrarAdvertencia(
+                "Valor requerido",
+                "Debe ingresar un tamaño de almacenamiento."
+        );
+
+        return;
+    }
+
+    int nuevoTamanio;
+
+    try {
+
+        nuevoTamanio =
+                Integer.parseInt(entrada);
+
+    } catch (NumberFormatException e) {
+
+        mostrarError(
+                "Tamaño de almacenamiento inválido",
+                "El tamaño de almacenamiento debe ser "
+                + "un número entero."
+        );
+
+        return;
+    }
+
+    if (nuevoTamanio < 128) {
+
+        mostrarAdvertencia(
+                "Tamaño de almacenamiento inválido",
+                "La memoria debe tener como mínimo "
+                + "512 posiciones."
+        );
+
+        return;
+    }
+
+    boolean continuar =
+            confirmar(
+                    "Confirmar cambio de memoria",
+                    "Cambiar el tamaño de la memoria eliminará "
+                    + "todos los procesos cargados actualmente.\n\n"
+                    + "Nuevo tamaño: "
+                    + nuevoTamanio
+                    + " posiciones.\n\n"
+                    + "¿Desea continuar?"
+            );
+
+    if (!continuar) {
+
+        
+
+        return;
+    }
+
+    try {
+
+        simulador.cambiarAlmacenamiento(
+                nuevoTamanio
+        );
+
+        programaActual = null;
+        pidSeleccionado = null;
+
+        txtInstrucciones.setText("");
+
+        actualizarCPU();
+        actualizarMemoria();
+        actualizarProcesos();
+        limpiarBCP();
+
+       
+
+        mostrarInformacion(
+                "Memoria actualizada",
+                "El tamaño de almacenamiento se cambió "
+                + "correctamente a "
+                + nuevoTamanio
+                + " posiciones."
+        );
+
+    } catch (Exception e) {
+
+        
+
+        mostrarError(
+                "No se pudo cambiar la almacenamiento",
+                "Ocurrió un error al cambiar "
+                + "el tamaño de la memoria.\n\n"
+                + "Detalle: "
+                + e.getMessage()
+        );
+    }
+
+    }
 
   private void reiniciarSO() {
 
@@ -1023,6 +1168,160 @@ public class Ventana extends javax.swing.JFrame {
 }
     
   
+    /**
+     * Estilo visual aplicado después de initComponents().
+     * Los componentes continúan siendo administrados por Ventana.form,
+     * por lo que la ventana sigue siendo editable desde Design de NetBeans.
+     */
+    private void configurarInterfaz() {
+        final java.awt.Color fondo = new java.awt.Color(15, 23, 42);
+        final java.awt.Color tarjeta = new java.awt.Color(30, 41, 59);
+        final java.awt.Color superficie = new java.awt.Color(51, 65, 85);
+        final java.awt.Color borde = new java.awt.Color(71, 85, 105);
+        final java.awt.Color texto = new java.awt.Color(226, 232, 240);
+        final java.awt.Color textoSec = new java.awt.Color(148, 163, 184);
+        final java.awt.Color azul = new java.awt.Color(37, 99, 235);
+        final java.awt.Color azulHover = new java.awt.Color(29, 78, 216);
+        final java.awt.Color rojo = new java.awt.Color(220, 38, 38);
+        final java.awt.Color verde = new java.awt.Color(22, 163, 74);
+
+        setTitle("");
+        setMinimumSize(new java.awt.Dimension(1050, 680));
+        setSize(new java.awt.Dimension(1360, 820));
+        setLocationRelativeTo(null);
+        getContentPane().setBackground(fondo);
+
+        jPanel2.setBackground(fondo);
+        jPanel2.setBorder(javax.swing.BorderFactory.createEmptyBorder(14, 14, 14, 14));
+
+  
+        estilizarPanel(panelCPU, "CPU", tarjeta, borde, texto);
+        estilizarPanel(jPanel1, "BCP DEL PROCESO SELECCIONADO", tarjeta, borde, texto);
+
+        estilizarScroll(jScrollPane4, "MEMORIA RAM", tarjeta, borde, texto);
+        estilizarScroll(jScrollPane1, "PROCESOS", tarjeta, borde, texto);
+        estilizarScroll(jScrollPane5, "DISCO", tarjeta, borde, texto);
+        estilizarScroll(jScrollPane2, "PROGRAMAS EN DISCO", tarjeta, borde, texto);
+        estilizarScroll(jScrollPane3, "INSTRUCCIONES", tarjeta, borde, texto);
+
+        javax.swing.JTable[] tablas = {
+            tablamemoria, Tablarocesos, tablaDisco, TablaProgramas
+        };
+        for (javax.swing.JTable tabla : tablas) {
+            estilizarTabla(tabla, superficie, tarjeta, borde, texto, textoSec);
+        }
+
+        txtInstrucciones.setBackground(new java.awt.Color(17, 24, 39));
+        txtInstrucciones.setForeground(new java.awt.Color(203, 213, 225));
+        txtInstrucciones.setCaretColor(texto);
+        txtInstrucciones.setFont(new java.awt.Font("Monospaced", java.awt.Font.PLAIN, 13));
+        txtInstrucciones.setMargin(new java.awt.Insets(10, 10, 10, 10));
+
+        java.awt.Component[] etiquetasCPU = {
+            txtCpuPC, txtCpuAC, txtCpuAX, txtCpuBX, txtCpuCX, txtCpuDX
+        };
+        for (java.awt.Component componente : etiquetasCPU) {
+            componente.setFont(new java.awt.Font("Monospaced", java.awt.Font.BOLD, 14));
+            componente.setForeground(texto);
+        }
+
+        javax.swing.JLabel[] etiquetasBCP = {
+            lblBcpPid, lblBcpEstado, lblBcpBase, lblBcpTamanio,
+            lblBcpAC, lblBcpPC, lblBcpAX, lblBcpBX, lblBcpCX, lblBcpDX
+        };
+        for (javax.swing.JLabel etiqueta : etiquetasBCP) {
+            etiqueta.setForeground(texto);
+            etiqueta.setFont(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 13));
+        }
+
+        estilizarBoton(apagaencender, verde, texto);
+        estilizarBoton(Ejecutartodo, azul, texto);
+        estilizarBoton(ejecutarpaso, azulHover, texto);
+        estilizarBoton(btnEjecutarPrograma, azul, texto);
+        estilizarBoton(btnEliminarPrograma, rojo, texto);
+
+        combobox.setBackground(superficie);
+        combobox.setForeground(texto);
+        combobox.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 13));
+        combobox.setFocusable(false);
+
+        // Las tablas aprovechan el ancho disponible cuando la ventana cambia de tamaño.
+        tablamemoria.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN);
+        Tablarocesos.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN);
+        tablaDisco.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN);
+        TablaProgramas.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN);
+
+        // Proporciones iniciales de columnas; siguen siendo redimensionables.
+        if (tablamemoria.getColumnModel().getColumnCount() >= 3) {
+            tablamemoria.getColumnModel().getColumn(0).setPreferredWidth(65);
+            tablamemoria.getColumnModel().getColumn(1).setPreferredWidth(85);
+            tablamemoria.getColumnModel().getColumn(2).setPreferredWidth(230);
+        }
+        if (Tablarocesos.getColumnModel().getColumnCount() >= 3) {
+            Tablarocesos.getColumnModel().getColumn(0).setPreferredWidth(105);
+            Tablarocesos.getColumnModel().getColumn(1).setPreferredWidth(55);
+            Tablarocesos.getColumnModel().getColumn(2).setPreferredWidth(190);
+        }
+
+        // Maximizada se ve mejor, pero continúa siendo completamente redimensionable.
+        setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
+    }
+
+    private void estilizarPanel(javax.swing.JPanel panel, String titulo,
+            java.awt.Color fondo, java.awt.Color borde, java.awt.Color texto) {
+        panel.setBackground(fondo);
+        panel.setBorder(javax.swing.BorderFactory.createTitledBorder(
+                javax.swing.BorderFactory.createLineBorder(borde),
+                "  " + titulo + "  ",
+                javax.swing.border.TitledBorder.LEFT,
+                javax.swing.border.TitledBorder.TOP,
+                new java.awt.Font("SansSerif", java.awt.Font.BOLD, 12),
+                texto));
+    }
+
+    private void estilizarScroll(javax.swing.JScrollPane scroll, String titulo,
+            java.awt.Color fondo, java.awt.Color borde, java.awt.Color texto) {
+        scroll.setBorder(javax.swing.BorderFactory.createTitledBorder(
+                javax.swing.BorderFactory.createLineBorder(borde),
+                "  " + titulo + "  ",
+                javax.swing.border.TitledBorder.LEFT,
+                javax.swing.border.TitledBorder.TOP,
+                new java.awt.Font("SansSerif", java.awt.Font.BOLD, 12),
+                texto));
+        scroll.getViewport().setBackground(fondo);
+        scroll.setBackground(fondo);
+    }
+
+    private void estilizarTabla(javax.swing.JTable tabla,
+            java.awt.Color fondo, java.awt.Color seleccion,
+            java.awt.Color grid, java.awt.Color texto, java.awt.Color textoSec) {
+        tabla.setBackground(fondo);
+        tabla.setForeground(texto);
+        tabla.setSelectionBackground(new java.awt.Color(30, 64, 175));
+        tabla.setSelectionForeground(java.awt.Color.WHITE);
+        tabla.setGridColor(grid);
+        tabla.setRowHeight(26);
+        tabla.setShowVerticalLines(false);
+        tabla.setFillsViewportHeight(true);
+        tabla.setFont(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 12));
+        tabla.getTableHeader().setBackground(new java.awt.Color(15, 23, 42));
+        tabla.getTableHeader().setForeground(textoSec);
+        tabla.getTableHeader().setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 12));
+        tabla.getTableHeader().setReorderingAllowed(false);
+    }
+
+    private void estilizarBoton(javax.swing.AbstractButton boton,
+            java.awt.Color fondo, java.awt.Color texto) {
+        boton.setBackground(fondo);
+        boton.setForeground(texto);
+        boton.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 12));
+        boton.setFocusPainted(false);
+        boton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        boton.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+                javax.swing.BorderFactory.createLineBorder(fondo.darker()),
+                javax.swing.BorderFactory.createEmptyBorder(7, 12, 7, 12)));
+    }
+
     public static void main(String args[]) {
       
         java.awt.EventQueue.invokeLater(() -> new Ventana().setVisible(true));
@@ -1362,6 +1661,68 @@ private void actualizarTablaProgramas() {
             indice.getTamanio()
         });
     }
+}private void mostrarAcercaDelDispositivo() {
+
+    try {
+
+        Memory memoria = simulador.getMemory();
+        Disco disco = simulador.getDisco();
+
+        int memoriaTotal =
+                memoria.getMemoriaSnapshot().length;
+
+        int memoriaSO =
+                memoria.getEspacioSO();
+
+        int memoriaUsuario =
+                memoriaTotal - memoriaSO;
+
+        String mensaje =
+            "CONFIGURACIÓN DEL DISPOSITIVO\n\n"
+
+            + "MEMORIA RAM\n"
+            + "Memoria total: " + memoriaTotal + "\n"
+            + "Reservada para SO: " + memoriaSO + "\n"
+            + "Disponible para usuario: " + memoriaUsuario + "\n\n"
+
+            + "ALMACENAMIENTO\n"
+            + "Almacenamiento total: "
+            + disco.getMemoriaTotal() + "\n"
+
+            + "Memoria virtual: "
+            + disco.getMemoriaVirtual() + "\n"
+
+            + "Índices reservados: "
+            + disco.getTotalIndices();
+
+        javax.swing.JTextArea area =
+                new javax.swing.JTextArea(mensaje);
+
+        area.setEditable(false);
+        area.setOpaque(false);
+
+        area.setFont(
+            new java.awt.Font(
+                "Monospaced",
+                java.awt.Font.PLAIN,
+                13
+            )
+        );
+
+        javax.swing.JOptionPane.showMessageDialog(
+            this,
+            area,
+            "Acerca del dispositivo",
+            javax.swing.JOptionPane.INFORMATION_MESSAGE
+        );
+
+    } catch (Exception e) {
+
+        mostrarError(
+            "No se pudo mostrar la configuración",
+            e.getMessage()
+        );
+    }
 }
 
 
@@ -1381,7 +1742,8 @@ private void actualizarTablaProgramas() {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
-    private java.awt.Label label1;
+    private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JTextPane jTextPane1;
     private javax.swing.JLabel lblBcpAC;
     private javax.swing.JLabel lblBcpAX;
     private javax.swing.JLabel lblBcpBX;
