@@ -7,43 +7,31 @@ public class Disco {
     private final int totalIndices;
 
     private final Object[] disco;
-
-    
     private final int inicioArchivos;
     private final int inicioVirtual;
 
-    public Disco(int memoriaVirtual, int memoriaTotal,int totalIndices) {
+    public Disco(int memoriaVirtual, int memoriaTotal) {
 
         if (memoriaTotal <= 256) {
             throw new IllegalArgumentException(
                     "El tamaño del disco debe ser mayor que 0."
             );
         }
-
-        if (totalIndices < 0 || memoriaVirtual < 0) {
-            throw new IllegalArgumentException(
-                    "Los tamaños no pueden ser negativos."
-            );
-        }
-
-        if (totalIndices + memoriaVirtual >= memoriaTotal) {
-            throw new IllegalArgumentException(
-                    "La distribución del disco no es válida."
-            );
-        }
+        
         this.memoriaTotal = memoriaTotal;
         this.memoriaVirtual = memoriaVirtual;
-        this.totalIndices = totalIndices;
-
+       this.totalIndices = (int) Math.ceil(memoriaTotal * 0.10);
+    
+       
         this.disco = new Object[memoriaTotal];
 
-        this.inicioArchivos = totalIndices;
+        this.inicioArchivos = this.totalIndices;
 
         this.inicioVirtual = memoriaTotal - memoriaVirtual;
     }
 
 
-        /*---------------- CARGAR PROGRAMA ----------------*/
+    /*---------------- CARGAR PROGRAMA ----------------*/
     public void cargarPrograma(
             String nombre,
             java.util.List<String> instrucciones) {

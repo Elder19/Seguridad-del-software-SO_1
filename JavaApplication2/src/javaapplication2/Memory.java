@@ -1,103 +1,156 @@
 package javaapplication2;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Memory {
-
-    private static final int TAMANIO_BCP = BCP.getTAMANIO_BCP();// tamaño para calcular los bloques del bcp
-
+    private static final int TAMANIO_BCP = BCP.getTAMANIO_BCP();
+    private static final int TAMANIO_TRABAJO = 4;
     private final Object[] memoria;
     private final int espacioSO;
 
-      public Memory(int espacio,double espacioSo) {
+    // Crea la RAM y reserva un porcentaje para el sistema operativo.
+    public Memory(int espacio, double espacioSo) {
         if (espacio < 128) {
-            throw new IllegalArgumentException(
-                    "El tamaño mínimo de memoria es 128"
-            );
+            throw new IllegalArgumentException("El tamaño mínimo de memoria es 128");
+        }
+        if (espacioSo <= 0 || espacioSo >= 1) {
+            throw new IllegalArgumentException("El porcentaje del SO debe estar entre 0 y 1");
         }
         memoria = new Object[espacio];
         espacioSO = (int) Math.ceil(espacio * espacioSo);
     }
-    /*
- * Carga los atributos del BCP en el SO y las instrucciones
- * en la zona de usuario.
-    */
-   public boolean cargarProceso(Proceso proceso) {
 
-       BCP bcp = obtenerBCP(proceso);
-
-       if (proceso.getPrograma() == null) {
-           throw new IllegalArgumentException("El proceso no tiene programa");
-       }
-
-       if (bcp.getBase() != -1 || buscarBCP(bcp.getPid()) != -1) {
-           throw new IllegalStateException("El proceso ya tiene memoria asignada");
-       }
-
-       List<Instruccion> instrucciones = proceso.getPrograma().getInstrucciones();
-
-       if (instrucciones == null || instrucciones.isEmpty()) {
-           throw new IllegalArgumentException("El programa no tiene instrucciones");
-       }
-
-       for (Instruccion instruccion : instrucciones) {
-           if (instruccion == null) {
-               throw new IllegalArgumentException("Las instrucciones no pueden ser null");
-           }
-       }
-
-       int posicionBCP = buscarEspacioBCP();
-       int tamanio = instrucciones.size();
-       int base = buscarBloqueLibre(tamanio);
-
-       // Si no cabe en RAM, no modifica nada.
-       if (posicionBCP == -1 || base == -1) {
-           return false;
-       }
-
-       for (int i = 0; i < tamanio; i++) {
-           memoria[base + i] = instrucciones.get(i);
-       }
-
-       bcp.setBase(base);
-       bcp.setTamanio(tamanio);
-       bcp.setPC(proceso.getBcp().getPC()+base);
-
-       guardarBCP(posicionBCP, bcp);
-
-       return true;
-   }
-
-       public boolean limpiarMemoria() {
-       for (int i = 0; i < memoria.length; i++) {
-           memoria[i] = null;
-       }
-           return true; 
-   }
-
-    // Cada atributo ocupa una posición del arreglo.
-        private void guardarBCP(int posicion, BCP bcp) {
-            memoria[posicion]     = bcp.getPid();
-            memoria[posicion + 1] = bcp.getEstadoProceso();
-            memoria[posicion + 2] = bcp.getPC();
-            memoria[posicion + 3] = bcp.getAC();
-            memoria[posicion + 4] = bcp.getBase();
-            memoria[posicion + 5] = bcp.getTamanio();
-            memoria[posicion + 6] = bcp.getAX();
-            memoria[posicion + 7] = bcp.getBX();
-            memoria[posicion + 8] = bcp.getCX();
-            memoria[posicion + 9] = bcp.getDX();
+    // Carga el BCP y las instrucciones de un proceso en RAM.
+    public boolean cargarProceso(Proceso proceso) {
+        BCP bcp = obtenerBCP(proceso);
+        if (proceso.getPrograma() == null) {
+            throw new IllegalArgumentException("El proceso no tiene programa");
         }
+        if (bcp.getBase() != -1 || buscarBCP(bcp.getPid()) != -1) {
+            throw new IllegalStateException("El proceso ya tiene memoria asignada");
+        }
+        List<Instruccion> instrucciones = proceso.getPrograma().getInstrucciones();
+        if (instrucciones == null || instrucciones.isEmpty()) {
+            throw new IllegalArgumentException("El programa no tiene instrucciones");
+        }
+        for (Instruccion instruccion : instrucciones) {
+            if (instruccion == null) {
+                throw new IllegalArgumentException("Las instrucciones no pueden ser null");
+            }
+        }
+        int posicionBCP = buscarEspacioSO(TAMANIO_BCP);
+        int tamanio = instrucciones.size();
+        int base = buscarBloqueLibre(tamanio);
+        if (posicionBCP == -1 || base == -1) {
+            return false;
+        }
+        for (int i = 0; i < tamanio; i++) {
+            memoria[base + i] = instrucciones.get(i);
+        }
+        bcp.setBase(base);
+        bcp.setTamanio(tamanio);
+        bcp.setPC(bcp.getPC() + base);
+        guardarBCP(posicionBCP, bcp);
+        return true;
+    }
 
-    /*
-     * Copia el estado y los registros actuales del BCP a memoria.
-     */
+    // Guarda un trabajo pendiente dentro del espacio del sistema operativo.
+    public boolean guardarTrabajo(int idTrabajo, String nombrePrograma, int tamanioPrograma, int ordenLlegada) {
+        if (nombrePrograma == null) {
+            throw new IllegalArgumentException("El nombre del programa no puede ser null");
+        }
+        if (buscarTrabajo(idTrabajo) != -1) {
+            throw new IllegalStateException("El trabajo ya está almacenado en memoria");
+        }
+        int posicion = buscarEspacioSO(TAMANIO_TRABAJO);
+        if (posicion == -1) {
+            return false;
+        }
+        memoria[posicion] = idTrabajo;
+        memoria[posicion + 1] = nombrePrograma;
+        memoria[posicion + 2] = tamanioPrograma;
+        memoria[posicion + 3] = ordenLlegada;
+        return true;
+    }
+
+    // Libera de RAM un trabajo pendiente.
+    public boolean liberarTrabajo(int idTrabajo) {
+        int posicion = buscarTrabajo(idTrabajo);
+        if (posicion == -1) {
+            return false;
+        }
+        for (int i = 0; i < TAMANIO_TRABAJO; i++) {
+            memoria[posicion + i] = null;
+        }
+        return true;
+    }
+
+    // Busca un trabajo por su identificador.
+    private int buscarTrabajo(int idTrabajo) {
+        for (int i = 0; i + TAMANIO_TRABAJO <= espacioSO; i++) {
+            if (esTrabajo(i) && ((Integer) memoria[i]) == idTrabajo) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    // Comprueba si una posición corresponde al inicio de un trabajo.
+    private boolean esTrabajo(int posicion) {
+        return posicion >= 0
+                && posicion + TAMANIO_TRABAJO <= espacioSO
+                && memoria[posicion] instanceof Integer
+                && memoria[posicion + 1] instanceof String;
+    }
+
+    // Comprueba si una posición corresponde al inicio de un BCP.
+    private boolean esBCP(int posicion) {
+        return posicion >= 0
+                && posicion + TAMANIO_BCP <= espacioSO
+                && memoria[posicion] instanceof Integer
+                && memoria[posicion + 1] instanceof BCP.EstadoProceso;
+    }
+
+    // Busca un bloque consecutivo libre dentro del espacio reservado al SO.
+    private int buscarEspacioSO(int tamanio) {
+        int consecutivas = 0;
+        for (int i = 0; i < espacioSO; i++) {
+            if (memoria[i] == null) {
+                consecutivas++;
+                if (consecutivas == tamanio) {
+                    return i - tamanio + 1;
+                }
+            } else {
+                consecutivas = 0;
+            }
+        }
+        return -1;
+    }
+
+    // Guarda todos los datos del BCP dentro del espacio del SO.
+    private void guardarBCP(int posicion, BCP bcp) {
+        memoria[posicion] = bcp.getPid();
+        memoria[posicion + 1] = bcp.getEstadoProceso();
+        memoria[posicion + 2] = bcp.getPC();
+        memoria[posicion + 3] = bcp.getAC();
+        memoria[posicion + 4] = bcp.getBase();
+        memoria[posicion + 5] = bcp.getTamanio();
+        memoria[posicion + 6] = bcp.getAX();
+        memoria[posicion + 7] = bcp.getBX();
+        memoria[posicion + 8] = bcp.getCX();
+        memoria[posicion + 9] = bcp.getDX();
+        memoria[posicion + 10] = bcp.getOrdenCola();
+    }
+
+    // Actualiza en RAM los valores actuales del BCP.
     public void actualizarBCP(Proceso proceso) {
         BCP bcp = obtenerBCP(proceso);
         int posicion = validarAsignacion(bcp);
         guardarBCP(posicion, bcp);
     }
-    // Libera tanto las instrucciones como las celdas del BCP.
+
+    // Libera las instrucciones y el BCP de un proceso.
     public void liberarProceso(Proceso proceso) {
         BCP bcp = obtenerBCP(proceso);
         int posicionBCP = validarAsignacion(bcp);
@@ -111,40 +164,17 @@ public class Memory {
         bcp.setTamanio(0);
     }
 
-    /*
-     * La zona SO se organiza en bloques de 10 posiciones.
-     * El PID ocupa siempre la primera posición de cada bloque.
-     */
-    private int buscarEspacioBCP() {
-
-        for (int i = 0;
-                i + TAMANIO_BCP <= espacioSO;
-                i += TAMANIO_BCP) {
-
-            if (memoria[i] == null) {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-    /*Compara los bloques en el Mso para buscar los bcp*/
+    // Busca el BCP correspondiente a un PID dentro del espacio del SO.
     private int buscarBCP(int pid) {
-
-        for (int i = 0;
-                i + TAMANIO_BCP <= espacioSO;
-                i += TAMANIO_BCP) {
-
-            if (memoria[i] != null
-                    && ((Integer) memoria[i]).intValue() == pid) {
+        for (int i = 0; i + TAMANIO_BCP <= espacioSO; i++) {
+            if (esBCP(i) && ((Integer) memoria[i]) == pid) {
                 return i;
             }
         }
-
         return -1;
     }
 
-    // Busca instrucciones consecutivas libres en la zona de usuario.
+    // Busca un bloque consecutivo para instrucciones en la zona de usuario.
     private int buscarBloqueLibre(int tamanio) {
         int consecutivas = 0;
         for (int i = espacioSO; i < memoria.length; i++) {
@@ -159,90 +189,93 @@ public class Memory {
         }
         return -1;
     }
-    
-    /*recibe un objeto tipo proceso para buscar su bcp*/
+
+    // Obtiene el BCP asociado a un proceso y valida que exista.
     private BCP obtenerBCP(Proceso proceso) {
         if (proceso == null || proceso.getBcp() == null) {
-            throw new IllegalArgumentException(
-                    "Debe proporcionar un proceso con BCP"
-            );
+            throw new IllegalArgumentException("Debe proporcionar un proceso con BCP");
         }
         return proceso.getBcp();
     }
 
-    /*
-     * Comprueba que la base y el tamaño coincidan
-     * con la asignación registrada en memoria.
-     */
+    // Comprueba que la base y tamaño del BCP coincidan con lo guardado en RAM.
     private int validarAsignacion(BCP bcp) {
         int posicion = buscarBCP(bcp.getPid());
         if (posicion == -1) {
-            throw new IllegalStateException(
-                   "El proceso no está cargado en esta memoria"
-            );
+            throw new IllegalStateException("El proceso no está cargado en esta memoria");
         }
         int baseGuardada = (Integer) memoria[posicion + 4];
         int tamanioGuardado = (Integer) memoria[posicion + 5];
-        if (bcp.getBase() != baseGuardada
-                || bcp.getTamanio() != tamanioGuardado) {
-
-            throw new IllegalStateException(
-                    "La base o el tamaño del BCP fueron modificados"
-            );
+        if (bcp.getBase() != baseGuardada || bcp.getTamanio() != tamanioGuardado) {
+            throw new IllegalStateException("La base o el tamaño del BCP fueron modificados");
         }
-
         return posicion;
     }
 
+    // Lee una instrucción utilizando la dirección actual del PC.
+    public Instruccion leerInstruccion(Proceso proceso, int pc) {
+        BCP bcp = obtenerBCP(proceso);
+        validarAsignacion(bcp);
+        int inicio = bcp.getBase();
+        int fin = bcp.getBase() + bcp.getTamanio();
+        if (pc < inicio || pc >= fin) {
+            throw new IndexOutOfBoundsException("El PC está fuera del programa");
+        }
+        return (Instruccion) memoria[pc];
+    }
+
+    // Obtiene los registros necesarios para cargar el contexto de un proceso en CPU.
+    public int[] obtenerContexto(int pid) {
+        int posicion = buscarBCP(pid);
+        if (posicion == -1) {
+            throw new IllegalArgumentException("No existe un BCP con PID " + pid);
+        }
+        return new int[]{
+            (Integer) memoria[posicion + 2],
+            (Integer) memoria[posicion + 3],
+            (Integer) memoria[posicion + 6],
+            (Integer) memoria[posicion + 7],
+            (Integer) memoria[posicion + 8],
+            (Integer) memoria[posicion + 9]
+        };
+    }
+
+    // Devuelve todos los trabajos pendientes encontrados en RAM.
+    public List<Object[]> obtenerTrabajos() {
+        List<Object[]> trabajos = new ArrayList<>();
+        for (int i = 0; i + TAMANIO_TRABAJO <= espacioSO; i++) {
+            if (esTrabajo(i)) {
+                trabajos.add(new Object[]{
+                    memoria[i],
+                    memoria[i + 1],
+                    memoria[i + 2],
+                    memoria[i + 3]
+                });
+            }
+        }
+        return trabajos;
+    }
+
+    // Borra completamente el contenido de la RAM.
+    public boolean limpiarMemoria() {
+        for (int i = 0; i < memoria.length; i++) {
+            memoria[i] = null;
+        }
+        return true;
+    }
+
+    // Devuelve el tamaño total de la RAM.
     public int getEspacio() {
         return memoria.length;
     }
 
+    // Devuelve cuánto espacio de RAM está reservado para el SO.
     public int getEspacioSO() {
         return espacioSO;
-        }
-   public Instruccion leerInstruccion(Proceso proceso, int pc) {
-
-    BCP bcp = obtenerBCP(proceso);
-    validarAsignacion(bcp);
-
-    int inicio = bcp.getBase();
-    int fin = bcp.getBase() + bcp.getTamanio();
-
-    if (pc < inicio || pc >= fin) {
-        throw new IndexOutOfBoundsException(
-                "El PC está fuera del programa"
-        );
     }
 
-    return (Instruccion) memoria[pc];
-}
-    /*busca el BCP de un proceso por su PID y devuelve los registros necesarios para reconstruir el contexto de la CPU.*/
-    public int[] obtenerContexto(int pid) {
-
-        int posicion = buscarBCP(pid);
-
-        if (posicion == -1) {
-            throw new IllegalArgumentException(
-                    "No existe un BCP con PID " + pid
-            );
-        }
-
-        return new int[]{
-            (Integer) memoria[posicion + 2], // PC
-            (Integer) memoria[posicion + 3], // AC
-            (Integer) memoria[posicion + 6], // AX
-            (Integer) memoria[posicion + 7], // BX
-            (Integer) memoria[posicion + 8], // CX
-            (Integer) memoria[posicion + 9]  // DX
-        };
-    }
-    
- 
-    
+    // Devuelve una copia del contenido actual de la RAM.
     public Object[] getMemoriaSnapshot() {
-    return memoria.clone();
-}
-   
-    
+        return memoria.clone();
+    }
 }

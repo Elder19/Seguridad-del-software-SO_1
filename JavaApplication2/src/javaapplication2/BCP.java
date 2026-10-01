@@ -26,6 +26,8 @@ public class BCP {
     private int CX;
     private int DX;
     private String IR;
+    private int ordenCola = 0;
+    
 
     // Memoria
     private int base = -1;
@@ -270,4 +272,11 @@ public class BCP {
     public void setPrioridad(int prioridad) {
         this.prioridad = prioridad;
     }
+    public int getOrdenCola() {
+    return ordenCola;
+}
+
+public void setOrdenCola(int ordenCola) {
+    this.ordenCola = ordenCola;
+}
 }

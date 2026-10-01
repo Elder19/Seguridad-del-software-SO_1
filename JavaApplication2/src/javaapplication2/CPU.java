@@ -9,6 +9,7 @@ public class CPU {
     private int CX;
     private int DX;
     private String IR;
+    
     public CPU() {
         this.PC = 0;
         this.AC = 0;
@@ -39,7 +40,7 @@ public class CPU {
     public void ejecutarInstruccion(Memory memory,Proceso proceso) {
         /*Lee la instruccion de la memoria*/
         Instruccion instruccion =memory.leerInstruccion( proceso,PC);// registro,valor,mov
-        this.IR =instruccion.getBinario();//instruccion actual en binario la guarda en en el IR
+       // this.IR =instruccion.getBinario();//instruccion actual en binario la guarda en en el IR
         String operador = instruccion.getOperacion(); // toma el tipo de operacion que se hace
         
         switch (operador) {

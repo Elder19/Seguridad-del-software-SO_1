@@ -31,7 +31,7 @@ public class SimuladorSO {
         this.memory = new Memory(Integer.parseInt(lector.leerConfig("memoriaRam") ),Double.parseDouble(lector.leerConfig("porcentajeSO"))
 );
         this.disco = new Disco( Integer.parseInt( lector.leerConfig("memoriaVirtual")), 
-                Integer.parseInt(lector.leerConfig("disco")),Integer.parseInt(lector.leerConfig("indices"))
+                Integer.parseInt(lector.leerConfig("disco"))
 );
         this.cpu = new CPU();
         this.despachador =new Despachador(gestorProceso,cpu);
@@ -167,8 +167,8 @@ public void cargarPrograma(File archivo) throws IOException {
 
      disco = new Disco(
         Integer.parseInt(lector.leerConfig("memoriaVirtual")),
-        nuevoTamanio,
-        Integer.parseInt(lector.leerConfig("indices"))
+        nuevoTamanio
+      
     );
 
         gestorProceso.BorrarProcesos();
