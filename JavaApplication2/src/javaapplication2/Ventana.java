@@ -16,6 +16,7 @@ public class Ventana extends javax.swing.JFrame {
         actualizarProcesos();
         actualizarDisco();
         actualizarTablaProgramas();
+        actualizarTrabajos();
     }
    
     @SuppressWarnings("unchecked")
@@ -59,6 +60,8 @@ public class Ventana extends javax.swing.JFrame {
         btnEliminarPrograma = new javax.swing.JButton();
         jScrollPane6 = new javax.swing.JScrollPane();
         jTextPane1 = new javax.swing.JTextPane();
+        jScrollPane7 = new javax.swing.JScrollPane();
+        TablaTrabajos = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("me cago en licha");
@@ -239,7 +242,7 @@ public class Ventana extends javax.swing.JFrame {
                                         .addComponent(lblBcpCX, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addComponent(lblBcpBX, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addComponent(lblBcpDX, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addContainerGap(205, Short.MAX_VALUE))
+                        .addContainerGap(167, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(lblBcpEstado, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGap(159, 159, 159))))
@@ -266,7 +269,7 @@ public class Ventana extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblBcpDX)
                     .addComponent(lblBcpAC))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(241, Short.MAX_VALUE))
         );
 
         tablaDisco.setModel(new javax.swing.table.DefaultTableModel(
@@ -304,6 +307,25 @@ public class Ventana extends javax.swing.JFrame {
         jTextPane1.setText("Simulador SO");
         jScrollPane6.setViewportView(jTextPane1);
 
+        TablaTrabajos.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "ID", "Programa", "Tamaño"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        TablaTrabajos.setFillsViewportHeight(true);
+        jScrollPane7.setViewportView(TablaTrabajos);
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -312,43 +334,46 @@ public class Ventana extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(495, 495, 495)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGap(6, 6, 6)
+                                .addGap(633, 633, 633)
+                                .addComponent(btnEliminarPrograma)
+                                .addGap(33, 33, 33)
                                 .addComponent(btnEjecutarPrograma)
-                                .addGap(27, 27, 27)
-                                .addComponent(btnEliminarPrograma)))
-                        .addGap(144, 144, 144)
+                                .addGap(35, 35, 35))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)))
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addGap(367, 367, 367)
                                 .addComponent(apagaencender))
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 502, Short.MAX_VALUE)))
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addComponent(panelCPU, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 393, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jScrollPane5))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(Ejecutartodo, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(ejecutarpaso))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                                .addGap(6, 6, 6)
-                                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(113, 113, 113)
+                            .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
                         .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(combobox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(751, 751, 751)))
+                        .addGap(751, 751, 751))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(621, 621, 621)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -364,30 +389,35 @@ public class Ventana extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(panelCPU, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 634, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(214, Short.MAX_VALUE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btnEjecutarPrograma)
-                            .addComponent(btnEliminarPrograma))
-                        .addGap(395, 395, 395)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 239, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(Ejecutartodo)
-                            .addComponent(ejecutarpaso, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 283, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(604, 604, 604))))
+                        .addGap(604, 604, 604))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(btnEjecutarPrograma)
+                                    .addComponent(btnEliminarPrograma))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jScrollPane4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addComponent(panelCPU, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGap(26, 26, 26)
+                                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 239, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(201, 201, 201)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(Ejecutartodo)
+                                    .addComponent(ejecutarpaso, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(0, 0, Short.MAX_VALUE))))))
         );
 
         apagaencender.getAccessibleContext().setAccessibleName("Encendido/apagado");
@@ -518,16 +548,19 @@ public class Ventana extends javax.swing.JFrame {
 
             simulador.ejecutarProcesoCompleto();
 
-            actual.getBcp().setEstadoProceso(BCP.EstadoProceso.FINALIZADO);
-            simulador.getMemory()
-            .actualizarBCP(actual);
+            simulador.finalizarProcesoActual();
 
-            simulador.getGestorProceso()
-            .terminarActual();
+            intentarAdmitirTrabajosPendientes();
+
+            if (simulador.getGestorProceso().getEjecucion() == null
+                    && !simulador.getGestorProceso().getPreparados().isEmpty()) {
+                simulador.despacharSiguiente();
+            }
 
             actualizarCPU();
             actualizarMemoria();
             actualizarProcesos();
+            actualizarTrabajos();
             actualizarBCPSeleccionado();
 
             javax.swing.JOptionPane.showMessageDialog(
@@ -585,10 +618,26 @@ public class Ventana extends javax.swing.JFrame {
 
             if (!quedan) {
 
+                int pidFinalizado = actual.getBcp().getPid();
+
+                simulador.finalizarProcesoActual();
+
+                intentarAdmitirTrabajosPendientes();
+
+                if (simulador.getGestorProceso().getEjecucion() == null
+                        && !simulador.getGestorProceso().getPreparados().isEmpty()) {
+                    simulador.despacharSiguiente();
+                }
+
+                actualizarCPU();
+                actualizarMemoria();
+                actualizarProcesos();
+                actualizarTrabajos();
+
                 mostrarInformacion(
                     "Proceso finalizado",
                     "El proceso PID "
-                    + actual.getBcp().getPid()
+                    + pidFinalizado
                     + " completó todas sus instrucciones."
                 );
             }
@@ -643,38 +692,83 @@ public class Ventana extends javax.swing.JFrame {
     private void btnEjecutarProgramaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEjecutarProgramaActionPerformed
         int fila = TablaProgramas.getSelectedRow();
 
-    if (fila == -1) {
-        JOptionPane.showMessageDialog(
-                this,
-                "Seleccione un programa del índice"
-        );
-        return;
-    }
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Seleccione un programa del índice"
+            );
+            return;
+        }
 
-    try {
+        if (!simulador.isEncendido()) {
+            mostrarAdvertencia(
+                    "Sistema operativo apagado",
+                    "Primero debe encender el sistema operativo."
+            );
+            return;
+        }
 
-        // Obtener el índice correspondiente a la fila seleccionada
-        IndicePrograma indice =
-                simulador.getDisco()
-                        .getIndicesProgramas()
-                        .get(fila);
+        try {
+            IndicePrograma indice =
+                    simulador.getDisco()
+                            .getIndicesProgramas()
+                            .get(fila);
 
-        // Reconstruir el Programa leyendo sus instrucciones del disco
-        programaActual =
-                simulador.getDisco()
-                        .obtenerPrograma(indice);
+            programaActual =
+                    simulador.getDisco()
+                            .obtenerPrograma(indice);
 
-        // Crear el proceso y cargarlo en RAM
-        crearProceso();
+            // Ejecutar primero coloca el programa en la lista de trabajos.
+            boolean agregado =
+                    simulador.getMemory()
+                            .guardarTrabajo(indice);
 
-    } catch (Exception e) {
+            if (!agregado) {
+                mostrarAdvertencia(
+                        "Lista de trabajos llena",
+                        "No hay espacio disponible en la zona del SO "
+                        + "para registrar otro trabajo."
+                );
+                return;
+            }
 
-        mostrarError(
-                "No se pudo ejecutar el programa",
-                e.getMessage()
-        );
-    }
+            int admitidos = intentarAdmitirTrabajosPendientes();
 
+            if (simulador.getGestorProceso().getEjecucion() == null
+                    && !simulador.getGestorProceso().getPreparados().isEmpty()) {
+                simulador.despacharSiguiente();
+            }
+
+            mostrarInstrucciones();
+            actualizarCPU();
+            actualizarMemoria();
+            actualizarProcesos();
+            actualizarTrabajos();
+
+            if (admitidos > 0) {
+                mostrarInformacion(
+                        "Trabajo admitido",
+                        "El programa «"
+                        + programaActual.getNombre()
+                        + "» pasó por la lista de trabajos y fue "
+                        + "admitido como proceso."
+                );
+            } else {
+                mostrarInformacion(
+                        "Trabajo en espera",
+                        "El programa «"
+                        + programaActual.getNombre()
+                        + "» fue agregado a la lista de trabajos, "
+                        + "pero todavía no puede ser admitido en memoria."
+                );
+            }
+
+        } catch (Exception e) {
+            mostrarError(
+                    "No se pudo ejecutar el programa",
+                    e.getMessage()
+            );
+        }
 
     }//GEN-LAST:event_btnEjecutarProgramaActionPerformed
 
@@ -934,6 +1028,7 @@ public class Ventana extends javax.swing.JFrame {
         actualizarCPU();
         actualizarMemoria();
         actualizarProcesos();
+        actualizarTrabajos();
 
         limpiarBCP();
 
@@ -1062,6 +1157,7 @@ public class Ventana extends javax.swing.JFrame {
         actualizarCPU();
         actualizarMemoria();
         actualizarProcesos();
+        actualizarTrabajos();
         limpiarBCP();
 
        
@@ -1129,6 +1225,7 @@ public class Ventana extends javax.swing.JFrame {
         actualizarCPU();
         actualizarMemoria();
         actualizarProcesos();
+        actualizarTrabajos();
 
         limpiarBCP();
 
@@ -1202,10 +1299,11 @@ public class Ventana extends javax.swing.JFrame {
         estilizarScroll(jScrollPane1, "PROCESOS", tarjeta, borde, texto);
         estilizarScroll(jScrollPane5, "DISCO", tarjeta, borde, texto);
         estilizarScroll(jScrollPane2, "PROGRAMAS EN DISCO", tarjeta, borde, texto);
+        estilizarScroll(jScrollPane7, "COLA DE TRABAJOS", tarjeta, borde, texto);
         estilizarScroll(jScrollPane3, "INSTRUCCIONES", tarjeta, borde, texto);
 
         javax.swing.JTable[] tablas = {
-            tablamemoria, Tablarocesos, tablaDisco, TablaProgramas
+            tablamemoria, Tablarocesos, tablaDisco, TablaProgramas, TablaTrabajos
         };
         for (javax.swing.JTable tabla : tablas) {
             estilizarTabla(tabla, superficie, tarjeta, borde, texto, textoSec);
@@ -1250,6 +1348,7 @@ public class Ventana extends javax.swing.JFrame {
         Tablarocesos.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN);
         tablaDisco.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN);
         TablaProgramas.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN);
+        TablaTrabajos.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN);
 
         // Proporciones iniciales de columnas; siguen siendo redimensionables.
         if (tablamemoria.getColumnModel().getColumnCount() >= 3) {
@@ -1261,6 +1360,11 @@ public class Ventana extends javax.swing.JFrame {
             Tablarocesos.getColumnModel().getColumn(0).setPreferredWidth(105);
             Tablarocesos.getColumnModel().getColumn(1).setPreferredWidth(55);
             Tablarocesos.getColumnModel().getColumn(2).setPreferredWidth(190);
+        }
+        if (TablaTrabajos.getColumnModel().getColumnCount() >= 3) {
+            TablaTrabajos.getColumnModel().getColumn(0).setPreferredWidth(45);
+            TablaTrabajos.getColumnModel().getColumn(1).setPreferredWidth(115);
+            TablaTrabajos.getColumnModel().getColumn(2).setPreferredWidth(55);
         }
 
         // Maximizada se ve mejor, pero continúa siendo completamente redimensionable.
@@ -1342,8 +1446,7 @@ public class Ventana extends javax.swing.JFrame {
     txtCpuBX.setText("BX: " + cpu.getBX());
     txtCpuCX.setText("CX: " + cpu.getCX());
     txtCpuDX.setText("DX: " + cpu.getDX());
-}
- private void actualizarMemoria() {
+}private void actualizarMemoria() {
 
     javax.swing.table.DefaultTableModel modelo =
             (javax.swing.table.DefaultTableModel)
@@ -1356,19 +1459,31 @@ public class Ventana extends javax.swing.JFrame {
 
     for (int i = 0; i < memoria.length; i++) {
 
-
         String zona =
                 i < memory.getEspacioSO()
                 ? "SO"
                 : "Usuario";
 
+        Object contenido = memoria[i];
+
+        // Evita mostrar javaapplication2.IndicePrograma@...
+        if (contenido instanceof IndicePrograma) {
+
+            IndicePrograma indice =
+                    (IndicePrograma) contenido;
+
+            contenido =
+                    "Trabajo: "
+                    + indice.getNombre();
+        }
+
         modelo.addRow(new Object[]{
             i,
             zona,
-            memoria[i]
+            contenido
         });
     }
-}  
+}
  
  
  
@@ -1544,6 +1659,59 @@ public class Ventana extends javax.swing.JFrame {
     
 
  
+    /**
+     * Intenta admitir trabajos en orden FIFO mientras exista memoria.
+     * Si el trabajo más antiguo no cabe, se detiene para respetar el orden.
+     */
+    private int intentarAdmitirTrabajosPendientes() {
+
+        int admitidos = 0;
+
+        PlanificadorDeTrabajo planificador =
+                new PlanificadorDeTrabajo(
+                        simulador.getMemory(),
+                        simulador.getGestorProceso(),
+                        simulador.getDisco()
+                );
+
+        while (simulador.getMemory().hayTrabajos()) {
+
+            Proceso proceso = planificador.planificarSiguiente();
+
+            if (proceso == null) {
+                break;
+            }
+
+            admitidos++;
+        }
+
+        return admitidos;
+    }
+
+
+    /**
+     * Refresca la tabla de trabajos pendientes.
+     */
+    private void actualizarTrabajos() {
+
+        javax.swing.table.DefaultTableModel modelo =
+                (javax.swing.table.DefaultTableModel)
+                        TablaTrabajos.getModel();
+
+        modelo.setRowCount(0);
+
+        for (Object[] trabajo :
+                simulador.getMemory().obtenerTrabajos()) {
+
+            modelo.addRow(new Object[]{
+                trabajo[3],
+                trabajo[1],
+                trabajo[2]
+            });
+        }
+    }
+
+
  private void mostrarInformacion(String titulo, String mensaje) {
 
     javax.swing.JOptionPane.showMessageDialog(
@@ -1729,6 +1897,7 @@ private void actualizarTablaProgramas() {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton Ejecutartodo;
     private javax.swing.JTable TablaProgramas;
+    private javax.swing.JTable TablaTrabajos;
     private javax.swing.JTable Tablarocesos;
     private javax.swing.JToggleButton apagaencender;
     private javax.swing.JButton btnEjecutarPrograma;
@@ -1743,6 +1912,7 @@ private void actualizarTablaProgramas() {
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JScrollPane jScrollPane7;
     private javax.swing.JTextPane jTextPane1;
     private javax.swing.JLabel lblBcpAC;
     private javax.swing.JLabel lblBcpAX;

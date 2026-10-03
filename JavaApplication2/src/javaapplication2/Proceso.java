@@ -11,11 +11,13 @@ package javaapplication2;
 public class Proceso {
     
     private Programa Programa; 
-    private BCP bcp; 
+    private BCP bcp;
+  
     
     public Proceso(Programa Programa, int pid){
         this.Programa= Programa; 
         this.bcp = new BCP(pid,BCP.EstadoProceso.NUEVO);
+       
     }
  
     public Programa getPrograma() {

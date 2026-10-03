@@ -301,6 +301,23 @@ public class Disco {
 
        return true;
    }
+   public IndicePrograma obtenerIndicePorDireccion(int direccion) {
+
+    for (int i = 0; i < totalIndices; i++) {
+
+        if (disco[i] instanceof IndicePrograma) {
+
+            IndicePrograma indice =
+                    (IndicePrograma) disco[i];
+
+            if (indice.getDireccion() == direccion) {
+                return indice;
+            }
+        }
+    }
+
+    return null;
+}
 
 
    /* Indica si un proceso está actualmente en memoria virtual */

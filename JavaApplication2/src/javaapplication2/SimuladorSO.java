@@ -117,36 +117,49 @@ public void cargarPrograma(File archivo) throws IOException {
 
     validarEncendido();
 
-    if (procesoActual == null) {
+    Proceso proceso =
+            gestorProceso.getEjecucion();
+
+    if (proceso == null) {
         throw new IllegalStateException(
                 "No hay ningún proceso despachado en la CPU."
         );
     }
 
-    int limite = procesoActual.getBcp().getBase()
-            + procesoActual.getBcp().getTamanio();
+    int limite =
+            proceso.getBcp().getBase()
+            + proceso.getBcp().getTamanio();
 
     if (cpu.getPC() >= limite) {
         return false;
     }
 
-    cpu.ejecutarInstruccion(memory, procesoActual);
+    cpu.ejecutarInstruccion(
+            memory,
+            proceso
+    );
 
     return cpu.getPC() < limite;
 }
 
-
-
     public void ejecutarProcesoCompleto() {
+
         validarEncendido();
-        if (procesoActual == null) {
+
+        Proceso proceso =
+                gestorProceso.getEjecucion();
+
+        if (proceso == null) {
             throw new IllegalStateException(
-                    "No hay ningún proceso "
-                    + "despachado en la CPU."
+                    "No hay ningún proceso despachado en la CPU."
             );
         }
-        cpu.ejecutarTodo(memory,procesoActual);
-    }
+
+        cpu.ejecutarTodo(
+                memory,
+                proceso
+        );
+}
 
 
   /*---------------------GESTION DE MEMORIA----------------*/

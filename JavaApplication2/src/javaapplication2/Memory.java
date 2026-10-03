@@ -8,7 +8,8 @@ public class Memory {
     private static final int TAMANIO_TRABAJO = 4;
     private final Object[] memoria;
     private final int espacioSO;
-
+    private int siguienteIdTrabajo = 0;
+   
     // Crea la RAM y reserva un porcentaje para el sistema operativo.
     public Memory(int espacio, double espacioSo) {
         if (espacio < 128) {
@@ -55,78 +56,135 @@ public class Memory {
         return true;
     }
 
-    // Guarda un trabajo pendiente dentro del espacio del sistema operativo.
-    public boolean guardarTrabajo(int idTrabajo, String nombrePrograma, int tamanioPrograma, int ordenLlegada) {
-        if (nombrePrograma == null) {
-            throw new IllegalArgumentException("El nombre del programa no puede ser null");
+    // Guarda un trabajo pendiente dentro del espacio del sistema operativo cuando el usuario lo ejecuta
+    
+    public boolean guardarTrabajo(IndicePrograma indice) {
+
+        if (indice == null) {
+            throw new IllegalArgumentException(
+                    "Debe proporcionar un índice de programa."
+            );
         }
-        if (buscarTrabajo(idTrabajo) != -1) {
-            throw new IllegalStateException("El trabajo ya está almacenado en memoria");
-        }
-        int posicion = buscarEspacioSO(TAMANIO_TRABAJO);
+
+        int posicion =
+                buscarEspacioSO(TAMANIO_TRABAJO);
+
         if (posicion == -1) {
             return false;
-        }
-        memoria[posicion] = idTrabajo;
-        memoria[posicion + 1] = nombrePrograma;
-        memoria[posicion + 2] = tamanioPrograma;
-        memoria[posicion + 3] = ordenLlegada;
+        }//descompone el objeto para que se ocupe la memoria como debe ser
+        
+        memoria[posicion] = indice;
+        memoria[posicion + 1] = indice.getNombre();
+        memoria[posicion + 2] = indice.getTamanio();
+        memoria[posicion + 3] = siguienteIdTrabajo;
+
+        siguienteIdTrabajo++;
+
         return true;
-    }
+}
 
     // Libera de RAM un trabajo pendiente.
     public boolean liberarTrabajo(int idTrabajo) {
-        int posicion = buscarTrabajo(idTrabajo);
+
+        int posicion =
+                buscarTrabajo(idTrabajo);
+
         if (posicion == -1) {
             return false;
         }
-        for (int i = 0; i < TAMANIO_TRABAJO; i++) {
+
+        for (int i = 0;
+                i < TAMANIO_TRABAJO;
+                i++) {
+
             memoria[posicion + i] = null;
         }
+
         return true;
     }
-
     // Busca un trabajo por su identificador.
     private int buscarTrabajo(int idTrabajo) {
-        for (int i = 0; i + TAMANIO_TRABAJO <= espacioSO; i++) {
-            if (esTrabajo(i) && ((Integer) memoria[i]) == idTrabajo) {
+
+        for (int i = 0;
+                i + TAMANIO_TRABAJO <= espacioSO;
+                i++) {
+
+            if (esTrabajo(i)
+                    && ((Integer) memoria[i + 3])
+                    == idTrabajo) {
+
                 return i;
             }
         }
+
         return -1;
+    
+}
+
+    private boolean esTrabajo(int posicion) {
+
+    return posicion >= 0
+            && posicion + TAMANIO_TRABAJO <= espacioSO && memoria[posicion]instanceof IndicePrograma
+            && memoria[posicion + 1]instanceof String&& memoria[posicion + 2]instanceof Integer
+            && memoria[posicion + 3] instanceof Integer;
+}
+
+
+    //trabajos pendientes
+    public List<Object[]> obtenerTrabajos() {
+
+        List<Object[]> trabajos =
+                new ArrayList<>();
+
+        for (int i = 0;
+                i + TAMANIO_TRABAJO <= espacioSO;
+                i++) {
+
+            if (esTrabajo(i)) {
+
+                trabajos.add(
+                        new Object[]{
+                            memoria[i],
+                            memoria[i + 1],
+                            memoria[i + 2],
+                            memoria[i + 3]
+                        }
+                );
+            }
+        }
+
+        return trabajos;
     }
 
-    // Comprueba si una posición corresponde al inicio de un trabajo.
-    private boolean esTrabajo(int posicion) {
-        return posicion >= 0
-                && posicion + TAMANIO_TRABAJO <= espacioSO
-                && memoria[posicion] instanceof Integer
-                && memoria[posicion + 1] instanceof String;
+
+//trbajos en admisioon? 
+    public boolean hayTrabajos() {
+        return !obtenerTrabajos().isEmpty();
     }
 
     // Comprueba si una posición corresponde al inicio de un BCP.
-    private boolean esBCP(int posicion) {
-        return posicion >= 0
-                && posicion + TAMANIO_BCP <= espacioSO
-                && memoria[posicion] instanceof Integer
-                && memoria[posicion + 1] instanceof BCP.EstadoProceso;
-    }
-
-    // Busca un bloque consecutivo libre dentro del espacio reservado al SO.
-    private int buscarEspacioSO(int tamanio) {
-        int consecutivas = 0;
-        for (int i = 0; i < espacioSO; i++) {
-            if (memoria[i] == null) {
-                consecutivas++;
-                if (consecutivas == tamanio) {
-                    return i - tamanio + 1;
-                }
-            } else {
-                consecutivas = 0;
-            }
+   private boolean esBCP(int posicion) {
+            return posicion >= 0
+                    && posicion + TAMANIO_BCP <= espacioSO
+                    && memoria[posicion] instanceof Integer
+                    && memoria[posicion + 1] instanceof BCP.EstadoProceso;
         }
-        return -1;
-    }
+
+        // Busca un bloque consecutivo libre dentro del espacio reservado al SO.
+        private int buscarEspacioSO(int tamanio) {
+            int consecutivas = 0;
+            for (int i = 0; i < espacioSO; i++) {
+                if (memoria[i] == null) {
+                    consecutivas++;
+                    if (consecutivas == tamanio) {
+                        return i - tamanio + 1;
+                    }
+                } else {
+                    consecutivas = 0;
+                }
+            }
+            return -1;
+        }
 
     // Guarda todos los datos del BCP dentro del espacio del SO.
     private void guardarBCP(int posicion, BCP bcp) {
@@ -240,21 +298,7 @@ public class Memory {
         };
     }
 
-    // Devuelve todos los trabajos pendientes encontrados en RAM.
-    public List<Object[]> obtenerTrabajos() {
-        List<Object[]> trabajos = new ArrayList<>();
-        for (int i = 0; i + TAMANIO_TRABAJO <= espacioSO; i++) {
-            if (esTrabajo(i)) {
-                trabajos.add(new Object[]{
-                    memoria[i],
-                    memoria[i + 1],
-                    memoria[i + 2],
-                    memoria[i + 3]
-                });
-            }
-        }
-        return trabajos;
-    }
+
 
     // Borra completamente el contenido de la RAM.
     public boolean limpiarMemoria() {
@@ -278,4 +322,23 @@ public class Memory {
     public Object[] getMemoriaSnapshot() {
         return memoria.clone();
     }
+    
+    //se usa en planificador de tareas para admintir el siguiente 
+    public boolean puedeCargarPrograma(Programa programa) {
+
+    if (programa == null
+            || programa.getInstrucciones() == null
+            || programa.getInstrucciones().isEmpty()) {
+        return false;
+    }
+
+    // Espacio para el BCP dentro de la zona del SO
+    int espacioBCP = buscarEspacioSO(TAMANIO_BCP);
+
+    // Espacio para las instrucciones en memoria de usuario
+    int tamanioPrograma = programa.getInstrucciones().size();
+    int espacioUsuario = buscarBloqueLibre(tamanioPrograma);
+
+    return espacioBCP != -1 && espacioUsuario != -1;
+}
 }
