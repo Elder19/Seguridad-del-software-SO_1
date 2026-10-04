@@ -6,7 +6,7 @@ import java.util.List;
 public class BCP {
 
     private final int Pid;
-    private static final int TAMANIO_BCP = 18;
+    private static final int TAMANIO_BCP = 20;
 
       public enum EstadoProceso {
         NUEVO,
@@ -47,6 +47,7 @@ public class BCP {
 
     // Enlace al siguiente BCP
     private BCP siguienteBCP;
+   
 
     // Prioridad
     private int prioridad;
@@ -282,4 +283,9 @@ public class BCP {
 public void setOrdenCola(int ordenCola) {
     this.ordenCola = ordenCola;
 }
+
+
+
+
+
 }

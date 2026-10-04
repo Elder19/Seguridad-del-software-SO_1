@@ -60,29 +60,35 @@ public class Memory {
     
     public boolean guardarTrabajo(IndicePrograma indice) {
 
-        if (indice == null) {
-            throw new IllegalArgumentException(
-                    "Debe proporcionar un índice de programa."
-            );
-        }
+    if (indice == null) {
+        throw new IllegalArgumentException(
+                "Debe proporcionar un índice de programa."
+        );
+    }
 
-        int posicion =
-                buscarEspacioSO(TAMANIO_TRABAJO);
+    int posicion =
+            buscarEspacioSO(TAMANIO_TRABAJO);
 
-        if (posicion == -1) {
-            return false;
-        }//descompone el objeto para que se ocupe la memoria como debe ser
-        
-        memoria[posicion] = indice;
-        memoria[posicion + 1] = indice.getNombre();
-        memoria[posicion + 2] = indice.getTamanio();
-        memoria[posicion + 3] = siguienteIdTrabajo;
+    if (posicion == -1) {
+        return false;
+    }
 
-        siguienteIdTrabajo++;
+    memoria[posicion] =
+            siguienteIdTrabajo;
 
-        return true;
+    memoria[posicion + 1] =
+            indice.getNombre();
+
+    memoria[posicion + 2] =
+            indice.getDireccion();
+
+    memoria[posicion + 3] =
+            indice.getTamanio();
+
+    siguienteIdTrabajo++;
+
+    return true;
 }
-
     // Libera de RAM un trabajo pendiente.
     public boolean liberarTrabajo(int idTrabajo) {
 
@@ -110,7 +116,7 @@ public class Memory {
                 i++) {
 
             if (esTrabajo(i)
-                    && ((Integer) memoria[i + 3])
+                    && ((Integer) memoria[i])
                     == idTrabajo) {
 
                 return i;
@@ -124,8 +130,10 @@ public class Memory {
     private boolean esTrabajo(int posicion) {
 
     return posicion >= 0
-            && posicion + TAMANIO_TRABAJO <= espacioSO && memoria[posicion]instanceof IndicePrograma
-            && memoria[posicion + 1]instanceof String&& memoria[posicion + 2]instanceof Integer
+            && posicion + TAMANIO_TRABAJO <= espacioSO
+            && memoria[posicion] instanceof Integer
+            && memoria[posicion + 1] instanceof String
+            && memoria[posicion + 2] instanceof Integer
             && memoria[posicion + 3] instanceof Integer;
 }
 
@@ -187,19 +195,43 @@ public class Memory {
         }
 
     // Guarda todos los datos del BCP dentro del espacio del SO.
-    private void guardarBCP(int posicion, BCP bcp) {
-        memoria[posicion] = bcp.getPid();
-        memoria[posicion + 1] = bcp.getEstadoProceso();
-        memoria[posicion + 2] = bcp.getPC();
-        memoria[posicion + 3] = bcp.getAC();
-        memoria[posicion + 4] = bcp.getBase();
-        memoria[posicion + 5] = bcp.getTamanio();
-        memoria[posicion + 6] = bcp.getAX();
-        memoria[posicion + 7] = bcp.getBX();
-        memoria[posicion + 8] = bcp.getCX();
-        memoria[posicion + 9] = bcp.getDX();
-        memoria[posicion + 10] = bcp.getOrdenCola();
-    }
+    private void guardarBCP(int posicion, BCP bcp){
+
+    memoria[posicion]      = bcp.getPid();
+    memoria[posicion + 1]  = bcp.getEstadoProceso();
+
+    // Registros
+    memoria[posicion + 2]  = bcp.getPC();
+    memoria[posicion + 3]  = bcp.getAC();
+    memoria[posicion + 4]  = bcp.getAX();
+    memoria[posicion + 5]  = bcp.getBX();
+    memoria[posicion + 6]  = bcp.getCX();
+    memoria[posicion + 7]  = bcp.getDX();
+    memoria[posicion + 8]  = bcp.getIR();
+
+    // Memoria del proceso
+    memoria[posicion + 9]  = bcp.getBase();
+    memoria[posicion + 10] = bcp.getTamanio();
+
+    // Información contable
+    memoria[posicion + 11] = bcp.getCpu();
+    memoria[posicion + 12] = bcp.getTiempoInicio();
+    memoria[posicion + 13] = bcp.getTiempoEmpleado();
+
+    // Archivos
+    memoria[posicion + 14] = bcp.getArchivosAbiertos();
+
+    // Enlace
+    memoria[posicion + 15] = bcp.getSiguienteBCP();
+
+    // Planificación
+    memoria[posicion + 16] = bcp.getOrdenCola();
+    memoria[posicion + 17] = bcp.getPrioridad();
+
+    // Pila al final
+    memoria[posicion + 18] = bcp.getTopePila();
+    memoria[posicion + 19] = bcp.getPila();
+}
 
     // Actualiza en RAM los valores actuales del BCP.
     public void actualizarBCP(Proceso proceso) {
@@ -257,18 +289,34 @@ public class Memory {
     }
 
     // Comprueba que la base y tamaño del BCP coincidan con lo guardado en RAM.
-    private int validarAsignacion(BCP bcp) {
-        int posicion = buscarBCP(bcp.getPid());
-        if (posicion == -1) {
-            throw new IllegalStateException("El proceso no está cargado en esta memoria");
-        }
-        int baseGuardada = (Integer) memoria[posicion + 4];
-        int tamanioGuardado = (Integer) memoria[posicion + 5];
-        if (bcp.getBase() != baseGuardada || bcp.getTamanio() != tamanioGuardado) {
-            throw new IllegalStateException("La base o el tamaño del BCP fueron modificados");
-        }
-        return posicion;
+   private int validarAsignacion(BCP bcp) {
+
+    int posicion =
+            buscarBCP(bcp.getPid());
+
+    if (posicion == -1) {
+
+        throw new IllegalStateException(
+                "El proceso no está cargado en esta memoria"
+        );
     }
+
+    int baseGuardada =
+            (Integer) memoria[posicion + 9];
+
+    int tamanioGuardado =
+            (Integer) memoria[posicion + 10];
+
+    if (bcp.getBase() != baseGuardada
+            || bcp.getTamanio() != tamanioGuardado) {
+
+        throw new IllegalStateException(
+                "La base o el tamaño del BCP fueron modificados"
+        );
+    }
+
+    return posicion;
+}
 
     // Lee una instrucción utilizando la dirección actual del PC.
     public Instruccion leerInstruccion(Proceso proceso, int pc) {
@@ -283,20 +331,27 @@ public class Memory {
     }
 
     // Obtiene los registros necesarios para cargar el contexto de un proceso en CPU.
-    public int[] obtenerContexto(int pid) {
-        int posicion = buscarBCP(pid);
-        if (posicion == -1) {
-            throw new IllegalArgumentException("No existe un BCP con PID " + pid);
-        }
-        return new int[]{
-            (Integer) memoria[posicion + 2],
-            (Integer) memoria[posicion + 3],
-            (Integer) memoria[posicion + 6],
-            (Integer) memoria[posicion + 7],
-            (Integer) memoria[posicion + 8],
-            (Integer) memoria[posicion + 9]
-        };
+   public int[] obtenerContexto(int pid) {
+
+    int posicion =
+            buscarBCP(pid);
+
+    if (posicion == -1) {
+
+        throw new IllegalArgumentException(
+                "No existe un BCP con PID " + pid
+        );
     }
+
+    return new int[]{
+        (Integer) memoria[posicion + 2], // PC
+        (Integer) memoria[posicion + 3], // AC
+        (Integer) memoria[posicion + 4], // AX
+        (Integer) memoria[posicion + 5], // BX
+        (Integer) memoria[posicion + 6], // CX
+        (Integer) memoria[posicion + 7]  // DX
+    };
+}
 
 
 
@@ -341,4 +396,60 @@ public class Memory {
 
     return espacioBCP != -1 && espacioUsuario != -1;
 }
+    
+    
+    
+    //retorna los proceso que estan en ready
+    public List<Integer> obtenerPidsPreparados() {
+
+    List<Integer> preparados = new ArrayList<>();
+
+    for (int i = 0;
+            i + TAMANIO_BCP <= espacioSO;
+            i++) {
+
+        if (esBCP(i)
+                && memoria[i + 1] == BCP.EstadoProceso.PREPARADO) {
+
+            preparados.add((Integer) memoria[i]);
+        }
+    }
+
+    return preparados;
+}
+    
+    //armar el objeto
+   public int[] obtenerDatosBCP(int pid) {
+
+    int posicion =
+            buscarBCP(pid);
+
+    if (posicion == -1) {
+        return null;
+    }
+
+    return new int[]{
+        (Integer) memoria[posicion],      // PID
+        (Integer) memoria[posicion + 2],  // PC
+        (Integer) memoria[posicion + 9],  // Base
+        (Integer) memoria[posicion + 10], // Tamaño
+        (Integer) memoria[posicion + 16]  // Orden cola
+    };
+}
+   public int obtenerPosicionBCP(int pid) {
+    return buscarBCP(pid);
+}
+
+public int obtenerPosicionTrabajo(int idTrabajo) {
+    return buscarTrabajo(idTrabajo);
+}
+
+public int getTamanioBCP() {
+    return TAMANIO_BCP;
+}
+
+public int getTamanioTrabajo() {
+    return TAMANIO_TRABAJO;
+}
+    
 }

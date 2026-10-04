@@ -13,15 +13,11 @@ public class SimuladorSO {
     private final CPU cpu;
     private Disco disco;
     private final Despachador despachador;
+    private final planificacorDeProcesos  planificadorDeProcesos;
 
 
 
-    /*
-     * Proceso que actualmente está utilizando la CPU.
-     */
-    private Proceso procesoActual;
-
-
+   
     /*---------------- CONSTRUCTOR ----------------*/
 
     public SimuladorSO() {
@@ -35,7 +31,8 @@ public class SimuladorSO {
 );
         this.cpu = new CPU();
         this.despachador =new Despachador(gestorProceso,cpu);
-        this.procesoActual = null;
+        this.planificadorDeProcesos = new planificacorDeProcesos ("FIFO");
+       
     }
 
 /*encender y apagar*/
@@ -84,19 +81,27 @@ public void cargarPrograma(File archivo) throws IOException {
        if (programa == null) {
            throw new IllegalArgumentException("Debe proporcionar un programa.");
        }
-
+       
        Proceso proceso = gestorProceso.crearProceso(programa);
+      
+            // Primero intenta cargarlo en RAM
+        if (memory.cargarProceso(proceso)) {
+            gestorProceso.ponerEnReady(proceso);
+            return proceso;
+        }
 
-       // Primero intenta cargarlo en RAM
-       if (memory.cargarProceso(proceso)) {
-           gestorProceso.ponerEnReady(proceso);
-           return proceso;
-       }
-     
 
-       throw new IllegalStateException(
-           "No hay espacio suficiente en RAM para ejecucion espere a liberar algun programa."
-       );
+        throw new IllegalStateException(
+            "No hay espacio suficiente en RAM para ejecucion espere a liberar algun programa."
+        );
+       
+              
+
+           
+       
+       
+
+      
    }
 
 
@@ -104,10 +109,27 @@ public void cargarPrograma(File archivo) throws IOException {
     /*
      * Toma el siguiente proceso de READY y carga su contexto en la CPU.*/
     public Proceso despacharSiguiente() {
-        validarEncendido();
-        procesoActual =despachador.despacharSiguiente( memory);
-        return procesoActual;
+
+    validarEncendido();
+
+    int pid = 
+            planificadorDeProcesos
+                    .seleccionarSiguiente(memory);
+
+    if (pid == -1) {
+        cpu.reiniciar();
+        return null;
     }
+
+    Proceso proceso =
+            despachador.despacharSiguiente(
+                    pid,
+                    memory
+            );
+   
+
+    return proceso;
+}
 
 
    /*---------------------------EJECUCION--------------------------------*/
@@ -133,72 +155,58 @@ public void cargarPrograma(File archivo) throws IOException {
     if (cpu.getPC() >= limite) {
         return false;
     }
+    
 
     cpu.ejecutarInstruccion(
             memory,
             proceso
     );
-
+    
     return cpu.getPC() < limite;
 }
 
-    public void ejecutarProcesoCompleto() {
+/*---------------------GESTION DE MEMORIA----------------*/
 
-        validarEncendido();
+/* Cambia la RAM y conserva el último tamaño del disco */
+public void cambiarMemoria(int nuevoTamanio) {
+    int tamanioDisco = disco.getMemoriaTotal();
+    double so = Double.parseDouble(lector.leerConfig("porcentajeSO"));
 
-        Proceso proceso =
-                gestorProceso.getEjecucion();
+    memory = new Memory(nuevoTamanio, so);
 
-        if (proceso == null) {
-            throw new IllegalStateException(
-                    "No hay ningún proceso despachado en la CPU."
-            );
-        }
+    gestorProceso.reiniciarProcesos();
+    cpu.reiniciar();
 
-        cpu.ejecutarTodo(
-                memory,
-                proceso
-        );
+    disco = new Disco(
+        Integer.parseInt(lector.leerConfig("memoriaVirtual")),
+        tamanioDisco
+    );
 }
 
+/* Cambia el disco y conserva el último tamaño de la RAM */
+public void cambiarAlmacenamiento(int nuevoTamanio) {
+    int tamanioMemoria = memory.getEspacio();
+    double so = Double.parseDouble(lector.leerConfig("porcentajeSO"));
 
-  /*---------------------GESTION DE MEMORIA----------------*/
-    /*recibe el numero entero del nuevo tamaño de memoria*/
-    public void cambiarMemoria(int nuevoTamanio) {
-        double so= Double.parseDouble(lector.leerConfig("porcentajeSO"));
-        Memory nuevaMemoria =new Memory(nuevoTamanio,so);
-        gestorProceso.BorrarProcesos();
-        memory =nuevaMemoria;
-        procesoActual = null;
-        cpu.reiniciar();
-    }
-    
-    /*recibe el numero entero del nuevo tamaño de memoria*/
-    public void cambiarAlmacenamiento(int nuevoTamanio) {
-       
-     
-
-     disco = new Disco(
+    disco = new Disco(
         Integer.parseInt(lector.leerConfig("memoriaVirtual")),
         nuevoTamanio
-      
     );
 
-        gestorProceso.BorrarProcesos();
-        memory.limpiarMemoria();
-  
-        procesoActual = null;
-        cpu.reiniciar();
-    }
+    gestorProceso.reiniciarProcesos();
+    cpu.reiniciar();
+
+    memory = new Memory(
+        tamanioMemoria,
+        so
+    );
+}
+    
+    
 
     public void reiniciarSistema() {
-
-        gestorProceso.BorrarProcesos();
-
         memory.limpiarMemoria();
-
-        procesoActual = null;
-
+        gestorProceso.reiniciarProcesos();
         cpu.reiniciar();
     }
 
@@ -211,9 +219,6 @@ public void cargarPrograma(File archivo) throws IOException {
             );
         }
     }
-
-
-   
 
     public Memory getMemory() {
 
@@ -233,28 +238,19 @@ public void cargarPrograma(File archivo) throws IOException {
     }
 
 
-    public Proceso getProcesoActual() {
-
-        return procesoActual;
-    }
-    
     public Disco getDisco() {
     return disco;
 }
     
     public void finalizarProcesoActual() {
+        validarEncendido();
 
-    validarEncendido();
+        Proceso proceso = gestorProceso.getEjecucion();
+        if (proceso == null) {
+            return;
+        }
 
-    if (procesoActual == null) {
-        throw new IllegalStateException("No hay ningún proceso en ejecución.");
+        gestorProceso.terminarActual();
+        memory.liberarProceso(proceso);
     }
-
-    Proceso procesoFinalizado = procesoActual;
-
-    gestorProceso.terminarActual();
-    memory.liberarProceso(procesoFinalizado);
-
-    procesoActual = null;
-}
 }

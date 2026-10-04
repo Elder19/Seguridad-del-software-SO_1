@@ -5,7 +5,6 @@ package javaapplication2;
  * @author elder
  */
 public class IndicePrograma {
-
     private String nombre;
     private int direccion;
     private int tamanio;

@@ -6,12 +6,16 @@ public class Instruccion {
     private final String registro;
     private final Integer valor;
     private final String RegistroDestino; 
+   
+    
      /*crea los objetos intruccon para facilitar la ejecucion*/
     public Instruccion(String operacion, String registro,Integer valor) {
         this.operacion = operacion.toUpperCase();
         this.registro = registro.toUpperCase();
         this.valor = valor;    
         this.RegistroDestino="";
+        
+        
        
     }
     public Instruccion(String operacion, String registro,String RegistroDestino) {
@@ -64,4 +68,34 @@ public class Instruccion {
         }
         return operacion+ " "  + registro;
     }
+    
+    public int ObtenerPeso(String operador){
+        
+        switch (operador) {
+
+            case "MOV":
+               return 1; 
+                
+        
+            case "LOAD":
+               return 10; 
+
+            case "STORE":
+                 return 2; 
+            
+
+            case "ADD":
+                 return 3; 
+               
+
+            case "SUB":
+               return 3; 
+
+            default:
+                return 0;
+                
+        }
+    
+    
+    };
 }

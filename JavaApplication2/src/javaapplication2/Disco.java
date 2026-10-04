@@ -92,11 +92,7 @@ public class Disco {
             indice.getNombre(),
             instrucciones
     );
-    
 }
-   
-   
-
     /*---------------- ÍNDICE ----------------*/
 
     private int buscarIndiceLibre() {

@@ -14,28 +14,27 @@ public class Despachador {
     }
 
 
- /*Toma el siguiente proceso de la cola READY y carga su contexto en la CPU para ejecutarlo.  */
-public Proceso despacharSiguiente(Memory memory) {
+public Proceso despacharSiguiente(
+        int pid,
+        Memory memory) {
 
-        Proceso proceso =gestorProceso.ejecutarSiguiente();
+    Proceso proceso =
+            gestorProceso.ponerEnEjecucion(pid);
 
-        if (proceso == null) {
-            System.out.println( "No hay procesos en READY.");
-
-            return null;
-        }
-        int pid =proceso.getBcp().getPid();
-        memory.actualizarBCP(proceso);
-
-        // Cargar registros del BCP en la CPU.
-        cpu.cargarContexto(memory,pid);
-
-        System.out.println(
-                "Dispatcher: PID "
-                + pid
-                + " enviado a la CPU."
-        );
-
-        return proceso;
+    if (proceso == null) {
+        return null;
     }
+
+    // Actualizar BCP en RAM
+    memory.actualizarBCP(proceso);
+
+    // Cargar contexto en CPU
+    cpu.cargarContexto(
+            memory,
+            pid
+    );
+
+    return proceso;
+}
+
 }

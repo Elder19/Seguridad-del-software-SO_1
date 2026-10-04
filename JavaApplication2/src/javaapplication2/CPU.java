@@ -9,6 +9,8 @@ public class CPU {
     private int CX;
     private int DX;
     private String IR;
+    private int Segundero;
+    
     
     public CPU() {
         this.PC = 0;
@@ -18,7 +20,8 @@ public class CPU {
         this.CX = 0;
         this.DX = 0;
         this.IR = null;
-    }
+        this.Segundero=0; 
+    }    
 
 
     /*---------------- CARGAR CONTEXTO ----------------*/
@@ -40,38 +43,47 @@ public class CPU {
     public void ejecutarInstruccion(Memory memory,Proceso proceso) {
         /*Lee la instruccion de la memoria*/
         Instruccion instruccion =memory.leerInstruccion( proceso,PC);// registro,valor,mov
+       this.IR = instruccion.toString();
        // this.IR =instruccion.getBinario();//instruccion actual en binario la guarda en en el IR
         String operador = instruccion.getOperacion(); // toma el tipo de operacion que se hace
+        this.Segundero++;
         
-        switch (operador) {
+        if (instruccion.ObtenerPeso(operador)==Segundero){
+     
+            switch (operador) {
 
-            case "MOV":
-                ejecutarMOV(instruccion);
-                break;
 
-            case "LOAD":
-                ejecutarLOAD(instruccion);
-                break;
+                case "MOV":
+                        ejecutarMOV(instruccion);
+                    break;
 
-            case "STORE":
-                ejecutarSTORE(instruccion);
-                break;
+                case "LOAD":
+                    ejecutarLOAD(instruccion);
+                    break;
 
-            case "ADD":
-                ejecutarADD(instruccion);
-                break;
+                case "STORE":
+                    ejecutarSTORE(instruccion);
+                    break;
 
-            case "SUB":
-                ejecutarSUB(instruccion);
-                break;
+                case "ADD":
+                    ejecutarADD(instruccion);
+                    break;
 
-            default:
-                throw new IllegalArgumentException(
-                        "Operación no válida: "
-                        + operador
-                );
+                case "SUB":
+                    ejecutarSUB(instruccion);
+                    break;
+
+                default:
+                    throw new IllegalArgumentException(
+                            "Operación no válida: "
+                            + operador
+                    );
+            }
+           proceso.getBcp().setTiempoEmpleado(Segundero+proceso.getBcp().getTiempoEmpleado());
+           PC++;
+           Segundero = 0;
+           
         }
-        PC++;
 
        //Respalda la bcp del cpu en la del proceso
         guardarContexto(proceso.getBcp());
@@ -194,19 +206,27 @@ public class CPU {
     }
 
 
-    /*---------------- EJECUTAR TODO ----------------*/
+    /*---------------- EJECUTAR TODO ----------------
 
-    public void ejecutarTodo(Memory memory, Proceso proceso) {
+   public void ejecutarTodo(Memory memory, Proceso proceso) {
 
-       int limite = proceso.getBcp().getBase()
-               + proceso.getBcp().getTamanio();
+    int limite = proceso.getBcp().getBase()
+            + proceso.getBcp().getTamanio();
 
-       while (PC < limite) {
-           ejecutarInstruccion(memory, proceso);
-       }
+    while (PC < limite) {
 
-       System.out.println("Proceso terminado.");
-   }
+        ejecutarInstruccion(memory, proceso);
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            break;
+        }
+    }
+
+    System.out.println("Proceso terminado.");
+}
 
 
     /*---------------- GETTERS ----------------*/
@@ -248,6 +268,11 @@ public class CPU {
     DX = 0;
     IR = null;
 }
+
+    public int getSegundero() {
+        return Segundero;
+    }
+   
 
 
     

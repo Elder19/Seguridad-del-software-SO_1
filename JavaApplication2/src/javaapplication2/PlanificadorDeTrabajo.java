@@ -18,7 +18,8 @@ public class PlanificadorDeTrabajo {
         this.disco = disco;
     }
 
-    //busca el trabajo con mayor tiempo de espera
+
+    // Busca el trabajo más antiguo según su ID
     private Object[] obtenerTrabajoMasAntiguo() {
 
         List<Object[]> trabajos =
@@ -34,10 +35,10 @@ public class PlanificadorDeTrabajo {
         for (Object[] trabajo : trabajos) {
 
             int idActual =
-                    (Integer) trabajo[3];
+                    (Integer) trabajo[0];
 
             int idMasAntiguo =
-                    (Integer) trabajoMasAntiguo[3];
+                    (Integer) trabajoMasAntiguo[0];
 
             if (idActual < idMasAntiguo) {
                 trabajoMasAntiguo = trabajo;
@@ -48,7 +49,7 @@ public class PlanificadorDeTrabajo {
     }
 
 
-    //admite el mas antiguo lo reconstruye 
+    // Admite el trabajo más antiguo
     public Proceso planificarSiguiente() {
 
         Object[] trabajo =
@@ -65,40 +66,55 @@ public class PlanificadorDeTrabajo {
 
 
         // Datos del trabajo
-        IndicePrograma indice =
-                (IndicePrograma) trabajo[0];
-   /*
-        String nombrePrograma =
-                (String) trabajo[1];
-
-        int tamanioPrograma =
-                (Integer) trabajo[2];*/
-
         int idTrabajo =
-                (Integer) trabajo[3];
+                (Integer) trabajo[0];
 
+        int direccion =
+                (Integer) trabajo[2];
 
-        // Recuperar el programa del disco
-        Programa programa = disco.obtenerPrograma(indice);
-//valida si se puede cargar en las memorias
-        if (programa == null||!memory.puedeCargarPrograma(programa)) {
+        // Recuperar el índice original del disco
+        IndicePrograma indice =
+                disco.obtenerIndicePorDireccion(
+                        direccion
+                );
+
+        if (indice == null) {
+            return null;
+        }
+
+        // Recuperar programa del disco
+        Programa programa =
+                disco.obtenerPrograma(indice);
+
+        // Validar que pueda entrar en memoria
+        if (programa == null|| !memory.puedeCargarPrograma(programa)) {
 
             return null;
         }
 
 
-        //  se convierte en proceso
-        Proceso proceso =gestorProceso.crearProceso(programa);
-        // Cargar BCP + instrucciones
+        // Crear proceso
+        Proceso proceso =
+                gestorProceso.crearProceso(programa);
+
+
+        // Cargar BCP + instrucciones en RAM
         if (!memory.cargarProceso(proceso)) {
             return null;
         }
+        // El trabajo ya fue admitido,
+        // entonces sale de la lista de trabajos
+        memory.liberarTrabajo(idTrabajo);
 
 
         // NUEVO -> PREPARADO
         gestorProceso.ponerEnReady(proceso);
+
+        // Actualizar el BCP ya con estado PREPARADO
         memory.actualizarBCP(proceso);
-        memory.liberarTrabajo(idTrabajo);
+
+
+        
 
 
         return proceso;
