@@ -1,9 +1,5 @@
-package javaapplication2;
+package javaapplication2.disco;
 
-/**
- *
- * @author elder
- */
 public class IndicePrograma {
     private String nombre;
     private int direccion;
@@ -42,4 +38,5 @@ public class IndicePrograma {
     public void setTamanio(int tamanio) {
         this.tamanio = tamanio;
     }
+
 }

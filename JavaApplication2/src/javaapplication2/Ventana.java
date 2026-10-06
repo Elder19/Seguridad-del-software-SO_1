@@ -1,1943 +1,3045 @@
+/*
+ * Interfaz sencilla y editable desde NetBeans Design.
+ * Toda la estructura visual se encuentra en Ventana.form.
+ */
 package javaapplication2;
-import javax.swing.JOptionPane;
+
+import javaapplication2.SimuladorSO;
+import javaapplication2.programa.Programa;
+import javaapplication2.programa.Instruccion;
+import javaapplication2.disco.IndicePrograma;
+import javaapplication2.disco.Disco;
+import javaapplication2.memoria.Memory;
+import javaapplication2.procesos.PlanificadorDeTrabajo;
+import javaapplication2.procesos.Proceso;
+import javaapplication2.procesos.BCP;
+import javaapplication2.cpu.CPU;
 
 public class Ventana extends javax.swing.JFrame {
 
+    private static final java.util.logging.Logger logger = java.util.logging.Logger
+            .getLogger(Ventana.class.getName());
     private final SimuladorSO simulador = new SimuladorSO();
     private Programa programaActual;
-    private static final java.util.logging.Logger logger =
-            java.util.logging.Logger.getLogger(Ventana.class.getName());
-    private Integer pidSeleccionado = null;
+    private Integer pidSeleccionado;
+    // sirve para saber si el proceso seleccionado es el que está en ejecución
+    private boolean modoAutomatico = false;
+    private boolean automaticoEsperandoEntrada = false;
+
+    // Indica si el worker automático está activo.
+    private boolean workerAutomaticoActivo = false;
+
+    // Consola independiente para cada proceso.
+    private final java.util.Map<Integer, StringBuilder> consolasProcesos = new java.util.HashMap<>();
+
+    // Texto que el usuario todavía no ha enviado con Enter en cada proceso.
+    private final java.util.Map<Integer, String> entradasPendientes = new java.util.HashMap<>();
+
+    // Evita que una actualización visual se confunda con escritura del usuario.
+    private boolean actualizandoMonitor = false;
+    private int inicioEntradaMonitor = 0;
+
+    // Evita modificar el simulador desde dos hilos al mismo tiempo.
+    private final Object bloqueoSimulador = new Object();
+
+    // Se activa cuando una INT 21H cambió el contenido del disco.
+    private volatile boolean discoPendienteDeActualizar = false;
+
     public Ventana() {
         initComponents();
+        configurarMonitorConsola();
+        aplicarTema();
         configurarInterfaz();
-        actualizarCPU();
-        actualizarMemoria();
-        actualizarProcesos();
-        actualizarDisco();
-        actualizarTablaProgramas();
-        actualizarTrabajos();
+        setLocationRelativeTo(null);
+        setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
+        refrescarVista();
     }
-   
+
     @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    // <editor-fold defaultstate="collapsed" desc="Generated
+    // <editor-fold defaultstate="collapsed" desc="Generated
+        // Code">//GEN-BEGIN:initComponents
+        private void initComponents() {
 
-        jPanel2 = new javax.swing.JPanel();
-        combobox = new javax.swing.JComboBox<>();
-        ejecutarpaso = new javax.swing.JToggleButton();
-        Ejecutartodo = new javax.swing.JToggleButton();
-        jScrollPane4 = new javax.swing.JScrollPane();
-        tablamemoria = new javax.swing.JTable();
-        panelCPU = new javax.swing.JPanel();
-        txtCpuPC = new javax.swing.JLabel();
-        txtCpuAC = new javax.swing.JLabel();
-        txtCpuAX = new javax.swing.JLabel();
-        txtCpuBX = new javax.swing.JLabel();
-        txtCpuCX = new javax.swing.JLabel();
-        txtCpuDX = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        Tablarocesos = new javax.swing.JTable();
-        apagaencender = new javax.swing.JToggleButton();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        txtInstrucciones = new javax.swing.JTextArea();
-        jPanel1 = new javax.swing.JPanel();
-        lblBcpPid = new javax.swing.JLabel();
-        lblBcpEstado = new javax.swing.JLabel();
-        lblBcpBase = new javax.swing.JLabel();
-        lblBcpTamanio = new javax.swing.JLabel();
-        lblBcpAC = new javax.swing.JLabel();
-        lblBcpPC = new javax.swing.JLabel();
-        lblBcpAX = new javax.swing.JLabel();
-        lblBcpBX = new javax.swing.JLabel();
-        lblBcpCX = new javax.swing.JLabel();
-        lblBcpDX = new javax.swing.JLabel();
-        jScrollPane5 = new javax.swing.JScrollPane();
-        tablaDisco = new javax.swing.JTable();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        TablaProgramas = new javax.swing.JTable();
-        btnEjecutarPrograma = new javax.swing.JButton();
-        btnEliminarPrograma = new javax.swing.JButton();
-        jScrollPane6 = new javax.swing.JScrollPane();
-        jTextPane1 = new javax.swing.JTextPane();
-        jScrollPane7 = new javax.swing.JScrollPane();
-        TablaTrabajos = new javax.swing.JTable();
+                comboOpciones = new javax.swing.JComboBox();
+                btnEncender = new javax.swing.JToggleButton();
+                panelIzquierdo = new javax.swing.JPanel();
+                panelCPU = new javax.swing.JPanel();
+                lblPC = new javax.swing.JLabel();
+                lblAC = new javax.swing.JLabel();
+                lblAX = new javax.swing.JLabel();
+                lblBX = new javax.swing.JLabel();
+                lblCX = new javax.swing.JLabel();
+                lblDX = new javax.swing.JLabel();
+                lblIR = new javax.swing.JLabel();
+                lblSegundero = new javax.swing.JLabel();
+                scrollRAM = new javax.swing.JScrollPane();
+                tablaRAM = new javax.swing.JTable();
+                scrollDisco = new javax.swing.JScrollPane();
+                tablaDisco = new javax.swing.JTable();
+                panelCentro = new javax.swing.JPanel();
+                panelProgramas = new javax.swing.JPanel();
+                scrollProgramas = new javax.swing.JScrollPane();
+                tablaProgramas = new javax.swing.JTable();
+                btnEliminar = new javax.swing.JButton();
+                btnEjecutarPrograma = new javax.swing.JButton();
+                scrollTrabajos = new javax.swing.JScrollPane();
+                tablaTrabajos = new javax.swing.JTable();
+                scrollInstrucciones = new javax.swing.JScrollPane();
+                txtInstrucciones = new javax.swing.JTextArea();
+                btnEjecutarTodo = new javax.swing.JButton();
+                btnEjecutarPaso = new javax.swing.JButton();
+                panelDerecho = new javax.swing.JPanel();
+                scrollProcesos = new javax.swing.JScrollPane();
+                tablaProcesos = new javax.swing.JTable();
+                panelBCPEstadisticas = new javax.swing.JPanel();
+                scrollBCP = new javax.swing.JScrollPane();
+                txtBCP = new javax.swing.JTextArea();
+                scrollEstadisticas = new javax.swing.JScrollPane();
+                txtEstadisticas = new javax.swing.JTextArea();
+                scrollMonitor = new javax.swing.JScrollPane();
+                txtMonitor = new javax.swing.JTextArea();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("me cago en licha");
-        setMinimumSize(new java.awt.Dimension(1050, 680));
-        setResizable(false);
+                setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+                setTitle("Simulador de Sistema Operativo");
+                setMinimumSize(new java.awt.Dimension(1000, 650));
 
-        jPanel2.setBackground(new java.awt.Color(204, 204, 204));
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "  Sistema Operativo", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.TOP));
-        jPanel2.setAutoscrolls(true);
+                comboOpciones.setModel(new javax.swing.DefaultComboBoxModel(
+                                new String[] { "Opciones", "Cargar programa", "Cambiar memoria",
+                                                "Cambiar almacenamiento", "Reiniciar SO", "Acerca del SO" }));
+                comboOpciones.addActionListener(this::comboOpcionesActionPerformed);
 
-        combobox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Opciones", "Cargar programa", "Cambiar memoria", "Cambiar Almacenamiento", "Reiniciar SO ", "Acerca del SO" }));
-        combobox.addActionListener(this::comboboxActionPerformed);
+                btnEncender.setText("Encender");
+                btnEncender.addActionListener(this::btnEncenderActionPerformed);
 
-        ejecutarpaso.setText("⏭️ Ejecutar paso");
-        ejecutarpaso.addActionListener(this::ejecutarpasoActionPerformed);
+                panelCPU.setBorder(javax.swing.BorderFactory.createTitledBorder("CPU"));
 
-        Ejecutartodo.setText(" ⏩ Ejecutar todo");
-        Ejecutartodo.addActionListener(this::EjecutartodoActionPerformed);
+                lblPC.setText("PC: 0");
 
-        tablamemoria.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
+                lblAC.setText("AC: 0");
 
-            },
-            new String [] {
-                "Posicion", "Zona", "Contenido"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false
-            };
+                lblAX.setText("AX: 0");
 
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        jScrollPane4.setViewportView(tablamemoria);
+                lblBX.setText("BX: 0");
 
-        panelCPU.setBorder(javax.swing.BorderFactory.createTitledBorder(" CPU  "));
+                lblCX.setText("CX: 0");
 
-        txtCpuPC.setText("PC:");
+                lblDX.setText("DX: 0");
 
-        txtCpuAC.setText("AC:");
+                lblIR.setText("IR: -");
 
-        txtCpuAX.setText("AX:");
+                lblSegundero.setText("Segundero: 0 / 0");
 
-        txtCpuBX.setText("BX:");
+                javax.swing.GroupLayout panelCPULayout = new javax.swing.GroupLayout(panelCPU);
+                panelCPU.setLayout(panelCPULayout);
+                panelCPULayout.setHorizontalGroup(
+                                panelCPULayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addGroup(panelCPULayout.createSequentialGroup()
+                                                                .addContainerGap()
+                                                                .addGroup(panelCPULayout.createParallelGroup(
+                                                                                javax.swing.GroupLayout.Alignment.LEADING)
+                                                                                .addComponent(lblPC)
+                                                                                .addComponent(lblAC)
+                                                                                .addComponent(lblAX)
+                                                                                .addComponent(lblBX)
+                                                                                .addComponent(lblCX)
+                                                                                .addComponent(lblDX)
+                                                                                .addComponent(lblIR)
+                                                                                .addComponent(lblSegundero))
+                                                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                Short.MAX_VALUE)));
+                panelCPULayout.setVerticalGroup(
+                                panelCPULayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addGroup(panelCPULayout.createSequentialGroup()
+                                                                .addContainerGap()
+                                                                .addComponent(lblPC)
+                                                                .addPreferredGap(
+                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                .addComponent(lblAC)
+                                                                .addPreferredGap(
+                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                .addComponent(lblAX)
+                                                                .addPreferredGap(
+                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                .addComponent(lblBX)
+                                                                .addPreferredGap(
+                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                .addComponent(lblCX)
+                                                                .addPreferredGap(
+                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                .addComponent(lblDX)
+                                                                .addPreferredGap(
+                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                .addComponent(lblIR)
+                                                                .addPreferredGap(
+                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                .addComponent(lblSegundero)
+                                                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                Short.MAX_VALUE)));
 
-        txtCpuCX.setText("CX:");
+                scrollRAM.setBorder(javax.swing.BorderFactory.createTitledBorder("MEMORIA RAM"));
 
-        txtCpuDX.setText("DX:");
+                tablaRAM.setModel(new javax.swing.table.DefaultTableModel(
+                                new Object[][] {
 
-        javax.swing.GroupLayout panelCPULayout = new javax.swing.GroupLayout(panelCPU);
-        panelCPU.setLayout(panelCPULayout);
-        panelCPULayout.setHorizontalGroup(
-            panelCPULayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelCPULayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelCPULayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtCpuAX, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(panelCPULayout.createSequentialGroup()
-                        .addComponent(txtCpuAC, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addContainerGap())
-                    .addGroup(panelCPULayout.createSequentialGroup()
-                        .addGroup(panelCPULayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtCpuPC, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(panelCPULayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(txtCpuDX, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
-                                .addComponent(txtCpuCX, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                        .addGap(0, 93, Short.MAX_VALUE))
-                    .addComponent(txtCpuBX, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-        );
-        panelCPULayout.setVerticalGroup(
-            panelCPULayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelCPULayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(txtCpuPC, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtCpuAC)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtCpuAX)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtCpuBX)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtCpuCX)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtCpuDX)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+                                },
+                                new String[] {
+                                                "Posición", "Zona", "Contenido"
+                                }) {
+                        boolean[] canEdit = new boolean[] {
+                                        false, false, false
+                        };
 
-        Tablarocesos.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
-            },
-            new String [] {
-                "Estado ", "PID", "Programa"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false
-            };
+                        public boolean isCellEditable(int rowIndex, int columnIndex) {
+                                return canEdit[columnIndex];
+                        }
+                });
+                scrollRAM.setViewportView(tablaRAM);
 
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        Tablarocesos.setFillsViewportHeight(true);
-        Tablarocesos.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                TablarocesosMouseClicked(evt);
-            }
-        });
-        jScrollPane1.setViewportView(Tablarocesos);
+                scrollDisco.setBorder(javax.swing.BorderFactory.createTitledBorder("DISCO"));
 
-        apagaencender.setText(" ⏻ Encender");
-        apagaencender.addActionListener(this::apagaencenderActionPerformed);
+                tablaDisco.setModel(new javax.swing.table.DefaultTableModel(
+                                new Object[][] {
 
-        jScrollPane3.setBorder(javax.swing.BorderFactory.createTitledBorder("INSTRUCCIONES"));
+                                },
+                                new String[] {
+                                                "Posición", "Zona", "Contenido"
+                                }) {
+                        boolean[] canEdit = new boolean[] {
+                                        false, false, false
+                        };
 
-        txtInstrucciones.setEditable(false);
-        txtInstrucciones.setBackground(new java.awt.Color(102, 102, 102));
-        txtInstrucciones.setColumns(20);
-        txtInstrucciones.setRows(5);
-        txtInstrucciones.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
-        jScrollPane3.setViewportView(txtInstrucciones);
-        txtInstrucciones.getAccessibleContext().setAccessibleName("Instrucciones");
-        txtInstrucciones.getAccessibleContext().setAccessibleDescription("");
+                        public boolean isCellEditable(int rowIndex, int columnIndex) {
+                                return canEdit[columnIndex];
+                        }
+                });
+                scrollDisco.setViewportView(tablaDisco);
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("BCP del proceso seleccionado"));
-        jPanel1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+                javax.swing.GroupLayout panelIzquierdoLayout = new javax.swing.GroupLayout(panelIzquierdo);
+                panelIzquierdo.setLayout(panelIzquierdoLayout);
+                panelIzquierdoLayout.setHorizontalGroup(
+                                panelIzquierdoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addGroup(panelIzquierdoLayout.createSequentialGroup()
+                                                                .addComponent(panelCPU,
+                                                                                javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                .addPreferredGap(
+                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                .addComponent(scrollRAM,
+                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                320, Short.MAX_VALUE))
+                                                .addComponent(scrollDisco, javax.swing.GroupLayout.PREFERRED_SIZE, 0,
+                                                                Short.MAX_VALUE));
+                panelIzquierdoLayout.setVerticalGroup(
+                                panelIzquierdoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addGroup(panelIzquierdoLayout.createSequentialGroup()
+                                                                .addGroup(panelIzquierdoLayout.createParallelGroup(
+                                                                                javax.swing.GroupLayout.Alignment.LEADING)
+                                                                                .addComponent(panelCPU,
+                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                Short.MAX_VALUE)
+                                                                                .addComponent(scrollRAM,
+                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                280, Short.MAX_VALUE))
+                                                                .addPreferredGap(
+                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                .addComponent(scrollDisco,
+                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                280, Short.MAX_VALUE)));
 
-        lblBcpPid.setText("PID: -");
+                panelProgramas.setBorder(javax.swing.BorderFactory.createTitledBorder("PROGRAMAS EN DISCO"));
 
-        lblBcpEstado.setText("Estado: -");
+                tablaProgramas.setModel(new javax.swing.table.DefaultTableModel(
+                                new Object[][] {
 
-        lblBcpBase.setText("Base: -");
+                                },
+                                new String[] {
+                                                "Programa", "Tamaño"
+                                }) {
+                        boolean[] canEdit = new boolean[] {
+                                        false, false
+                        };
 
-        lblBcpTamanio.setText("Tamaño: -");
+                        public boolean isCellEditable(int rowIndex, int columnIndex) {
+                                return canEdit[columnIndex];
+                        }
+                });
+                scrollProgramas.setViewportView(tablaProgramas);
 
-        lblBcpAC.setText("AC: -");
+                btnEliminar.setText("Eliminar");
+                btnEliminar.addActionListener(this::btnEliminarActionPerformed);
 
-        lblBcpPC.setText("PC: -");
+                btnEjecutarPrograma.setText("Ejecutar");
+                btnEjecutarPrograma.addActionListener(this::btnEjecutarProgramaActionPerformed);
 
-        lblBcpAX.setText("AX: -");
+                javax.swing.GroupLayout panelProgramasLayout = new javax.swing.GroupLayout(panelProgramas);
+                panelProgramas.setLayout(panelProgramasLayout);
+                panelProgramasLayout.setHorizontalGroup(
+                                panelProgramasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addComponent(scrollProgramas, javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                250, Short.MAX_VALUE)
+                                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING,
+                                                                panelProgramasLayout.createSequentialGroup()
+                                                                                .addContainerGap(
+                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                Short.MAX_VALUE)
+                                                                                .addComponent(btnEliminar)
+                                                                                .addPreferredGap(
+                                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                                .addComponent(btnEjecutarPrograma)
+                                                                                .addContainerGap()));
+                panelProgramasLayout.setVerticalGroup(
+                                panelProgramasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addGroup(panelProgramasLayout.createSequentialGroup()
+                                                                .addComponent(scrollProgramas,
+                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                150, Short.MAX_VALUE)
+                                                                .addPreferredGap(
+                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                .addGroup(panelProgramasLayout.createParallelGroup(
+                                                                                javax.swing.GroupLayout.Alignment.BASELINE)
+                                                                                .addComponent(btnEliminar)
+                                                                                .addComponent(btnEjecutarPrograma))
+                                                                .addContainerGap()));
 
-        lblBcpBX.setText("BX: -");
+                scrollTrabajos.setBorder(javax.swing.BorderFactory.createTitledBorder("COLA DE TRABAJOS"));
 
-        lblBcpCX.setText("CX: -");
+                tablaTrabajos.setModel(new javax.swing.table.DefaultTableModel(
+                                new Object[][] {
 
-        lblBcpDX.setText("DX: -");
+                                },
+                                new String[] {
+                                                "ID", "Programa", "Tamaño"
+                                }) {
+                        boolean[] canEdit = new boolean[] {
+                                        false, false, false
+                        };
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(lblBcpPid, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(46, 46, 46)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(lblBcpAX, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(lblBcpPC, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(lblBcpAC, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(lblBcpBase, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(lblBcpTamanio, javax.swing.GroupLayout.DEFAULT_SIZE, 107, Short.MAX_VALUE)))
-                                .addGap(38, 38, 38)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(lblBcpCX, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(lblBcpBX, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(lblBcpDX, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addContainerGap(167, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(lblBcpEstado, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(159, 159, 159))))
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblBcpPid)
-                    .addComponent(lblBcpPC))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblBcpEstado)
-                    .addComponent(lblBcpAX))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblBcpBase)
-                    .addComponent(lblBcpBX))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblBcpTamanio, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblBcpCX))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblBcpDX)
-                    .addComponent(lblBcpAC))
-                .addContainerGap(241, Short.MAX_VALUE))
-        );
+                        public boolean isCellEditable(int rowIndex, int columnIndex) {
+                                return canEdit[columnIndex];
+                        }
+                });
+                scrollTrabajos.setViewportView(tablaTrabajos);
 
-        tablaDisco.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
-            },
-            new String [] {
-                "Posición ", "Zona         ", "Contenido"
-            }
-        ));
-        jScrollPane5.setViewportView(tablaDisco);
+                scrollInstrucciones.setBorder(javax.swing.BorderFactory.createTitledBorder("INSTRUCCIONES"));
 
-        TablaProgramas.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null}
-            },
-            new String [] {
-                "Programa", "Tamaño"
-            }
-        ));
-        jScrollPane2.setViewportView(TablaProgramas);
+                txtInstrucciones.setEditable(false);
+                txtInstrucciones.setColumns(20);
+                txtInstrucciones.setRows(5);
+                scrollInstrucciones.setViewportView(txtInstrucciones);
 
-        btnEjecutarPrograma.setText("Ejecutar");
-        btnEjecutarPrograma.addActionListener(this::btnEjecutarProgramaActionPerformed);
+                btnEjecutarTodo.setText("Ejecutar todo");
+                btnEjecutarTodo.addActionListener(this::btnEjecutarTodoActionPerformed);
 
-        btnEliminarPrograma.setText("Eliminar");
-        btnEliminarPrograma.addActionListener(this::btnEliminarProgramaActionPerformed);
+                btnEjecutarPaso.setText("Ejecutar paso");
+                btnEjecutarPaso.addActionListener(this::btnEjecutarPasoActionPerformed);
 
-        jTextPane1.setText("Simulador SO");
-        jScrollPane6.setViewportView(jTextPane1);
+                javax.swing.GroupLayout panelCentroLayout = new javax.swing.GroupLayout(panelCentro);
+                panelCentro.setLayout(panelCentroLayout);
+                panelCentroLayout.setHorizontalGroup(
+                                panelCentroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addComponent(panelProgramas, javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(scrollTrabajos, javax.swing.GroupLayout.PREFERRED_SIZE, 0,
+                                                                Short.MAX_VALUE)
+                                                .addComponent(scrollInstrucciones,
+                                                                javax.swing.GroupLayout.PREFERRED_SIZE, 0,
+                                                                Short.MAX_VALUE)
+                                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelCentroLayout
+                                                                .createSequentialGroup()
+                                                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                Short.MAX_VALUE)
+                                                                .addComponent(btnEjecutarTodo)
+                                                                .addPreferredGap(
+                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                .addComponent(btnEjecutarPaso)));
+                panelCentroLayout.setVerticalGroup(
+                                panelCentroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addGroup(panelCentroLayout.createSequentialGroup()
+                                                                .addComponent(panelProgramas,
+                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                Short.MAX_VALUE)
+                                                                .addPreferredGap(
+                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                .addComponent(scrollTrabajos,
+                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                150, Short.MAX_VALUE)
+                                                                .addPreferredGap(
+                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                .addComponent(scrollInstrucciones,
+                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                190, Short.MAX_VALUE)
+                                                                .addPreferredGap(
+                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                .addGroup(panelCentroLayout.createParallelGroup(
+                                                                                javax.swing.GroupLayout.Alignment.BASELINE)
+                                                                                .addComponent(btnEjecutarTodo)
+                                                                                .addComponent(btnEjecutarPaso))));
 
-        TablaTrabajos.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
+                scrollProcesos.setBorder(javax.swing.BorderFactory.createTitledBorder("PROCESOS"));
 
-            },
-            new String [] {
-                "ID", "Programa", "Tamaño"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false
-            };
+                tablaProcesos.setModel(new javax.swing.table.DefaultTableModel(
+                                new Object[][] {
 
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        TablaTrabajos.setFillsViewportHeight(true);
-        jScrollPane7.setViewportView(TablaTrabajos);
+                                },
+                                new String[] {
+                                                "Estado", "PID", "Programa"
+                                }) {
+                        boolean[] canEdit = new boolean[] {
+                                        false, false, false
+                        };
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGap(633, 633, 633)
-                                .addComponent(btnEliminarPrograma)
-                                .addGap(33, 33, 33)
-                                .addComponent(btnEjecutarPrograma)
-                                .addGap(35, 35, 35))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)))
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGap(367, 367, 367)
-                                .addComponent(apagaencender))
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 502, Short.MAX_VALUE)))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(panelCPU, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 393, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jScrollPane5))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(Ejecutartodo, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(ejecutarpaso))
-                            .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(combobox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(751, 751, 751))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(621, 621, 621)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(apagaencender)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(combobox, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jScrollPane6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 283, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(604, 604, 604))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(btnEjecutarPrograma)
-                                    .addComponent(btnEliminarPrograma))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jScrollPane4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addComponent(panelCPU, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGap(26, 26, 26)
-                                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 239, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(201, 201, 201)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(Ejecutartodo)
-                                    .addComponent(ejecutarpaso, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(0, 0, Short.MAX_VALUE))))))
-        );
+                        public boolean isCellEditable(int rowIndex, int columnIndex) {
+                                return canEdit[columnIndex];
+                        }
+                });
+                tablaProcesos.addMouseListener(new java.awt.event.MouseAdapter() {
+                        public void mouseClicked(java.awt.event.MouseEvent evt) {
+                                tablaProcesosMouseClicked(evt);
+                        }
+                });
+                scrollProcesos.setViewportView(tablaProcesos);
 
-        apagaencender.getAccessibleContext().setAccessibleName("Encendido/apagado");
-        apagaencender.getAccessibleContext().setAccessibleDescription("");
+                scrollBCP.setBorder(javax.swing.BorderFactory.createTitledBorder("BCP DEL PROCESO SELECCIONADO"));
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+                txtBCP.setEditable(false);
+                txtBCP.setColumns(20);
+                txtBCP.setRows(5);
+                txtBCP.setText("Sin proceso seleccionado.");
+                scrollBCP.setViewportView(txtBCP);
 
-        getAccessibleContext().setAccessibleDescription("");
+                scrollEstadisticas.setBorder(javax.swing.BorderFactory.createTitledBorder("ESTADÍSTICAS DEL PROCESO"));
 
-        pack();
-    }// </editor-fold>//GEN-END:initComponents
+                txtEstadisticas.setEditable(false);
+                txtEstadisticas.setColumns(20);
+                txtEstadisticas.setRows(5);
+                txtEstadisticas.setText("Sin proceso seleccionado.");
+                scrollEstadisticas.setViewportView(txtEstadisticas);
 
-    private void apagaencenderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_apagaencenderActionPerformed
+                javax.swing.GroupLayout panelBCPEstadisticasLayout = new javax.swing.GroupLayout(panelBCPEstadisticas);
+                panelBCPEstadisticas.setLayout(panelBCPEstadisticasLayout);
+                panelBCPEstadisticasLayout.setHorizontalGroup(
+                                panelBCPEstadisticasLayout
+                                                .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addGroup(panelBCPEstadisticasLayout.createSequentialGroup()
+                                                                .addComponent(scrollBCP,
+                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                220, Short.MAX_VALUE)
+                                                                .addPreferredGap(
+                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                .addComponent(scrollEstadisticas,
+                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                220, Short.MAX_VALUE)));
+                panelBCPEstadisticasLayout.setVerticalGroup(
+                                panelBCPEstadisticasLayout
+                                                .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addComponent(scrollBCP, javax.swing.GroupLayout.DEFAULT_SIZE, 180,
+                                                                Short.MAX_VALUE)
+                                                .addComponent(scrollEstadisticas, javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                180, Short.MAX_VALUE));
 
-        if (apagaencender.isSelected()) {
+                scrollMonitor.setBorder(javax.swing.BorderFactory.createTitledBorder("MONITOR"));
 
-            simulador.encender();
+                txtMonitor.setEditable(false);
+                txtMonitor.setColumns(20);
+                txtMonitor.setRows(5);
+                scrollMonitor.setViewportView(txtMonitor);
 
-            apagaencender.setText("Apagar");
+                javax.swing.GroupLayout panelDerechoLayout = new javax.swing.GroupLayout(panelDerecho);
+                panelDerecho.setLayout(panelDerechoLayout);
+                panelDerechoLayout.setHorizontalGroup(
+                                panelDerechoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addComponent(scrollProcesos, javax.swing.GroupLayout.DEFAULT_SIZE, 430,
+                                                                Short.MAX_VALUE)
+                                                .addComponent(panelBCPEstadisticas,
+                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(scrollMonitor, javax.swing.GroupLayout.PREFERRED_SIZE, 0,
+                                                                Short.MAX_VALUE));
+                panelDerechoLayout.setVerticalGroup(
+                                panelDerechoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addGroup(panelDerechoLayout.createSequentialGroup()
+                                                                .addComponent(scrollProcesos,
+                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                220, Short.MAX_VALUE)
+                                                                .addPreferredGap(
+                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                .addComponent(panelBCPEstadisticas,
+                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                Short.MAX_VALUE)
+                                                                .addPreferredGap(
+                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                .addComponent(scrollMonitor,
+                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                180, Short.MAX_VALUE)));
 
-            mostrarInformacion(
-                "Sistema operativo encendido",
-                "El sistema operativo se inició correctamente."
-            );
+                javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+                getContentPane().setLayout(layout);
+                layout.setHorizontalGroup(
+                                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addGroup(layout.createSequentialGroup()
+                                                                .addContainerGap()
+                                                                .addGroup(layout.createParallelGroup(
+                                                                                javax.swing.GroupLayout.Alignment.LEADING)
+                                                                                .addGroup(layout.createSequentialGroup()
+                                                                                                .addComponent(comboOpciones,
+                                                                                                                javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                                javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                                .addPreferredGap(
+                                                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED,
+                                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                                Short.MAX_VALUE)
+                                                                                                .addComponent(btnEncender))
+                                                                                .addGroup(layout.createSequentialGroup()
+                                                                                                .addComponent(panelIzquierdo,
+                                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                                Short.MAX_VALUE)
+                                                                                                .addPreferredGap(
+                                                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                                                .addComponent(panelCentro,
+                                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                                Short.MAX_VALUE)
+                                                                                                .addPreferredGap(
+                                                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                                                .addComponent(panelDerecho,
+                                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                                Short.MAX_VALUE)))
+                                                                .addContainerGap()));
+                layout.setVerticalGroup(
+                                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addGroup(layout.createSequentialGroup()
+                                                                .addContainerGap()
+                                                                .addGroup(layout.createParallelGroup(
+                                                                                javax.swing.GroupLayout.Alignment.BASELINE)
+                                                                                .addComponent(comboOpciones,
+                                                                                                javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                .addComponent(btnEncender))
+                                                                .addPreferredGap(
+                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                .addGroup(layout.createParallelGroup(
+                                                                                javax.swing.GroupLayout.Alignment.LEADING)
+                                                                                .addComponent(panelIzquierdo,
+                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                Short.MAX_VALUE)
+                                                                                .addComponent(panelCentro,
+                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                Short.MAX_VALUE)
+                                                                                .addComponent(panelDerecho,
+                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                Short.MAX_VALUE))
+                                                                .addContainerGap()));
 
-        } else {
+                pack();
+        }// </editor-fold>//GEN-END:initComponents
 
-            boolean hayProcesos =
-            simulador.getGestorProceso().getEjecucion() != null
-        || !simulador.getGestorProceso().getPreparados().isEmpty()
-        || !simulador.getGestorProceso().getEnEspera().isEmpty()
-        || !simulador.getGestorProceso().getSuspendidos().isEmpty();
+    // Cambia únicamente colores y fuentes; no modifica la estructura creada por
+    // Design.
+    private void aplicarTema() {
 
-            if (hayProcesos) {
+        java.awt.Color fondo = new java.awt.Color(15, 23, 42);
+        java.awt.Color panel = new java.awt.Color(30, 41, 59);
+        java.awt.Color tabla = new java.awt.Color(51, 65, 85);
+        java.awt.Color texto = new java.awt.Color(226, 232, 240);
+        java.awt.Color borde = new java.awt.Color(71, 85, 105);
 
-                boolean continuar =
-                confirmar(
-                    "Confirmar apagado",
-                    "Hay procesos cargados actualmente.\n\n"
-                    + "¿Desea apagar el sistema operativo?"
-                );
+        getContentPane().setBackground(fondo);
 
-                if (!continuar) {
+        javax.swing.JPanel[] paneles = {
+            panelIzquierdo,
+            panelCentro,
+            panelDerecho,
+            panelProgramas,
+            panelBCPEstadisticas,
+            panelCPU
+        };
 
-                    // Como el JToggleButton cambió de estado
-                    // por el clic, lo volvemos a dejar seleccionado.
-                    apagaencender.setSelected(true);
-
-                    return;
-                }
-            }
-
-            simulador.apagar();
-
-            apagaencender.setText("Encender");
-
-            mostrarInformacion(
-                "Sistema operativo apagado",
-                "El sistema operativo se apagó correctamente."
-            );
+        for (javax.swing.JPanel panelActual : paneles) {
+            panelActual.setBackground(fondo);
         }
-    }//GEN-LAST:event_apagaencenderActionPerformed
 
-    private void TablarocesosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TablarocesosMouseClicked
-        int fila = Tablarocesos.getSelectedRow();
+        javax.swing.JScrollPane[] scrolls = {
+            scrollRAM,
+            scrollDisco,
+            scrollProgramas,
+            scrollTrabajos,
+            scrollInstrucciones,
+            scrollProcesos,
+            scrollBCP,
+            scrollEstadisticas,
+            scrollMonitor
+        };
 
-        if (fila == -1) {
+        for (javax.swing.JScrollPane scroll : scrolls) {
+            scroll.setBackground(panel);
+            scroll.getViewport().setBackground(panel);
+
+            if (scroll.getBorder() instanceof javax.swing.border.TitledBorder) {
+
+                javax.swing.border.TitledBorder titulo = (javax.swing.border.TitledBorder) scroll
+                        .getBorder();
+
+                titulo.setTitleColor(texto);
+            }
+        }
+
+        if (panelCPU.getBorder() instanceof javax.swing.border.TitledBorder) {
+
+            ((javax.swing.border.TitledBorder) panelCPU.getBorder())
+                    .setTitleColor(texto);
+        }
+
+        if (panelProgramas.getBorder() instanceof javax.swing.border.TitledBorder) {
+
+            ((javax.swing.border.TitledBorder) panelProgramas.getBorder())
+                    .setTitleColor(texto);
+        }
+
+        javax.swing.JTable[] tablas = {
+            tablaRAM,
+            tablaDisco,
+            tablaProgramas,
+            tablaTrabajos,
+            tablaProcesos
+        };
+
+        for (javax.swing.JTable tablaActual : tablas) {
+            tablaActual.setBackground(tabla);
+            tablaActual.setForeground(texto);
+            tablaActual.setGridColor(borde);
+            tablaActual.setSelectionBackground(
+                    new java.awt.Color(30, 64, 175));
+            tablaActual.setSelectionForeground(java.awt.Color.WHITE);
+            tablaActual.setFillsViewportHeight(true);
+            tablaActual.getTableHeader().setBackground(fondo);
+            tablaActual.getTableHeader().setForeground(texto);
+        }
+
+        javax.swing.JTextArea[] areas = {
+            txtInstrucciones,
+            txtBCP,
+            txtEstadisticas,
+            txtMonitor
+        };
+
+        for (javax.swing.JTextArea area : areas) {
+            area.setBackground(new java.awt.Color(17, 24, 39));
+            area.setForeground(texto);
+            area.setCaretColor(texto);
+        }
+
+        javax.swing.JLabel[] etiquetasCPU = {
+            lblPC,
+            lblAC,
+            lblAX,
+            lblBX,
+            lblCX,
+            lblDX,
+            lblIR,
+            lblSegundero
+        };
+
+        for (javax.swing.JLabel etiqueta : etiquetasCPU) {
+            etiqueta.setForeground(texto);
+        }
+
+        comboOpciones.setBackground(tabla);
+        comboOpciones.setForeground(texto);
+
+        btnEncender.setBackground(new java.awt.Color(22, 163, 74));
+        btnEncender.setForeground(java.awt.Color.WHITE);
+
+        btnEjecutarPrograma.setBackground(new java.awt.Color(37, 99, 235));
+        btnEjecutarPrograma.setForeground(java.awt.Color.WHITE);
+
+        btnEjecutarTodo.setBackground(new java.awt.Color(37, 99, 235));
+        btnEjecutarTodo.setForeground(java.awt.Color.WHITE);
+
+        btnEjecutarPaso.setBackground(new java.awt.Color(37, 99, 235));
+        btnEjecutarPaso.setForeground(java.awt.Color.WHITE);
+
+        btnEliminar.setBackground(new java.awt.Color(220, 38, 38));
+        btnEliminar.setForeground(java.awt.Color.WHITE);
+    }
+
+    /*
+         * ==================================================
+         * CONFIGURAR INTERFAZ
+         * ==================================================
+     */
+    private void configurarInterfaz() {
+
+        setMinimumSize(new java.awt.Dimension(1100, 700));
+
+        java.awt.Font fuenteCodigo = new java.awt.Font(
+                java.awt.Font.MONOSPACED,
+                java.awt.Font.PLAIN,
+                12);
+
+        txtInstrucciones.setFont(fuenteCodigo);
+        txtBCP.setFont(fuenteCodigo);
+        txtEstadisticas.setFont(fuenteCodigo);
+        txtMonitor.setFont(fuenteCodigo);
+
+        txtBCP.setLineWrap(false);
+        txtEstadisticas.setLineWrap(false);
+
+        tablaProgramas.setModel(
+                crearModeloSoloLectura(
+                        "Programa",
+                        "Tamaño",
+                        "Dirección"));
+
+        tablaTrabajos.setModel(
+                crearModeloSoloLectura(
+                        "ID",
+                        "Programa",
+                        "Tamaño",
+                        "Estado"));
+
+        tablaProcesos.setModel(
+                crearModeloSoloLectura(
+                        "Estado",
+                        "PID",
+                        "Programa",
+                        "Orden"));
+
+        configurarTabla(tablaRAM);
+        configurarTabla(tablaDisco);
+        configurarTabla(tablaProgramas);
+        configurarTabla(tablaTrabajos);
+        configurarTabla(tablaProcesos);
+
+        tablaRAM.getColumnModel().getColumn(0).setPreferredWidth(65);
+        tablaRAM.getColumnModel().getColumn(1).setPreferredWidth(135);
+        tablaRAM.getColumnModel().getColumn(2).setPreferredWidth(360);
+
+        tablaDisco.getColumnModel().getColumn(0).setPreferredWidth(65);
+        tablaDisco.getColumnModel().getColumn(1).setPreferredWidth(130);
+        tablaDisco.getColumnModel().getColumn(2).setPreferredWidth(380);
+
+        tablaProgramas.getColumnModel().getColumn(0).setPreferredWidth(220);
+        tablaProgramas.getColumnModel().getColumn(1).setPreferredWidth(70);
+        tablaProgramas.getColumnModel().getColumn(2).setPreferredWidth(80);
+
+        tablaTrabajos.getColumnModel().getColumn(0).setPreferredWidth(45);
+        tablaTrabajos.getColumnModel().getColumn(1).setPreferredWidth(190);
+        tablaTrabajos.getColumnModel().getColumn(2).setPreferredWidth(65);
+        tablaTrabajos.getColumnModel().getColumn(3).setPreferredWidth(110);
+
+        tablaProcesos.getColumnModel().getColumn(0).setPreferredWidth(105);
+        tablaProcesos.getColumnModel().getColumn(1).setPreferredWidth(45);
+        tablaProcesos.getColumnModel().getColumn(2).setPreferredWidth(190);
+        tablaProcesos.getColumnModel().getColumn(3).setPreferredWidth(55);
+
+        tablaProgramas
+                .getSelectionModel()
+                .addListSelectionListener(evento -> {
+
+                    if (!evento.getValueIsAdjusting()) {
+                        seleccionarProgramaDesdeTabla();
+                    }
+                });
+
+        tablaProcesos
+                .getSelectionModel()
+                .addListSelectionListener(evento -> {
+
+                    if (!evento.getValueIsAdjusting()) {
+                        seleccionarProcesoDesdeTabla();
+                    }
+                });
+
+        btnEjecutarTodo.setToolTipText(
+                "Ejecuta automáticamente el flujo de CPU.");
+
+        btnEjecutarPaso.setToolTipText(
+                "Ejecuta exactamente un segundo de CPU.");
+
+        txtMonitor.setToolTipText(
+                "Cuando un proceso espere INT 09H, escriba un valor de 0 a 255 y presione Enter.");
+    }
+
+    private javax.swing.table.DefaultTableModel crearModeloSoloLectura(
+            String... columnas) {
+
+        return new javax.swing.table.DefaultTableModel(
+                new Object[][]{},
+                columnas) {
+
+            public boolean isCellEditable(
+                    int fila,
+                    int columna) {
+
+                return false;
+            }
+        };
+    }
+
+    private void configurarTabla(
+            javax.swing.JTable tabla) {
+
+        tabla.setRowHeight(22);
+        tabla.setSelectionMode(
+                javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tabla.setAutoResizeMode(
+                javax.swing.JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+        tabla.setShowHorizontalLines(true);
+        tabla.setShowVerticalLines(false);
+    }
+
+    private void seleccionarProgramaDesdeTabla() {
+
+        int fila = tablaProgramas.getSelectedRow();
+
+        if (fila < 0) {
+            return;
+        }
+
+        String nombre = String.valueOf(
+                tablaProgramas.getValueAt(fila, 0));
+
+        for (IndicePrograma indice : simulador.getDisco().getIndicesProgramas()) {
+
+            if (indice.getNombre().equals(nombre)) {
+                programaActual = simulador
+                        .getDisco()
+                        .obtenerPrograma(indice);
+                actualizarInstrucciones();
+                return;
+            }
+        }
+    }
+
+    private void seleccionarProcesoDesdeTabla() {
+
+        int fila = tablaProcesos.getSelectedRow();
+
+        if (fila < 0) {
             return;
         }
 
         pidSeleccionado = Integer.valueOf(
-            Tablarocesos
-            .getValueAt(fila, 1)
-            .toString()
-        );
+                String.valueOf(
+                        tablaProcesos.getValueAt(fila, 1)));
 
-        actualizarBCPSeleccionado();
-    }//GEN-LAST:event_TablarocesosMouseClicked
+        actualizarBCP();
+        actualizarEstadisticas();
+        actualizarInstrucciones();
+        actualizarMonitor();
+    }
 
-    private void EjecutartodoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EjecutartodoActionPerformed
-        Proceso actual =
-    simulador.getGestorProceso().getEjecucion();
-        if (actual == null) {
+    private void sincronizarTabla(
+            javax.swing.table.DefaultTableModel modelo,
+            java.util.List<Object[]> filas) {
 
-            javax.swing.JOptionPane.showMessageDialog(
-                this,
-                "No hay ningún proceso en ejecución.\n"
-                + "Cargue un programa antes de usar «Ejecutar todo».",
-                "Sin proceso en ejecución",
-                javax.swing.JOptionPane.WARNING_MESSAGE
-            );
-
-            return;
+        while (modelo.getRowCount() > filas.size()) {
+            modelo.removeRow(modelo.getRowCount() - 1);
         }
 
-        int pid = actual.getBcp().getPid();
+        for (int fila = 0; fila < filas.size(); fila++) {
 
-        int respuesta =
-        javax.swing.JOptionPane.showConfirmDialog(
-            this,
-            "Se ejecutarán todas las instrucciones restantes "
-            + "del proceso PID " + pid + ".\n"
-            + "¿Desea continuar?",
-            "Confirmar ejecución completa",
-            javax.swing.JOptionPane.YES_NO_OPTION,
-            javax.swing.JOptionPane.WARNING_MESSAGE
-        );
+            Object[] datos = filas.get(fila);
 
-        if (respuesta !=
-            javax.swing.JOptionPane.YES_OPTION) {
-
-            return;
-        }
-
-        try {
-
-            simulador.ejecutarProcesoCompleto();
-
-            simulador.finalizarProcesoActual();
-
-            intentarAdmitirTrabajosPendientes();
-
-            if (simulador.getGestorProceso().getEjecucion() == null
-                    && !simulador.getGestorProceso().getPreparados().isEmpty()) {
-                simulador.despacharSiguiente();
+            if (fila >= modelo.getRowCount()) {
+                modelo.addRow(datos);
+                continue;
             }
 
-            actualizarCPU();
-            actualizarMemoria();
-            actualizarProcesos();
-            actualizarTrabajos();
-            actualizarBCPSeleccionado();
+            for (int columna = 0; columna < datos.length; columna++) {
 
-            javax.swing.JOptionPane.showMessageDialog(
-                this,
-                "El proceso PID "
-                + pid
-                + " finalizó correctamente.",
-                "Ejecución completada",
-                javax.swing.JOptionPane.INFORMATION_MESSAGE
-            );
+                Object anterior = modelo.getValueAt(
+                        fila,
+                        columna);
 
-        } catch (Exception e) {
+                Object nuevo = datos[columna];
 
-            javax.swing.JOptionPane.showMessageDialog(
-                this,
-                "No se pudo completar la ejecución.\n\n"
-                + "Detalle: "
-                + e.getMessage(),
-                "Error de ejecución",
-                javax.swing.JOptionPane.ERROR_MESSAGE
-            );
+                if (!java.util.Objects.equals(
+                        anterior,
+                        nuevo)) {
 
-        }
-    }//GEN-LAST:event_EjecutartodoActionPerformed
-
-    private void ejecutarpasoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ejecutarpasoActionPerformed
-        Proceso actual =
-        simulador
-        .getGestorProceso().getEjecucion();
-
-        if (actual == null) {
-
-            mostrarAdvertencia(
-                "Sin proceso en ejecución",
-                "No hay ningún proceso en ejecución.\n"
-                + "Cargue un programa antes de "
-                + "ejecutar instrucciones."
-            );
-
-            return;
-        }
-
-        try {
-
-            boolean quedan =
-            simulador
-            .ejecutarSiguienteInstruccion();
-
-            actualizarCPU();
-            actualizarMemoria();
-            actualizarProcesos();
-            actualizarBCPSeleccionado();
-
-            CPU cpu = simulador.getCpu();
-
-            if (!quedan) {
-
-                int pidFinalizado = actual.getBcp().getPid();
-
-                simulador.finalizarProcesoActual();
-
-                intentarAdmitirTrabajosPendientes();
-
-                if (simulador.getGestorProceso().getEjecucion() == null
-                        && !simulador.getGestorProceso().getPreparados().isEmpty()) {
-                    simulador.despacharSiguiente();
+                    modelo.setValueAt(
+                            nuevo,
+                            fila,
+                            columna);
                 }
-
-                actualizarCPU();
-                actualizarMemoria();
-                actualizarProcesos();
-                actualizarTrabajos();
-
-                mostrarInformacion(
-                    "Proceso finalizado",
-                    "El proceso PID "
-                    + pidFinalizado
-                    + " completó todas sus instrucciones."
-                );
             }
-
-        } catch (Exception e) {
-
-            mostrarError(
-                "Error de ejecución",
-                "No se pudo ejecutar la siguiente instrucción.\n\n"
-                + "Detalle: "
-                + e.getMessage()
-            );
         }
-    }//GEN-LAST:event_ejecutarpasoActionPerformed
+    }
 
-    private void comboboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboboxActionPerformed
-        String opcion =
-        combobox.getSelectedItem().toString();
-
-        switch (opcion) {
-
-            case "Cargar programa":
-            seleccionarPrograma();
-            break;
-
-            case "Cambiar memoria":
-            cambiarMemoria();
-        
-            break;
-
-            case "Cambiar Almacenamiento":
-            cambiarAlmacenamiento();
-            reiniciarSO();
-             case "Acerca del SO":
-            mostrarAcercaDelDispositivo();
-            break;
-
-            case "Reiniciar SO":
-            reiniciarSO();
-            break;
-            
-          
-          
-
-            default:
-            break;
-        }
-
-        combobox.setSelectedIndex(0);
-    }//GEN-LAST:event_comboboxActionPerformed
-
-    private void btnEjecutarProgramaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEjecutarProgramaActionPerformed
-        int fila = TablaProgramas.getSelectedRow();
-
-        if (fila == -1) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Seleccione un programa del índice"
-            );
+    // Enciende o apaga el simulador.
+    private void btnEncenderActionPerformed(java.awt.event.ActionEvent evt) {
+        if (btnEncender.isSelected()) {
+            simulador.encender();
+            btnEncender.setText("Apagar");
+            mostrarInformacion("Sistema operativo", "Sistema operativo encendido.");
             return;
         }
+        boolean activos = false;
+        for (Proceso p : simulador.getGestorProceso().getProcesos()) {
+            if (p.getBcp().getEstadoProceso() != BCP.EstadoProceso.FINALIZADO) {
+                activos = true;
+                break;
+            }
+        }
+        if (activos && !confirmar("Confirmar apagado", "Hay procesos cargados. ¿Desea apagar el sistema?")) {
+            btnEncender.setSelected(true);
+            return;
+        }
+        simulador.apagar();
+        btnEncender.setText("Encender");
+        mostrarInformacion("Sistema operativo", "Sistema operativo apagado.");
+    }
+
+    // Ejecuta la opción seleccionada en el menú superior.
+    private void comboOpcionesActionPerformed(java.awt.event.ActionEvent evt) {
+        String opcion = String.valueOf(comboOpciones.getSelectedItem());
+        if ("Cargar programa".equals(opcion)) {
+            seleccionarProgramas();
+        } else if ("Cambiar memoria".equals(opcion)) {
+            cambiarMemoria();
+        } else if ("Cambiar almacenamiento".equals(opcion)) {
+            cambiarAlmacenamiento();
+        } else if ("Reiniciar SO".equals(opcion)) {
+            reiniciarSO();
+        } else if ("Acerca del SO".equals(opcion)) {
+            mostrarAcercaDelDispositivo();
+        }
+        if (comboOpciones.getSelectedIndex() != 0) {
+            comboOpciones.setSelectedIndex(0);
+        }
+    }
+
+    // Permite seleccionar uno o varios archivos ASM y guardarlos en disco.
+    private void seleccionarProgramas() {
 
         if (!simulador.isEncendido()) {
             mostrarAdvertencia(
-                    "Sistema operativo apagado",
-                    "Primero debe encender el sistema operativo."
-            );
+                    "Sistema apagado",
+                    "Primero debe encender el sistema operativo.");
+            return;
+        }
+
+        javax.swing.JFileChooser selector = new javax.swing.JFileChooser();
+
+        selector.setDialogTitle(
+                "Seleccionar programas ASM");
+
+        selector.setFileFilter(
+                new javax.swing.filechooser.FileNameExtensionFilter(
+                        "Archivos ASM (*.asm)",
+                        "asm"));
+
+        selector.setAcceptAllFileFilterUsed(false);
+        selector.setMultiSelectionEnabled(true);
+
+        if (selector.showOpenDialog(this) != javax.swing.JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        java.io.File[] archivos = selector.getSelectedFiles();
+
+        if (archivos == null
+                || archivos.length == 0) {
+
+            archivos = new java.io.File[]{
+                selector.getSelectedFile()
+            };
+        }
+
+        int cargados = 0;
+        StringBuilder errores = new StringBuilder();
+
+        for (java.io.File archivo : archivos) {
+
+            try {
+
+                synchronized (bloqueoSimulador) {
+                    simulador.cargarPrograma(archivo);
+                }
+
+                cargados++;
+
+            } catch (Exception e) {
+
+                if (errores.length() > 0) {
+                    errores.append("\n");
+                }
+
+                errores.append(archivo.getName())
+                        .append(": ")
+                        .append(e.getMessage());
+            }
+        }
+
+        actualizarDisco();
+        actualizarProgramas();
+
+        if (errores.length() > 0) {
+
+            mostrarError(
+                    "Carga de programas",
+                    "Cargados: "
+                    + cargados
+                    + "\n"
+                    + errores);
+        }
+    }
+
+    // Coloca el programa seleccionado en la lista de trabajos y trata de admitirlo
+    // en memoria.
+    private void btnEjecutarProgramaActionPerformed(
+            java.awt.event.ActionEvent evt) {
+
+        if (!simulador.isEncendido()) {
+
+            mostrarAdvertencia(
+                    "Sistema apagado",
+                    "Primero debe encender el sistema operativo.");
+
+            return;
+        }
+
+        int fila = tablaProgramas.getSelectedRow();
+
+        if (fila == -1) {
+
+            mostrarAdvertencia(
+                    "Programa",
+                    "Seleccione un programa.");
+
+            return;
+        }
+
+        String nombreSeleccionado = String.valueOf(
+                tablaProgramas.getValueAt(
+                        fila,
+                        0));
+
+        try {
+
+            synchronized (bloqueoSimulador) {
+
+                IndicePrograma indice = null;
+
+                for (IndicePrograma actual : simulador
+                        .getDisco()
+                        .getIndicesProgramas()) {
+
+                    if (actual.getNombre()
+                            .equals(nombreSeleccionado)) {
+
+                        indice = actual;
+                        break;
+                    }
+                }
+
+                if (indice == null) {
+
+                    throw new IllegalStateException(
+                            "El programa seleccionado ya no existe en disco.");
+                }
+
+                programaActual = simulador
+                        .getDisco()
+                        .obtenerPrograma(indice);
+
+                if (!simulador
+                        .getMemory()
+                        .guardarTrabajo(indice)) {
+
+                    mostrarAdvertencia(
+                            "Lista de trabajos",
+                            "No hay espacio para registrar otro trabajo.");
+
+                    return;
+                }
+
+                intentarAdmitirTrabajosPendientes();
+
+                if (simulador
+                        .getGestorProceso()
+                        .getEjecucion() == null) {
+
+                    simulador.despacharSiguiente();
+                }
+            }
+
+            /*
+                         * El modelo de programas no se reconstruye aquí, por lo que
+                         * la selección queda exactamente donde el usuario la dejó.
+             */
+            refrescarProcesosYMemoria();
+
+        } catch (Exception e) {
+
+            mostrarError(
+                    "Ejecutar programa",
+                    e.getMessage());
+        }
+    }
+
+    private void btnEliminarActionPerformed(
+            java.awt.event.ActionEvent evt) {
+
+        if (!simulador.isEncendido()) {
+
+            mostrarAdvertencia(
+                    "Sistema apagado",
+                    "Primero debe encender el sistema operativo.");
+
+            return;
+        }
+
+        int fila = tablaProgramas.getSelectedRow();
+
+        if (fila == -1) {
+
+            mostrarAdvertencia(
+                    "Programa",
+                    "Seleccione un programa.");
+
+            return;
+        }
+
+        String nombreSeleccionado = String.valueOf(
+                tablaProgramas.getValueAt(
+                        fila,
+                        0));
+
+        try {
+
+            IndicePrograma indice = null;
+
+            for (IndicePrograma actual : simulador
+                    .getDisco()
+                    .getIndicesProgramas()) {
+
+                if (actual.getNombre()
+                        .equals(nombreSeleccionado)) {
+
+                    indice = actual;
+                    break;
+                }
+            }
+
+            if (indice == null) {
+
+                throw new IllegalStateException(
+                        "El programa seleccionado ya no existe en disco.");
+            }
+
+            if (!confirmar(
+                    "Eliminar programa",
+                    "¿Desea eliminar \""
+                    + indice.getNombre()
+                    + "\"?")) {
+                return;
+            }
+
+            synchronized (bloqueoSimulador) {
+                simulador.EliminarArchivo(indice);
+            }
+
+            programaActual = null;
+            tablaProgramas.clearSelection();
+
+            actualizarDisco();
+            actualizarProgramas();
+
+            mostrarInformacion(
+                    "Eliminar programa",
+                    "Programa eliminado correctamente.");
+
+        } catch (Exception e) {
+
+            mostrarAdvertencia(
+                    "Eliminar programa",
+                    e.getMessage());
+        }
+    }
+
+    // Ejecuta un segundo de CPU y actualiza la interfaz.
+    private void btnEjecutarPasoActionPerformed(
+            java.awt.event.ActionEvent evt) {
+
+        modoAutomatico = false;
+        automaticoEsperandoEntrada = false;
+
+        try {
+
+            Proceso actual;
+            Instruccion instruccion;
+            int segunderoAntes;
+            int peso;
+            boolean quedan;
+
+            synchronized (bloqueoSimulador) {
+
+                actual = simulador
+                        .getGestorProceso()
+                        .getEjecucion();
+
+                if (actual == null) {
+
+                    simulador.despacharSiguiente();
+
+                    actual = simulador
+                            .getGestorProceso()
+                            .getEjecucion();
+                }
+
+                if (actual == null) {
+
+                    mostrarAdvertencia(
+                            "Ejecución",
+                            "No hay procesos preparados para ejecutar.");
+
+                    return;
+                }
+
+                instruccion = simulador
+                        .getMemory()
+                        .leerInstruccion(
+                                actual,
+                                simulador.getCpu().getPC());
+
+                segunderoAntes = simulador
+                        .getCpu()
+                        .getSegundero();
+
+                peso = instruccion.ObtenerPeso(
+                        instruccion.getOperacion());
+
+                quedan = simulador.ejecutarSiguienteInstruccion();
+
+                if (!quedan
+                        && actual.getBcp().getEstadoProceso() != BCP.EstadoProceso.EN_ESPERA) {
+
+                    intentarAdmitirTrabajosPendientes();
+
+                    if (simulador
+                            .getGestorProceso()
+                            .getEjecucion() == null) {
+
+                        simulador.despacharSiguiente();
+                    }
+                }
+            }
+
+            registrarSalidaConsola(
+                    actual,
+                    instruccion,
+                    segunderoAntes,
+                    peso);
+
+            if (!quedan
+                    || actual.getBcp().getEstadoProceso() == BCP.EstadoProceso.EN_ESPERA) {
+
+                refrescarProcesosYMemoria();
+
+            } else {
+
+                refrescarEjecucion();
+            }
+
+        } catch (Exception e) {
+
+            refrescarEjecucion();
+
+            mostrarError(
+                    "Ejecución",
+                    e.getMessage());
+        }
+    }
+
+    // Ejecuta automáticamente un segundo por vez para que se vea el avance del
+    // segundero.
+    private void btnEjecutarTodoActionPerformed(java.awt.event.ActionEvent evt) {
+
+        synchronized (bloqueoSimulador) {
+
+            if (simulador
+                    .getGestorProceso()
+                    .getEjecucion() == null) {
+
+                simulador.despacharSiguiente();
+            }
+        }
+
+        if (simulador
+                .getGestorProceso()
+                .getEjecucion() == null) {
+
+            mostrarAdvertencia(
+                    "Ejecución",
+                    "No hay procesos preparados para ejecutar.");
+
+            return;
+        }
+
+        modoAutomatico = true;
+        automaticoEsperandoEntrada = false;
+
+        iniciarEjecucionAutomatica();
+    }
+
+    private void iniciarEjecucionAutomatica() {
+
+        if (workerAutomaticoActivo) {
+            return;
+        }
+
+        workerAutomaticoActivo = true;
+
+        btnEjecutarTodo.setEnabled(false);
+        btnEjecutarPaso.setEnabled(false);
+
+        new javax.swing.SwingWorker<Void, Void>() {
+
+            protected Void doInBackground() throws Exception {
+
+                boolean quedan = true;
+
+                while (quedan) {
+
+                    Proceso actual;
+                    Instruccion instruccion;
+                    int segunderoAntes;
+                    int peso;
+                    boolean quedoEnEspera;
+
+                    synchronized (bloqueoSimulador) {
+
+                        actual = simulador
+                                .getGestorProceso()
+                                .getEjecucion();
+
+                        if (actual == null) {
+
+                            simulador.despacharSiguiente();
+
+                            actual = simulador
+                                    .getGestorProceso()
+                                    .getEjecucion();
+                        }
+
+                        if (actual == null) {
+                            automaticoEsperandoEntrada = true;
+                            break;
+                        }
+
+                        instruccion = simulador
+                                .getMemory()
+                                .leerInstruccion(
+                                        actual,
+                                        simulador.getCpu().getPC());
+
+                        segunderoAntes = simulador
+                                .getCpu()
+                                .getSegundero();
+
+                        peso = instruccion.ObtenerPeso(
+                                instruccion.getOperacion());
+
+                        quedan = simulador.ejecutarSiguienteInstruccion();
+
+                        quedoEnEspera = actual.getBcp()
+                                .getEstadoProceso() == BCP.EstadoProceso.EN_ESPERA;
+                    }
+
+                    registrarSalidaConsola(
+                            actual,
+                            instruccion,
+                            segunderoAntes,
+                            peso);
+
+                    javax.swing.SwingUtilities.invokeLater(
+                            () -> refrescarEjecucion());
+
+                    if (quedoEnEspera) {
+
+                        Proceso procesoAhora;
+
+                        synchronized (bloqueoSimulador) {
+
+                            procesoAhora = simulador
+                                    .getGestorProceso()
+                                    .getEjecucion();
+                        }
+
+                        if (procesoAhora != null) {
+
+                            Thread.sleep(1000);
+                            continue;
+                        }
+
+                        automaticoEsperandoEntrada = true;
+                        break;
+                    }
+
+                    Thread.sleep(1000);
+                }
+
+                return null;
+            }
+
+            protected void done() {
+
+                try {
+
+                    get();
+
+                    if (!automaticoEsperandoEntrada) {
+
+                        synchronized (bloqueoSimulador) {
+
+                            intentarAdmitirTrabajosPendientes();
+
+                            if (simulador
+                                    .getGestorProceso()
+                                    .getEjecucion() == null) {
+
+                                simulador.despacharSiguiente();
+                            }
+                        }
+
+                        modoAutomatico = false;
+                    }
+
+                    refrescarProcesosYMemoria();
+
+                } catch (Exception e) {
+
+                    modoAutomatico = false;
+                    automaticoEsperandoEntrada = false;
+
+                    refrescarProcesosYMemoria();
+
+                    mostrarError(
+                            "Ejecución",
+                            e.getMessage());
+
+                } finally {
+
+                    workerAutomaticoActivo = false;
+
+                    /*
+                                         * Nunca dejamos bloqueados los controles solo porque
+                                         * algún proceso esté EN_ESPERA. Si aparece otro READY,
+                                         * el usuario puede iniciar paso o automático.
+                     */
+                    btnEjecutarTodo.setEnabled(true);
+                    btnEjecutarPaso.setEnabled(true);
+                }
+            }
+
+        }.execute();
+    }
+
+    // Selecciona un proceso para mostrar su BCP, estadísticas, instrucciones y
+    // monitor.
+    private void tablaProcesosMouseClicked(java.awt.event.MouseEvent evt) {
+        seleccionarProcesoDesdeTabla();
+    }
+
+    /*
+         * El panel derecho y el bloque INSTRUCCIONES deben representar
+         * el mismo proceso.
+         *
+         * Si el usuario seleccionó un PID, ese PID tiene prioridad visual.
+         * Si no existe selección, se muestra el proceso actualmente RUNNING.
+     */
+    private Proceso obtenerProcesoParaMostrar() {
+
+        if (pidSeleccionado != null) {
+
+            Proceso seleccionado = simulador
+                    .getGestorProceso()
+                    .buscarProcesoPorPid(
+                            pidSeleccionado);
+
+            if (seleccionado != null) {
+                return seleccionado;
+            }
+        }
+
+        return simulador
+                .getGestorProceso()
+                .getEjecucion();
+    }
+
+    // Refresca todos los componentes visibles del simulador.
+    // Se usa solamente cuando cambió una parte grande del sistema.
+    private void refrescarVista() {
+
+        actualizarCPU();
+        actualizarMemoria();
+        actualizarDisco();
+        actualizarProgramas();
+        actualizarTrabajos();
+        actualizarProcesos();
+        actualizarBCP();
+        actualizarEstadisticas();
+        actualizarInstrucciones();
+        actualizarMonitor();
+    }
+
+    // Refresco de cada segundo de CPU.
+    // Las tablas se actualizan en el mismo modelo y NO pierden la selección.
+    private void refrescarEjecucion() {
+
+        actualizarCPU();
+        actualizarMemoria();
+        actualizarProcesos();
+        actualizarBCP();
+        actualizarEstadisticas();
+        actualizarInstrucciones();
+        actualizarMonitor();
+
+        if (discoPendienteDeActualizar) {
+            discoPendienteDeActualizar = false;
+            actualizarDisco();
+            actualizarProgramas();
+        }
+    }
+
+    // Refresco cuando cambia admisión, estado, memoria o cola de trabajos.
+    private void refrescarProcesosYMemoria() {
+
+        actualizarMemoria();
+        actualizarTrabajos();
+        actualizarProcesos();
+        actualizarCPU();
+        actualizarBCP();
+        actualizarEstadisticas();
+        actualizarInstrucciones();
+        actualizarMonitor();
+
+        if (discoPendienteDeActualizar) {
+            discoPendienteDeActualizar = false;
+            actualizarDisco();
+            actualizarProgramas();
+        }
+    }
+
+    // Muestra los registros de CPU, IR y avance de la instrucción actual.
+    private void actualizarCPU() {
+
+        CPU cpu = simulador.getCpu();
+
+        lblPC.setText("PC: " + cpu.getPC());
+        lblAC.setText("AC: " + cpu.getAC());
+        lblAX.setText("AX: " + cpu.getAX());
+        lblBX.setText("BX: " + cpu.getBX());
+        lblCX.setText("CX: " + cpu.getCX());
+        lblDX.setText("DX: " + cpu.getDX());
+        lblIR.setText(
+                "IR: "
+                + (cpu.getIR() == null
+                ? "-"
+                : cpu.getIR()));
+
+        int peso = 0;
+
+        Proceso proceso = simulador
+                .getGestorProceso()
+                .getEjecucion();
+
+        if (proceso != null) {
+
+            try {
+
+                int limite = proceso.getBcp().getBase()
+                        + proceso.getBcp().getTamanio();
+
+                if (cpu.getPC() >= proceso.getBcp().getBase()
+                        && cpu.getPC() < limite) {
+
+                    Instruccion instruccion = simulador
+                            .getMemory()
+                            .leerInstruccion(
+                                    proceso,
+                                    cpu.getPC());
+
+                    peso = instruccion.ObtenerPeso(
+                            instruccion.getOperacion());
+                }
+
+            } catch (Exception e) {
+                peso = 0;
+            }
+        }
+
+        lblSegundero.setText(
+                "Segundero: "
+                + cpu.getSegundero()
+                + " / "
+                + peso);
+
+        if (panelCPU.getBorder() instanceof javax.swing.border.TitledBorder) {
+
+            javax.swing.border.TitledBorder borde = (javax.swing.border.TitledBorder) panelCPU.getBorder();
+
+            borde.setTitle(
+                    proceso == null
+                            ? "CPU - LIBRE"
+                            : "CPU - PID " + proceso.getBcp().getPid());
+
+            panelCPU.repaint();
+        }
+    }
+
+    // Muestra RAM sin reconstruir toda la JTable en cada segundo.
+    private void actualizarMemoria() {
+
+        javax.swing.table.DefaultTableModel modelo = (javax.swing.table.DefaultTableModel) tablaRAM.getModel();
+
+        Memory memory = simulador.getMemory();
+        Object[] memoria = memory.getMemoriaSnapshot();
+
+        java.util.List<Proceso> procesos = simulador
+                .getGestorProceso()
+                .getProcesos();
+
+        java.util.List<Object[]> trabajos = memory.obtenerTrabajos();
+
+        java.util.List<Object[]> filas = new java.util.ArrayList<>();
+
+        for (int posicion = 0; posicion < memoria.length; posicion++) {
+
+            filas.add(
+                    new Object[]{
+                        posicion,
+                        obtenerZonaRAM(
+                                posicion,
+                                memory,
+                                procesos,
+                                trabajos),
+                        obtenerContenidoRAM(
+                                posicion,
+                                memoria[posicion],
+                                memory,
+                                procesos,
+                                trabajos)
+                    });
+        }
+
+        sincronizarTabla(
+                modelo,
+                filas);
+    }
+
+    private String obtenerZonaRAM(
+            int posicion,
+            Memory memory,
+            java.util.List<Proceso> procesos,
+            java.util.List<Object[]> trabajos) {
+
+        if (posicion >= memory.getEspacioSO()) {
+
+            for (Proceso proceso : procesos) {
+
+                BCP bcp = proceso.getBcp();
+
+                if (bcp.getBase() >= 0
+                        && bcp.getTamanio() > 0
+                        && posicion >= bcp.getBase()
+                        && posicion < bcp.getBase() + bcp.getTamanio()) {
+
+                    return "Usuario - PID " + bcp.getPid();
+                }
+            }
+
+            return "Usuario";
+        }
+
+        for (Proceso proceso : procesos) {
+
+            int inicioBCP = memory.obtenerPosicionBCP(
+                    proceso.getBcp().getPid());
+
+            if (inicioBCP >= 0
+                    && posicion >= inicioBCP
+                    && posicion < inicioBCP + memory.getTamanioBCP()) {
+
+                return "SO - BCP PID "
+                        + proceso.getBcp().getPid();
+            }
+        }
+
+        for (Object[] trabajo : trabajos) {
+
+            int id = (Integer) trabajo[0];
+            int inicioTrabajo = memory.obtenerPosicionTrabajo(id);
+
+            if (inicioTrabajo >= 0
+                    && posicion >= inicioTrabajo
+                    && posicion < inicioTrabajo + memory.getTamanioTrabajo()) {
+
+                return "SO - Trabajo " + id;
+            }
+        }
+
+        return memory.estaOcupadoSO(posicion)
+                ? "SO - Reservado"
+                : "SO - Libre";
+    }
+
+    private String obtenerContenidoRAM(
+            int posicion,
+            Object valor,
+            Memory memory,
+            java.util.List<Proceso> procesos,
+            java.util.List<Object[]> trabajos) {
+
+        for (Proceso proceso : procesos) {
+
+            int inicioBCP = memory.obtenerPosicionBCP(
+                    proceso.getBcp().getPid());
+
+            if (inicioBCP >= 0
+                    && posicion >= inicioBCP
+                    && posicion < inicioBCP + memory.getTamanioBCP()) {
+
+                int desplazamiento = posicion - inicioBCP;
+
+                String nombreCampo = nombreCampoBCP(
+                        desplazamiento);
+
+                String contenido;
+
+                if (desplazamiento == 15) {
+                    contenido = valor == null
+                            ? "Sin siguiente BCP"
+                            : "Dirección RAM " + valor;
+                } else {
+                    contenido = valor == null
+                            ? "null"
+                            : String.valueOf(valor);
+                }
+
+                return nombreCampo
+                        + ": "
+                        + contenido;
+            }
+        }
+
+        for (Object[] trabajo : trabajos) {
+
+            int id = (Integer) trabajo[0];
+            int inicioTrabajo = memory.obtenerPosicionTrabajo(id);
+
+            if (inicioTrabajo >= 0
+                    && posicion >= inicioTrabajo
+                    && posicion < inicioTrabajo + memory.getTamanioTrabajo()) {
+
+                int desplazamiento = posicion - inicioTrabajo;
+
+                String[] camposTrabajo = {
+                    "ID",
+                    "Programa",
+                    "Dirección disco",
+                    "Tamaño"
+                };
+
+                return camposTrabajo[desplazamiento]
+                        + ": "
+                        + (valor == null
+                                ? "null"
+                                : valor);
+            }
+        }
+
+        return valor == null
+                ? ""
+                : String.valueOf(valor);
+    }
+
+    private String nombreCampoBCP(
+            int desplazamiento) {
+
+        String[] campos = {
+            "PID",
+            "Estado",
+            "PC",
+            "AC",
+            "AX",
+            "BX",
+            "CX",
+            "DX",
+            "IR",
+            "Base",
+            "Tamaño",
+            "CPU",
+            "Tiempo inicio",
+            "Tiempo empleado",
+            "Archivos abiertos",
+            "Siguiente BCP",
+            "Orden cola",
+            "Prioridad",
+            "Tope pila",
+            "Pila[0]",
+            "Pila[1]",
+            "Pila[2]",
+            "Pila[3]",
+            "Pila[4]",
+            "AH",
+            "AL",
+            "Texto DX"
+        };
+
+        if (desplazamiento < 0
+                || desplazamiento >= campos.length) {
+
+            return "Campo";
+        }
+
+        return campos[desplazamiento];
+    }
+
+    // Carga en la tabla el contenido completo del disco.
+    private void actualizarDisco() {
+
+        javax.swing.table.DefaultTableModel modelo = (javax.swing.table.DefaultTableModel) tablaDisco
+                .getModel();
+
+        Disco disco = simulador.getDisco();
+        Object[] datos = disco.getDiscoSnapshot();
+
+        java.util.List<Object[]> filas = new java.util.ArrayList<>();
+
+        for (int i = 0; i < datos.length; i++) {
+
+            Object dato = datos[i];
+            String zona;
+            String contenido;
+
+            if (i < disco.getTotalIndices()) {
+
+                zona = "Índice";
+
+                if (dato instanceof IndicePrograma) {
+
+                    IndicePrograma indice = (IndicePrograma) dato;
+
+                    boolean esPrograma = indice.getNombre() != null
+                            && indice.getNombre()
+                                    .toLowerCase()
+                                    .endsWith(".asm");
+
+                    zona = esPrograma
+                            ? "Índice programa"
+                            : "Índice archivo";
+
+                    contenido = "Nombre: " + indice.getNombre()
+                            + " | Dirección: " + indice.getDireccion()
+                            + " | Tamaño: " + indice.getTamanio();
+
+                } else {
+
+                    contenido = dato == null
+                            ? "Libre"
+                            : String.valueOf(dato);
+                }
+
+            } else if (i < disco.getInicioVirtual()) {
+
+                zona = "Archivos";
+                contenido = dato == null
+                        ? "Libre"
+                        : String.valueOf(dato);
+
+            } else {
+
+                zona = "Virtual";
+                contenido = dato == null
+                        ? "Libre"
+                        : String.valueOf(dato);
+            }
+
+            filas.add(
+                    new Object[]{
+                        i,
+                        zona,
+                        contenido
+                    });
+        }
+
+        sincronizarTabla(
+                modelo,
+                filas);
+    }
+
+    // Muestra programas ASM del disco y conserva la selección por nombre.
+    private void actualizarProgramas() {
+
+        String programaSeleccionado = null;
+        int filaAnterior = tablaProgramas.getSelectedRow();
+
+        if (filaAnterior >= 0
+                && filaAnterior < tablaProgramas.getRowCount()) {
+
+            programaSeleccionado = String.valueOf(
+                    tablaProgramas.getValueAt(
+                            filaAnterior,
+                            0));
+        }
+
+        javax.swing.table.DefaultTableModel modelo = (javax.swing.table.DefaultTableModel) tablaProgramas
+                .getModel();
+
+        java.util.List<Object[]> filas = new java.util.ArrayList<>();
+
+        for (IndicePrograma indice : simulador.getDisco().getIndicesProgramas()) {
+
+            filas.add(
+                    new Object[]{
+                        indice.getNombre(),
+                        indice.getTamanio(),
+                        indice.getDireccion()
+                    });
+        }
+
+        sincronizarTabla(
+                modelo,
+                filas);
+
+        if (programaSeleccionado != null) {
+
+            for (int fila = 0; fila < tablaProgramas.getRowCount(); fila++) {
+
+                if (programaSeleccionado.equals(
+                        String.valueOf(
+                                tablaProgramas.getValueAt(
+                                        fila,
+                                        0)))) {
+
+                    if (tablaProgramas.getSelectedRow() != fila) {
+
+                        tablaProgramas.setRowSelectionInterval(
+                                fila,
+                                fila);
+                    }
+
+                    break;
+                }
+            }
+        }
+    }
+
+    // Muestra la cola de trabajos y el estado de admisión.
+    private void actualizarTrabajos() {
+
+        javax.swing.table.DefaultTableModel modelo = (javax.swing.table.DefaultTableModel) tablaTrabajos
+                .getModel();
+
+        java.util.List<Object[]> filas = new java.util.ArrayList<>();
+
+        for (Object[] trabajo : simulador.getMemory().obtenerTrabajos()) {
+
+            String nombre = String.valueOf(trabajo[1]);
+
+            if (!nombre.toLowerCase().endsWith(".asm")) {
+                continue;
+            }
+
+            filas.add(
+                    new Object[]{
+                        trabajo[0],
+                        trabajo[1],
+                        trabajo[3],
+                        "ESPERANDO RAM"
+                    });
+        }
+
+        sincronizarTabla(
+                modelo,
+                filas);
+    }
+
+    // Muestra todos los procesos y conserva visualmente el PID seleccionado.
+    private void actualizarProcesos() {
+
+        javax.swing.table.DefaultTableModel modelo = (javax.swing.table.DefaultTableModel) tablaProcesos
+                .getModel();
+
+        java.util.List<Object[]> filas = new java.util.ArrayList<>();
+
+        int filaSeleccionada = -1;
+        int fila = 0;
+
+        for (Proceso proceso : simulador
+                .getGestorProceso()
+                .getProcesos()) {
+
+            filas.add(
+                    new Object[]{
+                        proceso.getBcp().getEstadoProceso(),
+                        proceso.getBcp().getPid(),
+                        proceso.getPrograma().getNombre(),
+                        proceso.getBcp().getOrdenCola()
+                    });
+
+            if (pidSeleccionado != null
+                    && proceso.getBcp().getPid() == pidSeleccionado) {
+
+                filaSeleccionada = fila;
+            }
+
+            fila++;
+        }
+
+        sincronizarTabla(
+                modelo,
+                filas);
+
+        if (filaSeleccionada >= 0
+                && tablaProcesos.getSelectedRow() != filaSeleccionada) {
+
+            tablaProcesos.setRowSelectionInterval(
+                    filaSeleccionada,
+                    filaSeleccionada);
+        }
+    }
+
+    // Muestra el BCP completo del proceso seleccionado o del proceso en CPU.
+    private void actualizarBCP() {
+
+        Proceso proceso = obtenerProcesoParaMostrar();
+
+        if (proceso == null) {
+            txtBCP.setText("Sin proceso seleccionado.");
+
+            if (scrollBCP.getBorder() instanceof javax.swing.border.TitledBorder) {
+
+                ((javax.swing.border.TitledBorder) scrollBCP.getBorder())
+                        .setTitle("BCP DEL PROCESO SELECCIONADO");
+
+                scrollBCP.repaint();
+            }
+
+            return;
+        }
+
+        BCP bcp = proceso.getBcp();
+        Memory memory = simulador.getMemory();
+
+        int posicionBCP = memory.obtenerPosicionBCP(
+                bcp.getPid());
+
+        int siguienteBCP = -1;
+
+        if (posicionBCP >= 0) {
+
+            Object[] memoria = memory.getMemoriaSnapshot();
+
+            Object enlace = memoria[posicionBCP + 15];
+
+            if (enlace instanceof Integer) {
+                siguienteBCP = (Integer) enlace;
+            }
+        }
+
+        String archivos = bcp.getArchivosAbiertos().isEmpty()
+                ? "[]"
+                : bcp.getArchivosAbiertos().toString();
+
+        String pila = java.util.Arrays.toString(
+                bcp.getPila());
+
+        StringBuilder texto = new StringBuilder();
+
+        texto.append("Posición BCP RAM -> ")
+                .append(
+                        posicionBCP < 0
+                                ? "Liberado"
+                                : posicionBCP)
+                .append("\n")
+                .append("PID -> ").append(bcp.getPid()).append("\n")
+                .append("Estado -> ").append(bcp.getEstadoProceso()).append("\n")
+                .append("PC -> ").append(bcp.getPC()).append("\n")
+                .append("AC -> ").append(bcp.getAC()).append("\n")
+                .append("AX -> ").append(bcp.getAX()).append("\n")
+                .append("BX -> ").append(bcp.getBX()).append("\n")
+                .append("CX -> ").append(bcp.getCX()).append("\n")
+                .append("DX -> ").append(bcp.getDX()).append("\n")
+                .append("IR -> ")
+                .append(bcp.getIR() == null ? "-" : bcp.getIR())
+                .append("\n")
+                .append("Base -> ").append(bcp.getBase()).append("\n")
+                .append("Tamaño -> ").append(bcp.getTamanio()).append("\n")
+                .append("CPU -> ").append(bcp.getCpu()).append("\n")
+                .append("Tiempo inicio -> ")
+                .append(formatearHora(bcp.getTiempoInicio()))
+                .append("\n")
+                .append("Tiempo empleado -> ")
+                .append(bcp.getTiempoEmpleado())
+                .append(" s\n")
+                .append("Archivos abiertos -> ")
+                .append(archivos)
+                .append("\n")
+                .append("Siguiente BCP -> ")
+                .append(
+                        siguienteBCP < 0
+                                ? "-"
+                                : siguienteBCP)
+                .append("\n")
+                .append("Orden cola -> ")
+                .append(bcp.getOrdenCola())
+                .append("\n")
+                .append("Prioridad -> ")
+                .append(bcp.getPrioridad())
+                .append("\n")
+                .append("Tope pila -> ")
+                .append(bcp.getTopePila())
+                .append("\n")
+                .append("Pila -> ")
+                .append(pila)
+                .append("\n")
+                .append("AH -> ")
+                .append(bcp.getAH())
+                .append("\n")
+                .append("AL -> ")
+                .append(bcp.getAL() == null ? "-" : bcp.getAL())
+                .append("\n")
+                .append("Texto DX -> ")
+                .append(
+                        bcp.getTextoDX() == null
+                        ? "-"
+                        : bcp.getTextoDX());
+
+        txtBCP.setText(
+                texto.toString());
+
+        txtBCP.setCaretPosition(0);
+
+        if (scrollBCP.getBorder() instanceof javax.swing.border.TitledBorder) {
+
+            javax.swing.border.TitledBorder borde = (javax.swing.border.TitledBorder) scrollBCP.getBorder();
+
+            borde.setTitle(
+                    "BCP DEL PROCESO - PID "
+                    + bcp.getPid());
+
+            scrollBCP.repaint();
+        }
+    }
+
+    // Muestra la información contable requerida para el proceso seleccionado.
+    private void actualizarEstadisticas() {
+
+        Proceso proceso = obtenerProcesoParaMostrar();
+
+        if (proceso == null) {
+            txtEstadisticas.setText("Sin proceso seleccionado.");
+
+            if (scrollEstadisticas.getBorder() instanceof javax.swing.border.TitledBorder) {
+
+                ((javax.swing.border.TitledBorder) scrollEstadisticas.getBorder())
+                        .setTitle("ESTADÍSTICAS DEL PROCESO");
+
+                scrollEstadisticas.repaint();
+            }
+
+            return;
+        }
+
+        BCP bcp = proceso.getBcp();
+
+        java.time.LocalTime inicio = bcp.getTiempoInicio();
+
+        java.time.LocalTime finalCalculado = inicio == null
+                ? null
+                : inicio.plusSeconds(
+                        bcp.getTiempoEmpleado());
+
+        String horaFinal = bcp.getEstadoProceso() == BCP.EstadoProceso.FINALIZADO
+                ? formatearHora(finalCalculado)
+                : "En curso";
+
+        String rangoMemoria = bcp.getBase() < 0
+                || bcp.getTamanio() <= 0
+                ? "Liberado"
+                : bcp.getBase()
+                + " - "
+                + (bcp.getBase()
+                + bcp.getTamanio()
+                - 1);
+
+        txtEstadisticas.setText(
+                "Proceso: "
+                + proceso.getPrograma().getNombre()
+                + "\nPID: "
+                + bcp.getPid()
+                + "\nEstado: "
+                + bcp.getEstadoProceso()
+                + "\nInicio: "
+                + formatearHora(inicio)
+                + "\nFinal: "
+                + horaFinal
+                + "\nDuración: "
+                + bcp.getTiempoEmpleado()
+                + " s"
+                + "\nCPU: "
+                + bcp.getCpu()
+                + "\nRango RAM: "
+                + rangoMemoria
+                + "\nPrioridad: "
+                + bcp.getPrioridad());
+
+        txtEstadisticas.setCaretPosition(0);
+
+        if (scrollEstadisticas.getBorder() instanceof javax.swing.border.TitledBorder) {
+
+            javax.swing.border.TitledBorder borde = (javax.swing.border.TitledBorder) scrollEstadisticas
+                    .getBorder();
+
+            borde.setTitle(
+                    "ESTADÍSTICAS - PID "
+                    + bcp.getPid());
+
+            scrollEstadisticas.repaint();
+        }
+    }
+
+    private String formatearHora(
+            java.time.LocalTime hora) {
+
+        if (hora == null) {
+            return "-";
+        }
+
+        return hora.format(
+                java.time.format.DateTimeFormatter
+                        .ofPattern("h:mm a"));
+    }
+
+    // Muestra las instrucciones del MISMO proceso seleccionado en la tabla de
+    // procesos.
+    private void actualizarInstrucciones() {
+
+        txtInstrucciones.setText("");
+
+        Proceso proceso = obtenerProcesoParaMostrar();
+
+        /*
+                 * Si todavía no existe proceso, se permite mostrar el programa
+                 * seleccionado desde "PROGRAMAS EN DISCO".
+         */
+        if (proceso == null && programaActual == null) {
+            return;
+        }
+
+        Programa programa = proceso != null
+                ? proceso.getPrograma()
+                : programaActual;
+
+        int indiceActual = -1;
+
+        if (proceso != null
+                && proceso.getBcp().getBase() >= 0
+                && proceso.getBcp().getTamanio() > 0) {
+
+            /*
+                         * Si este es el RUNNING, la referencia exacta es el PC de CPU.
+                         * Para PREPARADO o EN_ESPERA usamos el PC guardado en su BCP.
+             */
+            Proceso ejecutando = simulador
+                    .getGestorProceso()
+                    .getEjecucion();
+
+            int pcMostrar = proceso == ejecutando
+                    ? simulador.getCpu().getPC()
+                    : proceso.getBcp().getPC();
+
+            indiceActual = pcMostrar
+                    - proceso.getBcp().getBase();
+        }
+
+        StringBuilder texto = new StringBuilder();
+
+        for (int i = 0; i < programa.getInstrucciones().size(); i++) {
+
+            texto.append(
+                    i == indiceActual
+                            ? "▶ "
+                            : "  ");
+
+            texto.append(i)
+                    .append("   ")
+                    .append(
+                            programa
+                                    .getInstrucciones()
+                                    .get(i));
+
+            if (i < programa.getInstrucciones().size() - 1) {
+                texto.append("\n");
+            }
+        }
+
+        txtInstrucciones.setText(
+                texto.toString());
+
+        /*
+                 * Mantener visible la instrucción actual del proceso mostrado.
+         */
+        if (indiceActual >= 0) {
+
+            int posicion = 0;
+
+            for (int i = 0; i < indiceActual
+                    && i < programa.getInstrucciones().size(); i++) {
+
+                posicion += ("  " + i + "   "
+                        + programa.getInstrucciones().get(i)
+                        + "\n").length();
+            }
+
+            final int caret = Math.min(
+                    posicion,
+                    txtInstrucciones
+                            .getDocument()
+                            .getLength());
+
+            javax.swing.SwingUtilities.invokeLater(
+                    () -> txtInstrucciones.setCaretPosition(caret));
+        }
+    }
+
+    // Admite trabajos en orden mientras exista espacio disponible en memoria.
+    private int intentarAdmitirTrabajosPendientes() {
+        int admitidos = 0;
+        PlanificadorDeTrabajo planificador = new PlanificadorDeTrabajo(simulador.getMemory(),
+                simulador.getGestorProceso(), simulador.getDisco());
+        while (simulador.getMemory().hayTrabajos()) {
+            Proceso proceso = planificador.planificarSiguiente();
+            if (proceso == null) {
+                break;
+            }
+            admitidos++;
+        }
+        return admitidos;
+    }
+
+    // Cambia el tamaño de RAM y limpia los procesos actuales.
+    private void cambiarMemoria() {
+
+        if (!simulador.isEncendido()) {
+            mostrarAdvertencia(
+                    "Sistema apagado",
+                    "Primero debe encender el sistema operativo.");
+            return;
+        }
+
+        String valor = javax.swing.JOptionPane.showInputDialog(
+                this,
+                "Nuevo tamaño de RAM (mínimo 128):");
+
+        if (valor == null) {
             return;
         }
 
         try {
-            IndicePrograma indice =
-                    simulador.getDisco()
-                            .getIndicesProgramas()
-                            .get(fila);
 
-            programaActual =
-                    simulador.getDisco()
-                            .obtenerPrograma(indice);
+            int tamanio = Integer.parseInt(
+                    valor.trim());
 
-            // Ejecutar primero coloca el programa en la lista de trabajos.
-            boolean agregado =
-                    simulador.getMemory()
-                            .guardarTrabajo(indice);
-
-            if (!agregado) {
+            if (tamanio < 128) {
                 mostrarAdvertencia(
-                        "Lista de trabajos llena",
-                        "No hay espacio disponible en la zona del SO "
-                        + "para registrar otro trabajo."
-                );
+                        "Memoria",
+                        "El mínimo es 128.");
                 return;
             }
 
-            int admitidos = intentarAdmitirTrabajosPendientes();
-
-            if (simulador.getGestorProceso().getEjecucion() == null
-                    && !simulador.getGestorProceso().getPreparados().isEmpty()) {
-                simulador.despacharSiguiente();
+            if (!confirmar(
+                    "Cambiar memoria",
+                    "Se eliminarán los procesos actuales. ¿Continuar?")) {
+                return;
             }
 
-            mostrarInstrucciones();
-            actualizarCPU();
-            actualizarMemoria();
-            actualizarProcesos();
-            actualizarTrabajos();
-
-            if (admitidos > 0) {
-                mostrarInformacion(
-                        "Trabajo admitido",
-                        "El programa «"
-                        + programaActual.getNombre()
-                        + "» pasó por la lista de trabajos y fue "
-                        + "admitido como proceso."
-                );
-            } else {
-                mostrarInformacion(
-                        "Trabajo en espera",
-                        "El programa «"
-                        + programaActual.getNombre()
-                        + "» fue agregado a la lista de trabajos, "
-                        + "pero todavía no puede ser admitido en memoria."
-                );
+            synchronized (bloqueoSimulador) {
+                simulador.cambiarMemoria(tamanio);
             }
+
+            limpiarEstadoVisualProcesos();
+            refrescarVista();
 
         } catch (Exception e) {
+
             mostrarError(
-                    "No se pudo ejecutar el programa",
-                    e.getMessage()
-            );
+                    "Memoria",
+                    e.getMessage());
         }
-
-    }//GEN-LAST:event_btnEjecutarProgramaActionPerformed
-
-    private void btnEliminarProgramaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarProgramaActionPerformed
-       int fila = TablaProgramas.getSelectedRow();
-
-    if (fila == -1) {
-        JOptionPane.showMessageDialog(
-                this,
-                "Seleccione un programa del índice"
-        );
-        return;
-    }
-    }//GEN-LAST:event_btnEliminarProgramaActionPerformed
-  
-    
-    private void seleccionarPrograma() {
-
-    if (!simulador.isEncendido()) {
-
-        mostrarAdvertencia(
-                "Sistema operativo apagado",
-                "Primero debe encender el sistema operativo "
-                + "para cargar un programa."
-        );
-
-        return;
     }
 
-    javax.swing.JFileChooser selector =
-            new javax.swing.JFileChooser();
-
-    selector.setDialogTitle(
-            "Seleccionar programa ASM"
-    );
-
-    selector.setFileFilter(
-            new javax.swing.filechooser.FileNameExtensionFilter(
-                    "Archivos ASM (*.asm)",
-                    "asm"
-            )
-    );
-
-    selector.setAcceptAllFileFilterUsed(false);
-
-    int resultado =
-            selector.showOpenDialog(this);
-
-    if (resultado
-            != javax.swing.JFileChooser.APPROVE_OPTION) {
-
-        
-
-        return;
-    }
-
-    try {
-
-        java.io.File archivo =
-                selector.getSelectedFile();
-
-        // Lee el ASM, crea Programa y lo guarda en disco.
-        simulador.cargarPrograma(archivo);
-        // Actualiza la tabla del disco.
-        actualizarDisco();
-        actualizarTablaProgramas();
-        
-    } catch (Exception e) {
-        mostrarError(
-                "No se pudo cargar el programa",
-                "El archivo ASM contiene errores "
-                + "o no pudo ser almacenado.\n\n"
-                + "Detalle: "
-                + e.getMessage()
-        );
-    }
-}
-    private void crearProceso() {
-
-    if (!simulador.isEncendido()) {
-
-        mostrarAdvertencia(
-                "Sistema operativo apagado",
-                "Primero debe encender el sistema operativo."
-        );
-
-        return;
-    }
-
-    if (programaActual == null) {
-
-        mostrarAdvertencia(
-                "Programa no seleccionado",
-                "Debe seleccionar un programa del disco "
-                + "antes de crear el proceso."
-        );
-
-        return;
-    }
-
-    try {
-
-        Proceso proceso =
-                simulador.prepararPrograma(
-                        programaActual
-                );
-
-        simulador.despacharSiguiente();
-
-        mostrarInstrucciones();
-
-        actualizarCPU();
-        actualizarMemoria();
-        actualizarProcesos();
-
-
-        mostrarInformacion(
-                "Proceso creado",
-                "Se creó correctamente el proceso para «"
-                + programaActual.getNombre()
-                + "».\n\n"
-                + "PID asignado: "
-                + proceso.getBcp().getPid()
-        );
-
-    } catch (Exception e) {
-
-     
-        mostrarError(
-                "No se pudo crear el proceso",
-                e.getMessage()
-        );
-    }
-}
-    private void mostrarInstrucciones() {
-
-    txtInstrucciones.setText("");
-
-    if (programaActual == null) {
-        return;
-    }
-
-    for (int i = 0;
-            i < programaActual
-                    .getInstrucciones()
-                    .size();
-            i++) {
-
-        txtInstrucciones.append(
-                i
-                + "   "
-                + programaActual
-                        .getInstrucciones()
-                        .get(i)
-                + "\n"
-        );
-    }
-}
-    
-    
-    private void cambiarMemoria() {
-         if (!simulador.isEncendido()) {
-
-        mostrarAdvertencia(
-                "Sistema operativo apagado",
-                "Primero debe encender el sistema operativo "
-                + "para cambiar el tamaño de la memoria."
-        );
-
-        return;
-    }
-
-    String entrada =
-            javax.swing.JOptionPane.showInputDialog(
-                    this,
-                    "Ingrese el nuevo tamaño de memoria.\n"
-                    + "El mínimo permitido es 128 posiciones:",
-                    "Cambiar memoria",
-                    javax.swing.JOptionPane.QUESTION_MESSAGE
-            );
-
-    if (entrada == null) {
-
-        return;
-    }
-
-    entrada = entrada.trim();
-
-    if (entrada.isEmpty()) {
-
-        mostrarAdvertencia(
-                "Valor requerido",
-                "Debe ingresar un tamaño de memoria."
-        );
-
-        return;
-    }
-
-    int nuevoTamanio;
-
-    try {
-
-        nuevoTamanio =
-                Integer.parseInt(entrada);
-
-    } catch (NumberFormatException e) {
-
-        mostrarError(
-                "Tamaño de memoria inválido",
-                "El tamaño de memoria debe ser "
-                + "un número entero."
-        );
-
-        return;
-    }
-
-    if (nuevoTamanio < 128) {
-
-        mostrarAdvertencia(
-                "Tamaño de memoria inválido",
-                "La memoria debe tener como mínimo "
-                + "128 posiciones."
-        );
-
-        return;
-    }
-
-    boolean continuar =
-            confirmar(
-                    "Confirmar cambio de memoria",
-                    "Cambiar el tamaño de la memoria eliminará "
-                    + "todos los procesos cargados actualmente.\n\n"
-                    + "Nuevo tamaño: "
-                    + nuevoTamanio
-                    + " posiciones.\n\n"
-                    + "¿Desea continuar?"
-            );
-
-    if (!continuar) {
-
-        
-
-        return;
-    }
-
-    try {
-
-        simulador.cambiarMemoria(
-                nuevoTamanio
-        );
-
-        programaActual = null;
-        pidSeleccionado = null;
-
-        txtInstrucciones.setText("");
-
-        actualizarCPU();
-        actualizarMemoria();
-        actualizarProcesos();
-        actualizarTrabajos();
-
-        limpiarBCP();
-
-       
-
-        mostrarInformacion(
-                "Memoria actualizada",
-                "El tamaño de la memoria se cambió "
-                + "correctamente a "
-                + nuevoTamanio
-                + " posiciones."
-        );
-
-    } catch (Exception e) {
-
-        
-
-        mostrarError(
-                "No se pudo cambiar la memoria",
-                "Ocurrió un error al cambiar "
-                + "el tamaño de la memoria.\n\n"
-                + "Detalle: "
-                + e.getMessage()
-        );
-    }
-
-    }
-    
-    
+    // Cambia el tamaño del almacenamiento y limpia la ejecución actual.
     private void cambiarAlmacenamiento() {
-         if (!simulador.isEncendido()) {
 
-        mostrarAdvertencia(
-                "Sistema operativo apagado",
-                "Primero debe encender el sistema operativo "
-                + "para cambiar el tamaño de la memoria."
-        );
+        if (!simulador.isEncendido()) {
+            mostrarAdvertencia(
+                    "Sistema apagado",
+                    "Primero debe encender el sistema operativo.");
+            return;
+        }
 
-        return;
+        String valor = javax.swing.JOptionPane.showInputDialog(
+                this,
+                "Nuevo tamaño de almacenamiento (mínimo 512):");
+
+        if (valor == null) {
+            return;
+        }
+
+        try {
+
+            int tamanio = Integer.parseInt(
+                    valor.trim());
+
+            if (tamanio < 512) {
+                mostrarAdvertencia(
+                        "Almacenamiento",
+                        "El mínimo es 512.");
+                return;
+            }
+
+            if (!confirmar(
+                    "Cambiar almacenamiento",
+                    "Se eliminarán los datos y procesos actuales. ¿Continuar?")) {
+                return;
+            }
+
+            synchronized (bloqueoSimulador) {
+                simulador.cambiarAlmacenamiento(tamanio);
+            }
+
+            limpiarEstadoVisualProcesos();
+            refrescarVista();
+
+        } catch (Exception e) {
+
+            mostrarError(
+                    "Almacenamiento",
+                    e.getMessage());
+        }
     }
 
-    String entrada =
-            javax.swing.JOptionPane.showInputDialog(
-                    this,
-                    "Ingrese el nuevo tamaño de memoria.\n"
-                    + "El mínimo permitido es 512 posiciones:",
-                    "Cambiar memoria",
-                    javax.swing.JOptionPane.QUESTION_MESSAGE
-            );
+    // Reinicia CPU, RAM y procesos del simulador.
+    private void reiniciarSO() {
 
-    if (entrada == null) {
+        if (!simulador.isEncendido()) {
+            mostrarAdvertencia(
+                    "Sistema apagado",
+                    "El sistema operativo está apagado.");
+            return;
+        }
 
-        return;
+        if (!confirmar(
+                "Reiniciar",
+                "¿Desea reiniciar el sistema operativo?")) {
+            return;
+        }
+
+        synchronized (bloqueoSimulador) {
+            simulador.reiniciarSistema();
+        }
+
+        limpiarEstadoVisualProcesos();
+        refrescarVista();
     }
 
-    entrada = entrada.trim();
-
-    if (entrada.isEmpty()) {
-
-        mostrarAdvertencia(
-                "Valor requerido",
-                "Debe ingresar un tamaño de almacenamiento."
-        );
-
-        return;
-    }
-
-    int nuevoTamanio;
-
-    try {
-
-        nuevoTamanio =
-                Integer.parseInt(entrada);
-
-    } catch (NumberFormatException e) {
-
-        mostrarError(
-                "Tamaño de almacenamiento inválido",
-                "El tamaño de almacenamiento debe ser "
-                + "un número entero."
-        );
-
-        return;
-    }
-
-    if (nuevoTamanio < 128) {
-
-        mostrarAdvertencia(
-                "Tamaño de almacenamiento inválido",
-                "La memoria debe tener como mínimo "
-                + "512 posiciones."
-        );
-
-        return;
-    }
-
-    boolean continuar =
-            confirmar(
-                    "Confirmar cambio de memoria",
-                    "Cambiar el tamaño de la memoria eliminará "
-                    + "todos los procesos cargados actualmente.\n\n"
-                    + "Nuevo tamaño: "
-                    + nuevoTamanio
-                    + " posiciones.\n\n"
-                    + "¿Desea continuar?"
-            );
-
-    if (!continuar) {
-
-        
-
-        return;
-    }
-
-    try {
-
-        simulador.cambiarAlmacenamiento(
-                nuevoTamanio
-        );
+    private void limpiarEstadoVisualProcesos() {
 
         programaActual = null;
         pidSeleccionado = null;
+        modoAutomatico = false;
+        automaticoEsperandoEntrada = false;
 
-        txtInstrucciones.setText("");
+        consolasProcesos.clear();
+        entradasPendientes.clear();
 
-        actualizarCPU();
-        actualizarMemoria();
-        actualizarProcesos();
-        actualizarTrabajos();
-        limpiarBCP();
+        inicioEntradaMonitor = 0;
 
-       
+        actualizandoMonitor = true;
 
-        mostrarInformacion(
-                "Memoria actualizada",
-                "El tamaño de almacenamiento se cambió "
-                + "correctamente a "
-                + nuevoTamanio
-                + " posiciones."
-        );
-
-    } catch (Exception e) {
-
-        
-
-        mostrarError(
-                "No se pudo cambiar la almacenamiento",
-                "Ocurrió un error al cambiar "
-                + "el tamaño de la memoria.\n\n"
-                + "Detalle: "
-                + e.getMessage()
-        );
+        try {
+            txtMonitor.setText("");
+        } finally {
+            actualizandoMonitor = false;
+        }
     }
 
-    }
+    /*---------------- CONSOLA POR PROCESO ----------------*/
 
-  private void reiniciarSO() {
-
-     if (!simulador.isEncendido()) {
-
-        mostrarAdvertencia(
-                "Sistema operativo apagado",
-                "El sistema operativo ya se encuentra apagado."
-        );
-
-        return;
-    }
-
-    boolean continuar =
-            confirmar(
-                    "Confirmar reinicio",
-                    "Reiniciar el sistema eliminará todos "
-                    + "los procesos cargados y restablecerá "
-                    + "la CPU y la memoria.\n\n"
-                    + "¿Desea continuar?"
-            );
-
-    if (!continuar) {
-
-       
-
-        return;
-    }
-
-    try {
-
-        simulador.reiniciarSistema();
-
-        programaActual = null;
-        pidSeleccionado = null;
-
-        txtInstrucciones.setText("");
-
-        actualizarCPU();
-        actualizarMemoria();
-        actualizarProcesos();
-        actualizarTrabajos();
-
-        limpiarBCP();
-
-      
-
-        mostrarInformacion(
-                "Sistema reiniciado",
-                "El sistema operativo se reinició correctamente."
-        );
-
-    } catch (Exception e) {
-
-       
-
-        mostrarError(
-                "No se pudo reiniciar el sistema",
-                "Ocurrió un error durante el reinicio.\n\n"
-                + "Detalle: "
-                + e.getMessage()
-        );
-    }
-}
-  private void limpiarBCP() {
-
-    lblBcpPid.setText("PID: -");
-    lblBcpEstado.setText("Estado: -");
-    lblBcpPC.setText("PC: -");
-    lblBcpAC.setText("AC: -");
-
-    lblBcpAX.setText("AX: -");
-    lblBcpBX.setText("BX: -");
-    lblBcpCX.setText("CX: -");
-    lblBcpDX.setText("DX: -");
-
-    lblBcpBase.setText("Base: -");
-    lblBcpTamanio.setText("Tamaño: -");
-}
-    
-  
-    /**
-     * Estilo visual aplicado después de initComponents().
-     * Los componentes continúan siendo administrados por Ventana.form,
-     * por lo que la ventana sigue siendo editable desde Design de NetBeans.
+ /*
+         * El monitor conserva por separado:
+         *
+         * 1. La salida ya confirmada del proceso.
+         * 2. Lo que el usuario está escribiendo antes de presionar Enter.
+         *
+         * Por eso una actualización de CPU/RAM nunca borra un valor parcialmente
+         * escrito en una INT 09H.
      */
-    private void configurarInterfaz() {
-        final java.awt.Color fondo = new java.awt.Color(15, 23, 42);
-        final java.awt.Color tarjeta = new java.awt.Color(30, 41, 59);
-        final java.awt.Color superficie = new java.awt.Color(51, 65, 85);
-        final java.awt.Color borde = new java.awt.Color(71, 85, 105);
-        final java.awt.Color texto = new java.awt.Color(226, 232, 240);
-        final java.awt.Color textoSec = new java.awt.Color(148, 163, 184);
-        final java.awt.Color azul = new java.awt.Color(37, 99, 235);
-        final java.awt.Color azulHover = new java.awt.Color(29, 78, 216);
-        final java.awt.Color rojo = new java.awt.Color(220, 38, 38);
-        final java.awt.Color verde = new java.awt.Color(22, 163, 74);
+    private void configurarMonitorConsola() {
 
-        setTitle("");
-        setMinimumSize(new java.awt.Dimension(1050, 680));
-        setSize(new java.awt.Dimension(1360, 820));
-        setLocationRelativeTo(null);
-        getContentPane().setBackground(fondo);
+        txtMonitor.setEditable(false);
+        txtMonitor.setFocusable(true);
+        txtMonitor.setRequestFocusEnabled(true);
 
-        jPanel2.setBackground(fondo);
-        jPanel2.setBorder(javax.swing.BorderFactory.createEmptyBorder(14, 14, 14, 14));
+        txtMonitor.setLineWrap(true);
+        txtMonitor.setWrapStyleWord(true);
 
-  
-        estilizarPanel(panelCPU, "CPU", tarjeta, borde, texto);
-        estilizarPanel(jPanel1, "BCP DEL PROCESO SELECCIONADO", tarjeta, borde, texto);
+        txtMonitor.addKeyListener(
+                new java.awt.event.KeyAdapter() {
 
-        estilizarScroll(jScrollPane4, "MEMORIA RAM", tarjeta, borde, texto);
-        estilizarScroll(jScrollPane1, "PROCESOS", tarjeta, borde, texto);
-        estilizarScroll(jScrollPane5, "DISCO", tarjeta, borde, texto);
-        estilizarScroll(jScrollPane2, "PROGRAMAS EN DISCO", tarjeta, borde, texto);
-        estilizarScroll(jScrollPane7, "COLA DE TRABAJOS", tarjeta, borde, texto);
-        estilizarScroll(jScrollPane3, "INSTRUCCIONES", tarjeta, borde, texto);
+            public void keyPressed(
+                    java.awt.event.KeyEvent evt) {
 
-        javax.swing.JTable[] tablas = {
-            tablamemoria, Tablarocesos, tablaDisco, TablaProgramas, TablaTrabajos
-        };
-        for (javax.swing.JTable tabla : tablas) {
-            estilizarTabla(tabla, superficie, tarjeta, borde, texto, textoSec);
-        }
+                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
 
-        txtInstrucciones.setBackground(new java.awt.Color(17, 24, 39));
-        txtInstrucciones.setForeground(new java.awt.Color(203, 213, 225));
-        txtInstrucciones.setCaretColor(texto);
-        txtInstrucciones.setFont(new java.awt.Font("Monospaced", java.awt.Font.PLAIN, 13));
-        txtInstrucciones.setMargin(new java.awt.Insets(10, 10, 10, 10));
+                    evt.consume();
 
-        java.awt.Component[] etiquetasCPU = {
-            txtCpuPC, txtCpuAC, txtCpuAX, txtCpuBX, txtCpuCX, txtCpuDX
-        };
-        for (java.awt.Component componente : etiquetasCPU) {
-            componente.setFont(new java.awt.Font("Monospaced", java.awt.Font.BOLD, 14));
-            componente.setForeground(texto);
-        }
-
-        javax.swing.JLabel[] etiquetasBCP = {
-            lblBcpPid, lblBcpEstado, lblBcpBase, lblBcpTamanio,
-            lblBcpAC, lblBcpPC, lblBcpAX, lblBcpBX, lblBcpCX, lblBcpDX
-        };
-        for (javax.swing.JLabel etiqueta : etiquetasBCP) {
-            etiqueta.setForeground(texto);
-            etiqueta.setFont(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 13));
-        }
-
-        estilizarBoton(apagaencender, verde, texto);
-        estilizarBoton(Ejecutartodo, azul, texto);
-        estilizarBoton(ejecutarpaso, azulHover, texto);
-        estilizarBoton(btnEjecutarPrograma, azul, texto);
-        estilizarBoton(btnEliminarPrograma, rojo, texto);
-
-        combobox.setBackground(superficie);
-        combobox.setForeground(texto);
-        combobox.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 13));
-        combobox.setFocusable(false);
-
-        // Las tablas aprovechan el ancho disponible cuando la ventana cambia de tamaño.
-        tablamemoria.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN);
-        Tablarocesos.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN);
-        tablaDisco.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN);
-        TablaProgramas.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN);
-        TablaTrabajos.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN);
-
-        // Proporciones iniciales de columnas; siguen siendo redimensionables.
-        if (tablamemoria.getColumnModel().getColumnCount() >= 3) {
-            tablamemoria.getColumnModel().getColumn(0).setPreferredWidth(65);
-            tablamemoria.getColumnModel().getColumn(1).setPreferredWidth(85);
-            tablamemoria.getColumnModel().getColumn(2).setPreferredWidth(230);
-        }
-        if (Tablarocesos.getColumnModel().getColumnCount() >= 3) {
-            Tablarocesos.getColumnModel().getColumn(0).setPreferredWidth(105);
-            Tablarocesos.getColumnModel().getColumn(1).setPreferredWidth(55);
-            Tablarocesos.getColumnModel().getColumn(2).setPreferredWidth(190);
-        }
-        if (TablaTrabajos.getColumnModel().getColumnCount() >= 3) {
-            TablaTrabajos.getColumnModel().getColumn(0).setPreferredWidth(45);
-            TablaTrabajos.getColumnModel().getColumn(1).setPreferredWidth(115);
-            TablaTrabajos.getColumnModel().getColumn(2).setPreferredWidth(55);
-        }
-
-        // Maximizada se ve mejor, pero continúa siendo completamente redimensionable.
-        setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
+                    ingresarValorDesdeMonitor();
+                }
+            }
+        });
     }
 
-    private void estilizarPanel(javax.swing.JPanel panel, String titulo,
-            java.awt.Color fondo, java.awt.Color borde, java.awt.Color texto) {
-        panel.setBackground(fondo);
-        panel.setBorder(javax.swing.BorderFactory.createTitledBorder(
-                javax.swing.BorderFactory.createLineBorder(borde),
-                "  " + titulo + "  ",
-                javax.swing.border.TitledBorder.LEFT,
-                javax.swing.border.TitledBorder.TOP,
-                new java.awt.Font("SansSerif", java.awt.Font.BOLD, 12),
-                texto));
+    private void guardarEntradaPendiente() {
+
+        if (actualizandoMonitor) {
+            return;
+        }
+
+        Proceso proceso = obtenerProcesoSeleccionado();
+
+        if (proceso == null
+                || proceso.getBcp().getEstadoProceso() != BCP.EstadoProceso.EN_ESPERA) {
+
+            return;
+        }
+
+        String texto = txtMonitor.getText();
+
+        int inicio = Math.min(
+                Math.max(
+                        inicioEntradaMonitor,
+                        0),
+                texto.length());
+
+        entradasPendientes.put(
+                proceso.getBcp().getPid(),
+                texto.substring(inicio));
     }
 
-    private void estilizarScroll(javax.swing.JScrollPane scroll, String titulo,
-            java.awt.Color fondo, java.awt.Color borde, java.awt.Color texto) {
-        scroll.setBorder(javax.swing.BorderFactory.createTitledBorder(
-                javax.swing.BorderFactory.createLineBorder(borde),
-                "  " + titulo + "  ",
-                javax.swing.border.TitledBorder.LEFT,
-                javax.swing.border.TitledBorder.TOP,
-                new java.awt.Font("SansSerif", java.awt.Font.BOLD, 12),
-                texto));
-        scroll.getViewport().setBackground(fondo);
-        scroll.setBackground(fondo);
+    // Devuelve el proceso que el usuario tiene seleccionado en la tabla.
+    private Proceso obtenerProcesoSeleccionado() {
+
+        if (pidSeleccionado == null) {
+            return simulador
+                    .getGestorProceso()
+                    .getEjecucion();
+        }
+
+        return simulador
+                .getGestorProceso()
+                .buscarProcesoPorPid(
+                        pidSeleccionado);
     }
 
-    private void estilizarTabla(javax.swing.JTable tabla,
-            java.awt.Color fondo, java.awt.Color seleccion,
-            java.awt.Color grid, java.awt.Color texto, java.awt.Color textoSec) {
-        tabla.setBackground(fondo);
-        tabla.setForeground(texto);
-        tabla.setSelectionBackground(new java.awt.Color(30, 64, 175));
-        tabla.setSelectionForeground(java.awt.Color.WHITE);
-        tabla.setGridColor(grid);
-        tabla.setRowHeight(26);
-        tabla.setShowVerticalLines(false);
-        tabla.setFillsViewportHeight(true);
-        tabla.setFont(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 12));
-        tabla.getTableHeader().setBackground(new java.awt.Color(15, 23, 42));
-        tabla.getTableHeader().setForeground(textoSec);
-        tabla.getTableHeader().setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 12));
-        tabla.getTableHeader().setReorderingAllowed(false);
+    private Proceso obtenerProcesoEsperandoTeclado() {
+
+        for (Proceso proceso : simulador.getGestorProceso().getProcesos()) {
+
+            if (proceso.getBcp().getEstadoProceso() == BCP.EstadoProceso.EN_ESPERA
+                    && "INT 09H".equalsIgnoreCase(
+                            proceso.getBcp().getIR())) {
+
+                return proceso;
+            }
+        }
+
+        return null;
     }
 
-    private void estilizarBoton(javax.swing.AbstractButton boton,
-            java.awt.Color fondo, java.awt.Color texto) {
-        boton.setBackground(fondo);
-        boton.setForeground(texto);
-        boton.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 12));
-        boton.setFocusPainted(false);
-        boton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        boton.setBorder(javax.swing.BorderFactory.createCompoundBorder(
-                javax.swing.BorderFactory.createLineBorder(fondo.darker()),
-                javax.swing.BorderFactory.createEmptyBorder(7, 12, 7, 12)));
+    // Muestra la consola del proceso seleccionado.
+    // Si está esperando INT 09H, permite escribir sin borrar la entrada.
+    private void actualizarMonitor() {
+
+        Proceso proceso = obtenerProcesoSeleccionado();
+
+        if (proceso == null) {
+
+            txtMonitor.setEditable(false);
+            txtMonitor.setText("");
+            inicioEntradaMonitor = 0;
+
+            return;
+        }
+
+        int pid = proceso.getBcp().getPid();
+
+        /*---------------------------------------
+                  Título del monitor
+                ---------------------------------------*/
+        if (scrollMonitor.getBorder() instanceof javax.swing.border.TitledBorder) {
+
+            javax.swing.border.TitledBorder borde = (javax.swing.border.TitledBorder) scrollMonitor
+                    .getBorder();
+
+            borde.setTitle(
+                    "MONITOR - PID " + pid);
+
+            scrollMonitor.repaint();
+        }
+
+        StringBuilder consola = consolasProcesos.computeIfAbsent(
+                pid,
+                clave -> new StringBuilder());
+
+        /*
+                 * Solamente se habilita teclado cuando
+                 * realmente está detenido en INT 09H.
+         */
+        boolean esperandoEntrada = proceso.getBcp().getEstadoProceso() == BCP.EstadoProceso.EN_ESPERA
+                && "INT 09H".equalsIgnoreCase(
+                        proceso.getBcp().getIR());
+
+        /*
+                 * ==================================================
+                 * NO ESTÁ ESPERANDO TECLADO
+                 * ==================================================
+         */
+        if (!esperandoEntrada) {
+
+            txtMonitor.setEditable(false);
+
+            String texto = consola.toString();
+
+            if (!txtMonitor.getText().equals(texto)) {
+
+                actualizandoMonitor = true;
+
+                try {
+
+                    txtMonitor.setText(texto);
+
+                } finally {
+
+                    actualizandoMonitor = false;
+                }
+            }
+
+            inicioEntradaMonitor = txtMonitor.getDocument().getLength();
+
+            return;
+        }
+
+        /*
+                 * ==================================================
+                 * ESPERANDO INT 09H
+                 * ==================================================
+         */
+        txtMonitor.setEditable(true);
+        txtMonitor.setFocusable(true);
+
+        /*
+                 * Construir solamente la parte FIJA de la consola.
+         */
+        String textoBase = consola.toString();
+
+        if (!textoBase.isEmpty()
+                && !textoBase.endsWith("\n")) {
+
+            textoBase += "\n";
+        }
+
+        textoBase += "> ";
+
+        /*
+                 * A partir de aquí puede escribir el usuario.
+         */
+        inicioEntradaMonitor = textoBase.length();
+
+        /*
+                 * MUY IMPORTANTE:
+                 *
+                 * Si el usuario YA está escribiendo,
+                 * NO tocamos el contenido del JTextArea.
+                 *
+                 * Esto evita:
+                 *
+                 * > 5
+                 *
+                 * convertirse otra vez en:
+                 *
+                 * >
+         */
+        if (txtMonitor.isFocusOwner()
+                && txtMonitor.getText()
+                        .startsWith(textoBase)) {
+
+            return;
+        }
+
+        /*
+                 * Si venimos de otro proceso o de otro refresco,
+                 * recuperamos lo que hubiera escrito.
+         */
+        String entradaGuardada = entradasPendientes.getOrDefault(
+                pid,
+                "");
+
+        actualizandoMonitor = true;
+
+        try {
+
+            txtMonitor.setText(
+                    textoBase
+                    + entradaGuardada);
+
+            txtMonitor.setCaretPosition(
+                    txtMonitor
+                            .getDocument()
+                            .getLength());
+
+        } finally {
+
+            actualizandoMonitor = false;
+        }
+
+        /*
+                 * Cuando aparece INT 09H,
+                 * mandamos automáticamente el teclado al monitor.
+         */
+        javax.swing.SwingUtilities.invokeLater(
+                () -> {
+
+                    txtMonitor.requestFocusInWindow();
+
+                    txtMonitor.setCaretPosition(
+                            txtMonitor
+                                    .getDocument()
+                                    .getLength());
+                });
+    }
+    // Guarda texto confirmado en la consola del proceso indicado.
+
+    private synchronized void escribirEnConsola(
+            Proceso proceso,
+            String texto) {
+
+        if (proceso == null
+                || texto == null
+                || texto.isEmpty()) {
+
+            return;
+        }
+
+        int pid = proceso.getBcp().getPid();
+
+        StringBuilder consola = consolasProcesos.computeIfAbsent(
+                pid,
+                clave -> new StringBuilder());
+
+        if (consola.length() > 0
+                && consola.charAt(consola.length() - 1) != '\n') {
+
+            consola.append('\n');
+        }
+
+        consola.append(texto);
+
+        Proceso visible = obtenerProcesoSeleccionado();
+
+        if (visible != null
+                && visible.getBcp().getPid() == pid) {
+
+            javax.swing.SwingUtilities.invokeLater(
+                    this::actualizarMonitor);
+        }
+    }
+
+    // Registra salidas de E/S sin refrescar componentes que no cambiaron.
+    private void registrarSalidaConsola(
+            Proceso proceso,
+            Instruccion instruccion,
+            int segunderoAntes,
+            int peso) {
+
+        if (proceso == null
+                || instruccion == null
+                || peso <= 0) {
+
+            return;
+        }
+
+        boolean termino = segunderoAntes + 1 >= peso;
+
+        if (!termino) {
+            return;
+        }
+
+        String operacion = instruccion
+                .getOperacion()
+                .toUpperCase();
+
+        if (operacion.equals("INT 10H")) {
+
+            String salida = simulador
+                    .getCpu()
+                    .getSalidaMonitor();
+
+            if (salida != null
+                    && !salida.isEmpty()) {
+
+                escribirEnConsola(
+                        proceso,
+                        salida);
+            }
+        }
+
+        if (operacion.equals("INT 21H")) {
+
+            discoPendienteDeActualizar = true;
+
+            if (simulador.getCpu().getAH() == 0x4D) {
+
+                escribirEnConsola(
+                        proceso,
+                        String.valueOf(
+                                simulador
+                                        .getCpu()
+                                        .getAL()));
+            }
+        }
+
+        if (operacion.equals("INT 09H")
+                && proceso.getBcp().getEstadoProceso() == BCP.EstadoProceso.EN_ESPERA) {
+
+            escribirEnConsola(
+                    proceso,
+                    "Esperando entrada de teclado (0-255)");
+        }
+    }
+
+    // Completa la INT 09H con el valor escrito después del prompt.
+    private void ingresarValorDesdeMonitor() {
+
+        guardarEntradaPendiente();
+
+        Proceso proceso = obtenerProcesoSeleccionado();
+
+        if (proceso == null) {
+
+            mostrarAdvertencia(
+                    "Consola",
+                    "Seleccione un proceso.");
+
+            return;
+        }
+
+        if (proceso.getBcp().getEstadoProceso() != BCP.EstadoProceso.EN_ESPERA) {
+
+            mostrarAdvertencia(
+                    "Consola",
+                    "El proceso seleccionado no está esperando una entrada.");
+
+            actualizarMonitor();
+            return;
+        }
+
+        int pid = proceso.getBcp().getPid();
+
+        String entrada = entradasPendientes
+                .getOrDefault(
+                        pid,
+                        "")
+                .trim();
+
+        if (entrada.isEmpty()) {
+
+            mostrarAdvertencia(
+                    "Consola",
+                    "Ingrese un número entre 0 y 255.");
+
+            txtMonitor.requestFocusInWindow();
+            return;
+        }
+
+        try {
+
+            int valor = Integer.parseInt(
+                    entrada);
+
+            if (valor < 0
+                    || valor > 255) {
+
+                throw new IllegalArgumentException(
+                        "El valor debe estar entre 0 y 255.");
+
+            }
+            actualizarMonitor();
+
+            long segundosEspera;
+
+            synchronized (bloqueoSimulador) {
+
+                segundosEspera = simulador.completarEntradaTeclado(
+                        pid,
+                        valor);
+
+            }
+
+            /*
+                         * Solo se borra el borrador cuando la entrada se aceptó.
+                         * Si hay un error, el usuario conserva exactamente lo escrito.
+             */
+            entradasPendientes.remove(
+                    pid);
+
+            escribirEnConsola(
+                    proceso,
+                    "> " + valor);
+
+            escribirEnConsola(
+                    proceso,
+                    "Entrada recibida. Tiempo de espera: "
+                    + segundosEspera
+                    + " s");
+
+            refrescarProcesosYMemoria();
+
+            if (modoAutomatico
+                    && automaticoEsperandoEntrada) {
+
+                automaticoEsperandoEntrada = false;
+
+                if (!workerAutomaticoActivo) {
+                    iniciarEjecucionAutomatica();
+                }
+            }
+
+        } catch (NumberFormatException e) {
+
+            mostrarError(
+                    "Consola",
+                    "Debe ingresar un número entero entre 0 y 255.");
+
+            actualizarMonitor();
+            txtMonitor.requestFocusInWindow();
+
+        } catch (Exception e) {
+
+            mostrarError(
+                    "Consola",
+                    e.getMessage());
+
+            actualizarMonitor();
+            txtMonitor.requestFocusInWindow();
+        }
+    }
+
+    // Muestra la configuración principal del dispositivo.
+    private void mostrarAcercaDelDispositivo() {
+        Memory m = simulador.getMemory();
+        Disco d = simulador.getDisco();
+        mostrarInformacion("Acerca del dispositivo",
+                "RAM total: " + m.getMemoriaSnapshot().length + "\nRAM SO: " + m.getEspacioSO()
+                + "\nAlmacenamiento: " + d.getMemoriaTotal() + "\nMemoria virtual: "
+                + d.getMemoriaVirtual() + "\nÍndices: " + d.getTotalIndices());
+    }
+
+    // Muestra un mensaje informativo.
+    private void mostrarInformacion(String titulo, String mensaje) {
+        javax.swing.JOptionPane.showMessageDialog(this, mensaje, titulo,
+                javax.swing.JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    // Muestra una advertencia.
+    private void mostrarAdvertencia(String titulo, String mensaje) {
+        javax.swing.JOptionPane.showMessageDialog(this, mensaje, titulo,
+                javax.swing.JOptionPane.WARNING_MESSAGE);
+    }
+
+    // Muestra un error.
+    private void mostrarError(String titulo, String mensaje) {
+        javax.swing.JOptionPane.showMessageDialog(this, mensaje, titulo, javax.swing.JOptionPane.ERROR_MESSAGE);
+    }
+
+    // Solicita una confirmación de sí o no.
+    private boolean confirmar(String titulo, String mensaje) {
+        return javax.swing.JOptionPane.showConfirmDialog(this, mensaje, titulo,
+                javax.swing.JOptionPane.YES_NO_OPTION,
+                javax.swing.JOptionPane.WARNING_MESSAGE) == javax.swing.JOptionPane.YES_OPTION;
     }
 
     public static void main(String args[]) {
-      
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager
+                    .getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
+            logger.log(java.util.logging.Level.SEVERE, null, ex);
+        }
+
         java.awt.EventQueue.invokeLater(() -> new Ventana().setVisible(true));
     }
-    
-   private void actualizarCPU() {
 
-    CPU cpu = simulador.getCpu();
-
-    txtCpuPC.setText("PC: " + cpu.getPC());
-    /*
-    txtCpuIR.setText(
-            "IR: " + (cpu.getIR() == null ? "-" : cpu.getIR())
-    );*/
-
-    txtCpuAC.setText("AC: " + cpu.getAC());
-    txtCpuAX.setText("AX: " + cpu.getAX());
-    txtCpuBX.setText("BX: " + cpu.getBX());
-    txtCpuCX.setText("CX: " + cpu.getCX());
-    txtCpuDX.setText("DX: " + cpu.getDX());
-}private void actualizarMemoria() {
-
-    javax.swing.table.DefaultTableModel modelo =
-            (javax.swing.table.DefaultTableModel)
-                    tablamemoria.getModel();
-
-    modelo.setRowCount(0);
-
-    Memory memory = simulador.getMemory();
-    Object[] memoria = memory.getMemoriaSnapshot();
-
-    for (int i = 0; i < memoria.length; i++) {
-
-        String zona =
-                i < memory.getEspacioSO()
-                ? "SO"
-                : "Usuario";
-
-        Object contenido = memoria[i];
-
-        // Evita mostrar javaapplication2.IndicePrograma@...
-        if (contenido instanceof IndicePrograma) {
-
-            IndicePrograma indice =
-                    (IndicePrograma) contenido;
-
-            contenido =
-                    "Trabajo: "
-                    + indice.getNombre();
-        }
-
-        modelo.addRow(new Object[]{
-            i,
-            zona,
-            contenido
-        });
-    }
+        // Variables declaration - do not modify//GEN-BEGIN:variables
+        private javax.swing.JButton btnEjecutarPaso;
+        private javax.swing.JButton btnEjecutarPrograma;
+        private javax.swing.JButton btnEjecutarTodo;
+        private javax.swing.JButton btnEliminar;
+        private javax.swing.JToggleButton btnEncender;
+        private javax.swing.JComboBox comboOpciones;
+        private javax.swing.JLabel lblAC;
+        private javax.swing.JLabel lblAX;
+        private javax.swing.JLabel lblBX;
+        private javax.swing.JLabel lblCX;
+        private javax.swing.JLabel lblDX;
+        private javax.swing.JLabel lblIR;
+        private javax.swing.JLabel lblPC;
+        private javax.swing.JLabel lblSegundero;
+        private javax.swing.JPanel panelBCPEstadisticas;
+        private javax.swing.JPanel panelCPU;
+        private javax.swing.JPanel panelCentro;
+        private javax.swing.JPanel panelDerecho;
+        private javax.swing.JPanel panelIzquierdo;
+        private javax.swing.JPanel panelProgramas;
+        private javax.swing.JScrollPane scrollBCP;
+        private javax.swing.JScrollPane scrollDisco;
+        private javax.swing.JScrollPane scrollEstadisticas;
+        private javax.swing.JScrollPane scrollInstrucciones;
+        private javax.swing.JScrollPane scrollMonitor;
+        private javax.swing.JScrollPane scrollProcesos;
+        private javax.swing.JScrollPane scrollProgramas;
+        private javax.swing.JScrollPane scrollRAM;
+        private javax.swing.JScrollPane scrollTrabajos;
+        private javax.swing.JTable tablaDisco;
+        private javax.swing.JTable tablaProcesos;
+        private javax.swing.JTable tablaProgramas;
+        private javax.swing.JTable tablaRAM;
+        private javax.swing.JTable tablaTrabajos;
+        private javax.swing.JTextArea txtBCP;
+        private javax.swing.JTextArea txtEstadisticas;
+        private javax.swing.JTextArea txtInstrucciones;
+        private javax.swing.JTextArea txtMonitor;
+        // End of variables declaration//GEN-END:variables
 }
- 
- 
- 
- private void actualizarProcesos() {
-     javax.swing.table.DefaultTableModel modelo =
-            (javax.swing.table.DefaultTableModel)
-                    Tablarocesos.getModel();
-
-    modelo.setRowCount(0);
-
-    GestorProceso gestor =
-            simulador.getGestorProceso();
-
-    // PREPARADOS
-    for (Proceso proceso : gestor.getPreparados()) {
-        agregarProcesoTabla(
-                modelo,
-                "PREPARADO",
-                proceso
-        );
-    }
-
-    // EJECUCIÓN
-    Proceso ejecucion =
-            gestor.getEjecucion();
-
-    if (ejecucion != null) {
-        agregarProcesoTabla(
-                modelo,
-                "EJECUCION",
-                ejecucion
-        );
-    }
-
-    // EN ESPERA
-    for (Proceso proceso : gestor.getEnEspera()) {
-        agregarProcesoTabla(
-                modelo,
-                "EN_ESPERA",
-                proceso
-        );
-    }
-
-    // SUSPENDIDOS
-    for (Proceso proceso : gestor.getSuspendidos()) {
-        agregarProcesoTabla(
-                modelo,
-                "SUSPENDIDO",
-                proceso
-        );
-    }
-
-    // FINALIZADOS
-    for (Proceso proceso : gestor.getFinalizados()) {
-        agregarProcesoTabla(
-                modelo,
-                "FINALIZADO",
-                proceso
-        );
-    }
-  
-}
- 
- private void agregarProcesoTabla(
-        javax.swing.table.DefaultTableModel modelo,
-        String estado,
-        Proceso proceso) {
-
-    modelo.addRow(new Object[]{
-        estado,
-        proceso.getBcp().getPid(),
-        proceso.getPrograma().getNombre()
-    });
-}
- 
- private void actualizarBCPSeleccionado() {
-
-    if (pidSeleccionado == null) {
-        return;
-    }
-
-    Proceso proceso =
-            buscarProceso(pidSeleccionado);
-
-    if (proceso == null) {
-        return;
-    }
-
-    BCP bcp = proceso.getBcp();
-
-    lblBcpPid.setText(
-            "PID: " + bcp.getPid()
-    );
-
-    lblBcpEstado.setText(
-            "Estado: "
-            + bcp.getEstadoProceso()
-    );
-
-    lblBcpPC.setText(
-            "PC: " + bcp.getPC()
-    );
-
-    lblBcpAC.setText(
-            "AC: " + bcp.getAC()
-    );
-
-    lblBcpAX.setText(
-            "AX: " + bcp.getAX()
-    );
-
-    lblBcpBX.setText(
-            "BX: " + bcp.getBX()
-    );
-
-    lblBcpCX.setText(
-            "CX: " + bcp.getCX()
-    );
-
-    lblBcpDX.setText(
-            "DX: " + bcp.getDX()
-    );
-
-    lblBcpBase.setText(
-            "Base: " + bcp.getBase()
-    );
-
-    lblBcpTamanio.setText(
-            "Tamaño: " + bcp.getTamanio()
-    );
-}
- private Proceso buscarProceso(int pid) {
-
-
-    GestorProceso gestor =
-            simulador.getGestorProceso();
-
-    Proceso ejecucion =
-            gestor.getEjecucion();
-
-    if (ejecucion != null
-            && ejecucion.getBcp().getPid() == pid) {
-        return ejecucion;
-    }
-
-    for (Proceso proceso : gestor.getPreparados()) {
-        if (proceso.getBcp().getPid() == pid) {
-            return proceso;
-        }
-    }
-
-    for (Proceso proceso : gestor.getEnEspera()) {
-        if (proceso.getBcp().getPid() == pid) {
-            return proceso;
-        }
-    }
-
-    for (Proceso proceso : gestor.getSuspendidos()) {
-        if (proceso.getBcp().getPid() == pid) {
-            return proceso;
-        }
-    }
-
-    for (Proceso proceso : gestor.getFinalizados()) {
-        if (proceso.getBcp().getPid() == pid) {
-            return proceso;
-        }
-    }
-
-    return null;
-}
-   
-    
-
- 
-    /**
-     * Intenta admitir trabajos en orden FIFO mientras exista memoria.
-     * Si el trabajo más antiguo no cabe, se detiene para respetar el orden.
-     */
-    private int intentarAdmitirTrabajosPendientes() {
-
-        int admitidos = 0;
-
-        PlanificadorDeTrabajo planificador =
-                new PlanificadorDeTrabajo(
-                        simulador.getMemory(),
-                        simulador.getGestorProceso(),
-                        simulador.getDisco()
-                );
-
-        while (simulador.getMemory().hayTrabajos()) {
-
-            Proceso proceso = planificador.planificarSiguiente();
-
-            if (proceso == null) {
-                break;
-            }
-
-            admitidos++;
-        }
-
-        return admitidos;
-    }
-
-
-    /**
-     * Refresca la tabla de trabajos pendientes.
-     */
-    private void actualizarTrabajos() {
-
-        javax.swing.table.DefaultTableModel modelo =
-                (javax.swing.table.DefaultTableModel)
-                        TablaTrabajos.getModel();
-
-        modelo.setRowCount(0);
-
-        for (Object[] trabajo :
-                simulador.getMemory().obtenerTrabajos()) {
-
-            modelo.addRow(new Object[]{
-                trabajo[3],
-                trabajo[1],
-                trabajo[2]
-            });
-        }
-    }
-
-
- private void mostrarInformacion(String titulo, String mensaje) {
-
-    javax.swing.JOptionPane.showMessageDialog(
-            this,
-            mensaje,
-            titulo,
-            javax.swing.JOptionPane.INFORMATION_MESSAGE
-    );
-}
-
-private void mostrarAdvertencia(String titulo, String mensaje) {
-
-    javax.swing.JOptionPane.showMessageDialog(
-            this,
-            mensaje,
-            titulo,
-            javax.swing.JOptionPane.WARNING_MESSAGE
-    );
-}
-
-private void mostrarError(String titulo, String mensaje) {
-
-    javax.swing.JOptionPane.showMessageDialog(
-            this,
-            mensaje,
-            titulo,
-            javax.swing.JOptionPane.ERROR_MESSAGE
-    );
-}
-
-private boolean confirmar(String titulo, String mensaje) {
-
-    int respuesta =
-            javax.swing.JOptionPane.showConfirmDialog(
-                    this,
-                    mensaje,
-                    titulo,
-                    javax.swing.JOptionPane.YES_NO_OPTION,
-                    javax.swing.JOptionPane.WARNING_MESSAGE
-            );
-
-    return respuesta
-            == javax.swing.JOptionPane.YES_OPTION;
-}
-private void actualizarDisco() {
-
-    javax.swing.table.DefaultTableModel modelo =
-            (javax.swing.table.DefaultTableModel)
-                    tablaDisco.getModel();
-
-    modelo.setRowCount(0);
-
-    Disco discoSO = simulador.getDisco();
-
-    Object[] disco =
-            discoSO.getDiscoSnapshot();
-
-    for (int i = 0; i < disco.length; i++) {
-
-        String zona;
-
-        if (i < discoSO.getTotalIndices()) {
-            zona = "Índice";
-
-        } else if (i < discoSO.getInicioVirtual()) {
-            zona = "Archivos";
-
-        } else {
-            zona = "Virtual";
-        }
-
-        String contenido;
-
-        if (disco[i] == null) {
-
-            contenido = "Libre";
-
-        } else if (disco[i] instanceof IndicePrograma) {
-
-            IndicePrograma indice =
-                    (IndicePrograma) disco[i];
-
-            contenido =
-                    indice.getNombre()
-                    + " | Dir: "
-                    + indice.getDireccion()
-                    + " | Tamaño: "
-                    + indice.getTamanio();
-
-        } else {
-
-            contenido = disco[i].toString();
-        }
-
-        modelo.addRow(new Object[]{
-            i,
-            zona,
-            contenido
-        });
-    }
-}
-private void actualizarTablaProgramas() {
-
-    javax.swing.table.DefaultTableModel modelo =
-            (javax.swing.table.DefaultTableModel)
-                    TablaProgramas.getModel();
-
-    modelo.setRowCount(0);
-
-    for (IndicePrograma indice :
-            simulador.getDisco().getIndicesProgramas()) {
-
-        modelo.addRow(new Object[]{
-            indice.getNombre(),
-            indice.getTamanio()
-        });
-    }
-}private void mostrarAcercaDelDispositivo() {
-
-    try {
-
-        Memory memoria = simulador.getMemory();
-        Disco disco = simulador.getDisco();
-
-        int memoriaTotal =
-                memoria.getMemoriaSnapshot().length;
-
-        int memoriaSO =
-                memoria.getEspacioSO();
-
-        int memoriaUsuario =
-                memoriaTotal - memoriaSO;
-
-        String mensaje =
-            "CONFIGURACIÓN DEL DISPOSITIVO\n\n"
-
-            + "MEMORIA RAM\n"
-            + "Memoria total: " + memoriaTotal + "\n"
-            + "Reservada para SO: " + memoriaSO + "\n"
-            + "Disponible para usuario: " + memoriaUsuario + "\n\n"
-
-            + "ALMACENAMIENTO\n"
-            + "Almacenamiento total: "
-            + disco.getMemoriaTotal() + "\n"
-
-            + "Memoria virtual: "
-            + disco.getMemoriaVirtual() + "\n"
-
-            + "Índices reservados: "
-            + disco.getTotalIndices();
-
-        javax.swing.JTextArea area =
-                new javax.swing.JTextArea(mensaje);
-
-        area.setEditable(false);
-        area.setOpaque(false);
-
-        area.setFont(
-            new java.awt.Font(
-                "Monospaced",
-                java.awt.Font.PLAIN,
-                13
-            )
-        );
-
-        javax.swing.JOptionPane.showMessageDialog(
-            this,
-            area,
-            "Acerca del dispositivo",
-            javax.swing.JOptionPane.INFORMATION_MESSAGE
-        );
-
-    } catch (Exception e) {
-
-        mostrarError(
-            "No se pudo mostrar la configuración",
-            e.getMessage()
-        );
-    }
-}
-
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JToggleButton Ejecutartodo;
-    private javax.swing.JTable TablaProgramas;
-    private javax.swing.JTable TablaTrabajos;
-    private javax.swing.JTable Tablarocesos;
-    private javax.swing.JToggleButton apagaencender;
-    private javax.swing.JButton btnEjecutarPrograma;
-    private javax.swing.JButton btnEliminarPrograma;
-    private javax.swing.JComboBox<String> combobox;
-    private javax.swing.JToggleButton ejecutarpaso;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JScrollPane jScrollPane4;
-    private javax.swing.JScrollPane jScrollPane5;
-    private javax.swing.JScrollPane jScrollPane6;
-    private javax.swing.JScrollPane jScrollPane7;
-    private javax.swing.JTextPane jTextPane1;
-    private javax.swing.JLabel lblBcpAC;
-    private javax.swing.JLabel lblBcpAX;
-    private javax.swing.JLabel lblBcpBX;
-    private javax.swing.JLabel lblBcpBase;
-    private javax.swing.JLabel lblBcpCX;
-    private javax.swing.JLabel lblBcpDX;
-    private javax.swing.JLabel lblBcpEstado;
-    private javax.swing.JLabel lblBcpPC;
-    private javax.swing.JLabel lblBcpPid;
-    private javax.swing.JLabel lblBcpTamanio;
-    private javax.swing.JPanel panelCPU;
-    private javax.swing.JTable tablaDisco;
-    private javax.swing.JTable tablamemoria;
-    private javax.swing.JLabel txtCpuAC;
-    private javax.swing.JLabel txtCpuAX;
-    private javax.swing.JLabel txtCpuBX;
-    private javax.swing.JLabel txtCpuCX;
-    private javax.swing.JLabel txtCpuDX;
-    private javax.swing.JLabel txtCpuPC;
-    private javax.swing.JTextArea txtInstrucciones;
-    // End of variables declaration//GEN-END:variables
-
-
-
-}
-
-

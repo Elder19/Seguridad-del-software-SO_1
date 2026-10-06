@@ -1,19 +1,19 @@
-package javaapplication2;
+package javaapplication2.procesos;
 
 import java.util.List;
+import javaapplication2.memoria.Memory;
 
 public class planificacorDeProcesos {
 
     private String tipoAlgoritmo;
+
     public planificacorDeProcesos(String tipoAlgoritmo) {
         this.tipoAlgoritmo = tipoAlgoritmo;
     }
 
-
     public int seleccionarSiguiente(Memory memory) {
 
-        List<Integer> preparados =
-                memory.obtenerPidsPreparados();
+        List<Integer> preparados = memory.obtenerPidsPreparados();
 
         if (preparados.isEmpty()) {
             return -1;
@@ -22,34 +22,30 @@ public class planificacorDeProcesos {
         return validarSiguiente(
                 preparados,
                 tipoAlgoritmo,
-                memory
-        );
+                memory);
     }
-
 
     private int validarSiguiente(
-        List<Integer> preparados,
-        String tipoAlgoritmo,
-        Memory memory) {
+            List<Integer> preparados,
+            String tipoAlgoritmo,
+            Memory memory) {
 
-    int siguiente = -1;
+        int siguiente = -1;
 
-    switch (tipoAlgoritmo) {
+        switch (tipoAlgoritmo) {
 
-        case "FIFO":
-            siguiente = validarFIFO(
-                    preparados,
-                    memory
-            );
-            break;
+            case "FIFO":
+                siguiente = validarFIFO(
+                        preparados,
+                        memory);
+                break;
 
-        default:
-            return -1;
+            default:
+                return -1;
+        }
+
+        return siguiente;
     }
-
-    return siguiente;
-}
-
 
     private int validarFIFO(
             List<Integer> preparados,
@@ -60,13 +56,12 @@ public class planificacorDeProcesos {
 
         for (Integer pid : preparados) {
 
-            int[] datos =
-                    memory.obtenerDatosBCP(pid);
+            int[] datos = memory.obtenerDatosBCP(pid);
 
             if (datos == null) {
                 continue;
             }
-            
+
             int ordenCola = datos[4];
 
             if (ordenCola < menorOrden) {
