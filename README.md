@@ -880,15 +880,6 @@ Entre los principales cambios se encuentran:
 - Memoria virtual.
 - Actualización de las visualizaciones de disco, memoria, procesos y CPU.
 
-### Video PY1
-
-> **Agregar aquí el enlace del segundo video.**
-
-```text
-VIDEO PY1:
-____________________________________________
-```
-
 ---
 
 # Estado general de requerimientos
