@@ -6,9 +6,11 @@ import java.util.List;
 public class BCP {
 
     private static final int TAMANIO_BCP = 27;
-
     private final int Pid;
-
+    boolean bandera= false; 
+    
+    
+    
     public enum EstadoProceso {
 
         NUEVO,
@@ -18,11 +20,9 @@ public class BCP {
         EN_ESPERA,
         FINALIZADO
     }
-
+    
     private EstadoProceso estadoProceso;
-
     /*---------------- REGISTROS ----------------*/
-
     private int PC;
     private int AC;
 
@@ -376,4 +376,14 @@ public class BCP {
 
         this.textoDX = textoDX;
     }
+
+    public boolean isBandera() {
+        return bandera;
+    }
+
+    public void setBandera(boolean bandera) {
+        this.bandera = bandera;
+    }
+    
+    
 }

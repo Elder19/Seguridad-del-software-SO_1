@@ -16,27 +16,37 @@ public class Lectorarchivos {
 
         /*---------------- LEER ARCHIVO ----------------*/
 
-        public List<String> leerArchivo(File archivo) throws IOException {
+         public List<String> leerArchivo(File archivo) throws IOException {
 
-                List<String> lineas = Files.readAllLines(archivo.toPath());
+         List<String> lineas = Files.readAllLines(archivo.toPath());
 
-                boolean valido = validarGramatica(lineas);
+         boolean valido = validarGramatica(lineas);
 
-                if (!valido) {
+         if (!valido) {
 
-                        String mensaje = "El archivo ASM contiene "
-                                        + cantidadErrores
-                                        + " error(es):\n";
+             String mensaje = "El archivo ASM contiene "
+                     + cantidadErrores
+                     + " error(es):\n";
 
-                        for (String error : errores) {
-                                mensaje += error + "\n";
-                        }
+             for (String error : errores) {
+                 mensaje += error + "\n";
+             }
 
-                        throw new IllegalArgumentException(mensaje);
-                }
+             throw new IllegalArgumentException(mensaje);
+         }
 
-                return lineas;
-        }
+         // Eliminar líneas vacías antes de crear/guardar el programa
+         List<String> instrucciones = new ArrayList<>();
+
+         for (String linea : lineas) {
+
+             if (linea != null && !linea.trim().isEmpty()) {
+                 instrucciones.add(linea.trim());
+             }
+         }
+
+         return instrucciones;
+     }
 
         /*---------------- VALIDAR GRAMATICA ----------------*/
 
@@ -133,92 +143,140 @@ public class Lectorarchivos {
 
         /*---------------- MOV ----------------*/
 
-        private void validarMOV(
-                        String linea,
-                        int numeroLinea) {
+       private void validarMOV(
+                String linea,
+                int numeroLinea) {
 
-                String parametros = linea.substring(3).trim();
+            String parametros = linea.substring(3).trim();
 
-                int coma = parametros.indexOf(",");
+            String[] partes = parametros.split(",", -1);
 
-                if (coma == -1) {
+            if (partes.length != 2) {
+
+                agregarError(
+                        numeroLinea,
+                        "MOV debe tener el formato: MOV DESTINO, ORIGEN");
+
+                return;
+            }
+
+            String destino = partes[0]
+                    .trim()
+                    .toUpperCase();
+
+            String origen = partes[1]
+                    .trim();
+
+            // Validar destino
+            if (!registroDestinoValido(destino)) {
+
+                agregarError(
+                        numeroLinea,
+                        "Registro destino inválido: " + destino);
+
+                return;
+            }
+
+            // Validar que exista origen
+            if (origen.isEmpty()) {
+
+                agregarError(
+                        numeroLinea,
+                        "MOV necesita un valor de origen.");
+
+                return;
+            }
+
+         
+             //Solamente DX puede recibir texto.
+      
+            if (origen.startsWith("\"")
+                    && origen.endsWith("\"")) {
+
+                if (!destino.equals("DX")) {
+
+                    agregarError(
+                            numeroLinea,
+                            destino + " no admite cadenas de texto.");
+                }
+
+                return;
+            }
+
+            /*
+             * AH
+             * Solamente valores numéricos entre 0 y 255.
+             */
+            if (destino.equals("AH")) {
+
+                try {
+
+                    int valor = convertirNumero(origen);
+
+                    if (valor < 0 || valor > 255) {
 
                         agregarError(
-                                        numeroLinea,
-                                        "MOV debe tener el formato: MOV DESTINO, ORIGEN");
+                                numeroLinea,
+                                "AH solamente admite valores entre 0 y 255.");
+                    }
 
-                        return;
+                } catch (Exception e) {
+
+                    agregarError(
+                            numeroLinea,
+                            "Valor numérico inválido para AH: " + origen);
                 }
 
-                String destino = parametros.substring(0, coma)
-                                .trim()
-                                .toUpperCase();
+                return;
+            }
 
-                String origen = parametros.substring(coma + 1)
-                                .trim();
+            /*
+             * AL
+             * Solamente valores numéricos entre 0 y 255.
+             */
+            if (destino.equals("AL")) {
 
-                if (!registroDestinoValido(destino)) {
+                try {
+
+                    int valor = convertirNumero(origen);
+
+                    if (valor < 0 || valor > 255) {
 
                         agregarError(
-                                        numeroLinea,
-                                        "Registro destino inválido: "
-                                                        + destino);
+                                numeroLinea,
+                                "AL solamente admite valores entre 0 y 255.");
+                    }
 
-                        return;
+                } catch (Exception e) {
+
+                    agregarError(
+                            numeroLinea,
+                            "Valor numérico inválido para AL: " + origen);
                 }
 
-                if (origen.isEmpty()) {
+                return;
+            }
 
-                        agregarError(
-                                        numeroLinea,
-                                        "MOV necesita un valor de origen.");
+            /*
+             * MOV REGISTRO, REGISTRO
+             */
+            if (registroDestinoValido(origen.toUpperCase())) {
+                return;
+            }
 
-                        return;
-                }
+            /*
+             * MOV REGISTRO, NUMERO
+             */
+            try {
 
-                // Cadenas
-                if (origen.startsWith("\"")
-                                && origen.endsWith("\"")) {
+                convertirNumero(origen);
 
-                        if (!destino.equals("DX")
-                                        && !destino.equals("AL")) {
+            } catch (Exception e) {
 
-                                agregarError(
-                                                numeroLinea,
-                                                destino
-                                                                + " no admite cadenas de texto.");
-                        }
-
-                        return;
-                }
-
-                // AH recibe códigos como 3CH, 3DH, 40H...
-                if (destino.equals("AH")) {
-
-                        try {
-
-                                convertirNumero(origen);
-
-                        } catch (Exception e) {
-
-                                agregarError(
-                                                numeroLinea,
-                                                "Valor hexadecimal inválido para AH: "
-                                                                + origen);
-                        }
-
-                        return;
-                }
-
-                // AL solamente se utiliza para texto
-                if (destino.equals("AL")) {
-
-                        agregarError(
-                                        numeroLinea,
-                                        "AL debe recibir una cadena de texto.");
-
-                        return;
-                }
+                agregarError(
+                        numeroLinea,
+                        "Valor de origen inválido: " + origen);
+            }
         }
 
         /*---------------- OPERACION CON REGISTRO ----------------*/

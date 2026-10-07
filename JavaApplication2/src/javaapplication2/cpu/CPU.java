@@ -66,10 +66,7 @@ public class CPU {
                 this.CX = contexto[4];
                 this.DX = contexto[5];
 
-                /*
-                 * AH y AL se reconstruyen automáticamente a partir de AX,
-                 * por lo que no se cargan de forma independiente.
-                 */
+                
                 this.textoDX = memory.obtenerTextoDX(pid);
                 this.IR = null;
                 this.Segundero = 0;
