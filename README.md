@@ -12,7 +12,7 @@
 
 ### Video - PY1
 
-> **Enlace:** Agregar aquí el video correspondiente a PY1.
+[ video correspondiente a PY1.](https://youtu.be/UOp9VuSRxQE)
 
 ---
 
